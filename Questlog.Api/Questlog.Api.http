@@ -1,0 +1,6 @@
+@Questlog.Api_HostAddress = http://localhost:5285
+
+GET {{Questlog.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
