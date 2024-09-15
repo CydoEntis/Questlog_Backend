@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Questlog.Api;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Implementations;
 using Questlog.Application.Services.IServices;
+using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
 using Questlog.Infrastructure.Repositories;
 
@@ -15,6 +17,9 @@ var connectionString = builder.Configuration["DefaultConnectionString"];
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();

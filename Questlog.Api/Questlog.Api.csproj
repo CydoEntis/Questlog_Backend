@@ -23,11 +23,6 @@
 
 
 	<ItemGroup>
-	  <Folder Include="Controllers\" />
-	</ItemGroup>
-
-
-	<ItemGroup>
 	  <ProjectReference Include="..\Questlog.Application\Questlog.Application.csproj" />
 	  <ProjectReference Include="..\Questlog.Infrastructure\Questlog.Infrastructure.csproj" />
 	</ItemGroup>

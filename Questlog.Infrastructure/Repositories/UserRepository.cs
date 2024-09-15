@@ -24,9 +24,9 @@ namespace Questlog.Infrastructure.Repositories
             return await _db.ApplicationUsers.FirstOrDefaultAsync(user => user.UserName == userName);
         }
 
-        public bool isUserUnique(string email)
+        public async Task<bool> isUserUnique(string email)
         {
-            var user = _db.ApplicationUsers.FirstOrDefault(user => user.UserName == email);
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(user => user.UserName == email);
             return user is null;
         }
 

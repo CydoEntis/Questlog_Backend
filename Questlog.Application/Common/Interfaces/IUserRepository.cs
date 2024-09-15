@@ -9,7 +9,7 @@ namespace Questlog.Application.Common.Interfaces
 {
     public interface IUserRepository
     {
-        bool isUserUnique(string email);
+        Task<bool> isUserUnique(string email);
         //Task RefreshAccessToken(TokenDTO tokenDTO);
         //Task RevokeRefreshToken(TokenDTO tokenDTO);
         Task<ApplicationUser> GetByUserName(string userName);

@@ -13,12 +13,17 @@ namespace Questlog.Application.Services.Implementations
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
-        public AuthService(IUnitOfWork unitOfWork, IMapper mapper)
+        public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
+            _userManager = userManager;
             _mapper = mapper;
         }
 
+        public async Task<bool> CheckIfUsernameIsUnique(string username)
+        {
+            return await _unitOfWork.User.isUserUnique(username);
+        }
 
         public Task<TokenDTO> Login(LoginRequestDTO loginRequestDTO)
         {
@@ -43,12 +48,13 @@ namespace Questlog.Application.Services.Implementations
 
                 if (result.Succeeded)
                 {
-                    var userToReturn = _unitOfWork.User.GetByUserName(user.UserName);
+                    var userToReturn =  await _unitOfWork.User.GetByUserName(user.UserName);
                     return _mapper.Map<UserDTO>(userToReturn);
                 }
             }
             catch (Exception ex)
             {
+                throw ex;
             }
 
             return new UserDTO();
