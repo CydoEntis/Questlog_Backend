@@ -62,7 +62,19 @@ namespace Questlog.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
+            var tokenDTO = await _authService.Login(loginRequestDTO);
+            if(tokenDTO is null || string.IsNullOrEmpty(tokenDTO.AccessToken))
+            {
+                _response.StatusCode=HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("Username or password is incorrect");
+                return BadRequest(_response);
+            }
 
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.IsSuccess = true;
+            _response.Result = tokenDTO;
+            return Ok(_response);   
         }
 
     }
