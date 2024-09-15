@@ -19,9 +19,9 @@ namespace Questlog.Infrastructure.Repositories
             _db = db;
         }
 
-        public async Task<ApplicationUser> GetByUserName(string userName)
+        public async Task<ApplicationUser> GetByEmail(string email)
         {
-            return await _db.ApplicationUsers.FirstOrDefaultAsync(user => user.UserName == userName);
+            return await _db.ApplicationUsers.FirstOrDefaultAsync(user => user.Email == email);
         }
 
         public async Task<bool> isUserUnique(string email)

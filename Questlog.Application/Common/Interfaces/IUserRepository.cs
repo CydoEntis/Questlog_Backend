@@ -12,7 +12,7 @@ namespace Questlog.Application.Common.Interfaces
         Task<bool> isUserUnique(string email);
         //Task RefreshAccessToken(TokenDTO tokenDTO);
         //Task RevokeRefreshToken(TokenDTO tokenDTO);
-        Task<ApplicationUser> GetByUserName(string userName);
+        Task<ApplicationUser> GetByEmail(string email);
 
     }
 }

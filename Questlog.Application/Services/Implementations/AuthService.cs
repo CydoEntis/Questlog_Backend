@@ -25,9 +25,18 @@ namespace Questlog.Application.Services.Implementations
             return await _unitOfWork.User.isUserUnique(username);
         }
 
-        public Task<TokenDTO> Login(LoginRequestDTO loginRequestDTO)
+        public async Task<TokenDTO> Login(LoginRequestDTO loginRequestDTO)
         {
-            throw new NotImplementedException();
+            var user = await _unitOfWork.User.GetByEmail(loginRequestDTO.Email);
+            bool isUserValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
+
+            if (user is null || !isUserValid)
+            {
+                return new TokenDTO()
+                {
+                    AccessToken = ""
+                };
+            }
         }
 
         public async Task<UserDTO> Register(RegisterRequestDTO registerRequestDTO)
@@ -48,7 +57,7 @@ namespace Questlog.Application.Services.Implementations
 
                 if (result.Succeeded)
                 {
-                    var userToReturn =  await _unitOfWork.User.GetByUserName(user.UserName);
+                    var userToReturn =  await _unitOfWork.User.GetByEmail(user.Email);
                     return _mapper.Map<UserDTO>(userToReturn);
                 }
             }
@@ -58,6 +67,11 @@ namespace Questlog.Application.Services.Implementations
             }
 
             return new UserDTO();
+        }
+
+        public async Task<string> GetAccessToken(ApplicationUser user, string accessToken)
+        {
+
         }
     }
 }
