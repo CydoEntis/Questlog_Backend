@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Questlog.Api;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Implementations;
+using Questlog.Application.Services.Interfaces;
 using Questlog.Application.Services.IServices;
 using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
@@ -23,6 +24,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

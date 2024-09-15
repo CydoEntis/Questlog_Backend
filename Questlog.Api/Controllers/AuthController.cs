@@ -59,5 +59,11 @@ namespace Questlog.Api.Controllers
 
         }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
+        {
+
+        }
+
     }
 }

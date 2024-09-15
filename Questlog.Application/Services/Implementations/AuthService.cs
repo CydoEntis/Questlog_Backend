@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.Interfaces;
+using Questlog.Application.Services.Interfaces;
 using Questlog.Application.Services.IServices;
 using Questlog.Domain.Entities;
 
@@ -10,14 +11,16 @@ namespace Questlog.Application.Services.Implementations
     public class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ITokenService _tokenService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
-        public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
+        public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, ITokenService tokenService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
+            _tokenService = tokenService;
         }
 
         public async Task<bool> CheckIfUsernameIsUnique(string username)
@@ -37,6 +40,16 @@ namespace Questlog.Application.Services.Implementations
                     AccessToken = ""
                 };
             }
+
+            var jwtTokenId = $"JTI{Guid.NewGuid()}";
+            var accessToken = _tokenService.GenerateAccessToken(user, jwtTokenId);
+
+            TokenDTO tokenDTO = new TokenDTO()
+            {
+                AccessToken = accessToken,
+            };
+
+            return tokenDTO;   
         }
 
         public async Task<UserDTO> Register(RegisterRequestDTO registerRequestDTO)
@@ -69,9 +82,6 @@ namespace Questlog.Application.Services.Implementations
             return new UserDTO();
         }
 
-        public async Task<string> GetAccessToken(ApplicationUser user, string accessToken)
-        {
 
-        }
     }
 }
