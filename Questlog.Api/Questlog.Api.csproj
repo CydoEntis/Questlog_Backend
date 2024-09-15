@@ -8,6 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,12 +21,16 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Questlog.Infrastructure\Questlog.Infrastructure.csproj" />
-	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Controllers\" />
 	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Questlog.Application\Questlog.Application.csproj" />
+	  <ProjectReference Include="..\Questlog.Infrastructure\Questlog.Infrastructure.csproj" />
+	</ItemGroup>
+
 
 </Project>

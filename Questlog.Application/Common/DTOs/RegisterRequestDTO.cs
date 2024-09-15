@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Questlog.Application.DTOs
+namespace Questlog.Application.Common.DTOs
 {
     public class RegisterRequestDTO
     {
