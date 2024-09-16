@@ -104,5 +104,21 @@ namespace Questlog.Api.Controllers
             _response.Result = newTokenDTO;
             return Ok(_response);
         }
+
+        [HttpPost("revoke")]
+        public async Task<IActionResult> RevokeRefreshToken([FromBody] TokenDTO tokenDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                _response.IsSuccess = false;
+                _response.Result = "Invalid Input";
+                return BadRequest(_response);
+            }
+
+            await _tokenService.RevokeRefreshToken(tokenDTO);
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.IsSuccess = true;
+            return Ok(_response);
+        }
     }
 }
