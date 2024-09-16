@@ -51,10 +51,10 @@ namespace Questlog.Application.Services.Implementations
                 RefreshToken = refreshToken
             };
 
-            return tokenDTO;   
+            return tokenDTO;
         }
 
-        public async Task<UserDTO> Register(RegisterRequestDTO registerRequestDTO)
+        public async Task<TokenDTO> Register(RegisterRequestDTO registerRequestDTO)
         {
             ApplicationUser user = new()
             {
@@ -72,18 +72,27 @@ namespace Questlog.Application.Services.Implementations
 
                 if (result.Succeeded)
                 {
-                    var userToReturn =  await _unitOfWork.User.GetByEmail(user.Email);
-                    return _mapper.Map<UserDTO>(userToReturn);
+                    var loginRequestDTO = new LoginRequestDTO
+                    {
+                        Email = registerRequestDTO.Email,
+                        Password = registerRequestDTO.Password,
+
+                    };
+
+                    //var userToReturn =  await _unitOfWork.User.GetByEmail(user.Email);
+                    return await Login(loginRequestDTO);
+                }
+                else
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    throw new InvalidOperationException(errors);
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new ApplicationException(null, ex);
             }
 
-            return new UserDTO();
         }
-
-
     }
 }

@@ -11,7 +11,7 @@ namespace Questlog.Application.Services.IServices
     {
         Task<bool> CheckIfUsernameIsUnique(string username);
         Task<TokenDTO> Login(LoginRequestDTO loginRequestDTO);
-        Task<UserDTO> Register(RegisterRequestDTO registerRequestDTO);
+        Task<TokenDTO> Register(RegisterRequestDTO registerRequestDTO);
 
     }
 }

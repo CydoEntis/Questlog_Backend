@@ -52,6 +52,20 @@ namespace Questlog.Api.Controllers
                 _response.Result = user;
                 return Ok(_response);
             }
+            catch (InvalidOperationException ex)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add(ex.Message);
+                return BadRequest(_response);
+            }
+            catch (ApplicationException ex)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add(ex.InnerException?.Message ?? ex.Message);
+                return BadRequest(_response);
+            }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
