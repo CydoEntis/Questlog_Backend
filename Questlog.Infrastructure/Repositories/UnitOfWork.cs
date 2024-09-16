@@ -12,17 +12,24 @@ namespace Questlog.Infrastructure.Repositories
     {
         private readonly ApplicationDbContext _db;
         public IUserRepository User { get; private set; }
+        public ITokenRepository Token { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             User = new UserRepository(db);
+            Token = new TokenRepository(db);    
         }
 
 
         public void Save()
         {
             _db.SaveChanges();
+        }
+
+        public void SaveAsync()
+        {
+            _db.SaveChangesAsync();
         }
     }
 }

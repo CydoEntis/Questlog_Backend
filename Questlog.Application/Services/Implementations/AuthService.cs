@@ -42,11 +42,13 @@ namespace Questlog.Application.Services.Implementations
             }
 
             var jwtTokenId = $"JTI{Guid.NewGuid()}";
-            var accessToken = _tokenService.GenerateAccessToken(user, jwtTokenId);
+            var accessToken = _tokenService.CreateAccessToken(user, jwtTokenId);
+            var refreshToken = await _tokenService.CreateRefreshToken(user.Id, jwtTokenId);
 
             TokenDTO tokenDTO = new TokenDTO()
             {
                 AccessToken = accessToken,
+                RefreshToken = refreshToken
             };
 
             return tokenDTO;   

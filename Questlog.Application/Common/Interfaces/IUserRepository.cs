@@ -13,6 +13,8 @@ namespace Questlog.Application.Common.Interfaces
         //Task RefreshAccessToken(TokenDTO tokenDTO);
         //Task RevokeRefreshToken(TokenDTO tokenDTO);
         Task<ApplicationUser> GetByEmail(string email);
+        Task<ApplicationUser> GetUserById(string userId);
+
 
     }
 }

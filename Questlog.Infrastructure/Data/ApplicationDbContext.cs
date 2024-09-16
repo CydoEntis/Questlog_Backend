@@ -13,6 +13,7 @@ namespace Questlog.Infrastructure.Data
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

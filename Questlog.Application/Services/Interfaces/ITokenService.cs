@@ -1,4 +1,5 @@
-﻿using Questlog.Domain.Entities;
+﻿using Questlog.Application.Common.DTOs;
+using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,10 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface ITokenService
     {
-        string GenerateAccessToken(ApplicationUser user, string tokeId);
+        string CreateAccessToken(ApplicationUser user, string tokeId);
+        Task<TokenDTO> RefreshAccessToken(TokenDTO tokenDTO);
+        Task<string> CreateRefreshToken(string userId, string tokenId);
+        void InvalidateToken(RefreshToken refreshToken);
+        Task RevokeRefreshToken(TokenDTO tokenDTO);
     }
 }

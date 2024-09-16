@@ -9,9 +9,12 @@ namespace Questlog.Application.Common.Interfaces
     public interface IUnitOfWork
     {
         IUserRepository User { get; }
+        ITokenRepository Token { get; }
     
         
         void Save();
+
+        void SaveAsync();
     }
 
 }
