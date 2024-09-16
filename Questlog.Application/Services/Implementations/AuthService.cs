@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.Errors;
+using Questlog.Application.Common.Exceptions;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Application.Services.IServices;
@@ -14,6 +16,7 @@ namespace Questlog.Application.Services.Implementations
         private readonly ITokenService _tokenService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly ErrorMapper _errorMapper;
 
         public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, ITokenService tokenService)
         {
@@ -21,6 +24,7 @@ namespace Questlog.Application.Services.Implementations
             _userManager = userManager;
             _mapper = mapper;
             _tokenService = tokenService;
+            _errorMapper = new();
         }
 
         public async Task<bool> CheckIfUsernameIsUnique(string username)
@@ -79,18 +83,17 @@ namespace Questlog.Application.Services.Implementations
 
                     };
 
-                    //var userToReturn =  await _unitOfWork.User.GetByEmail(user.Email);
                     return await Login(loginRequestDTO);
                 }
                 else
                 {
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    throw new InvalidOperationException(errors);
+                    _errorMapper.MapErrors(result);
+                    throw new RegistrationException(_errorMapper.Errors);
                 }
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(null, ex);
+                throw ex;
             }
 
         }

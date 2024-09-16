@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.Exceptions;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Application.Services.IServices;
 using System.Net;
@@ -26,12 +27,26 @@ namespace Questlog.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDTO registrationRequestDTO)
         {
+            if (!ModelState.IsValid)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        x => x.Key,
+                        x => x.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                    );
+
+                return BadRequest(_response);
+            }
+
             bool isUsernameUnique = await _authService.CheckIfUsernameIsUnique(registrationRequestDTO.Email);
             if (!isUsernameUnique)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Username is already taken");
+                _response.ErrorMessages.Add("Email", new List<string> { "Username is already taken" });
                 return BadRequest(_response);
             }
 
@@ -43,7 +58,7 @@ namespace Questlog.Api.Controllers
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     _response.IsSuccess = false;
-                    _response.ErrorMessages.Add("Something went wrong while registering.");
+                    _response.ErrorMessages.Add("Registration", new List<string> { "Something went wrong while registering." });
                     return BadRequest(_response);
                 }
 
@@ -52,26 +67,19 @@ namespace Questlog.Api.Controllers
                 _response.Result = user;
                 return Ok(_response);
             }
-            catch (InvalidOperationException ex)
+            catch (RegistrationException ex)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add(ex.Message);
-                return BadRequest(_response);
-            }
-            catch (ApplicationException ex)
-            {
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.IsSuccess = false;
-                _response.ErrorMessages.Add(ex.InnerException?.Message ?? ex.Message);
+                _response.ErrorMessages = ex.Errors;
                 return BadRequest(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add(ex.Message);
-                return Ok(_response);
+                _response.ErrorMessages.Add("Unexpected", new List<string> { ex.Message });
+                return BadRequest(_response);
             }
 
         }
@@ -84,7 +92,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Username or password is incorrect");
+                _response.ErrorMessages.Add("Login", new List<string> { "Username or password is incorrect" });
                 return BadRequest(_response);
             }
 
@@ -100,8 +108,9 @@ namespace Questlog.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
+                _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.Result = "Invalid input";
+                _response.ErrorMessages.Add("Input", new List<string> { "Invalid input" });
                 return BadRequest(_response);
             }
 
@@ -110,7 +119,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Invalid token");
+                _response.ErrorMessages.Add("Token", new List<string> { "Invalid token" });
                 return BadRequest(_response);
             }
             _response.StatusCode = HttpStatusCode.OK;
@@ -125,7 +134,7 @@ namespace Questlog.Api.Controllers
             if (!ModelState.IsValid)
             {
                 _response.IsSuccess = false;
-                _response.Result = "Invalid Input";
+                _response.ErrorMessages.Add("Input", new List<string> { "Invalid Input" });
                 return BadRequest(_response);
             }
 
