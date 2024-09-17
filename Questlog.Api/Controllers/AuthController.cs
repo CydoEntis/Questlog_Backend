@@ -92,7 +92,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Login", new List<string> { "Username or password is incorrect" });
+                _response.ErrorMessages.Add("Email", new List<string> { "Email or password is incorrect" });
                 return BadRequest(_response);
             }
 

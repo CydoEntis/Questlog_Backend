@@ -28,7 +28,7 @@ namespace Questlog.Application.Services.Implementations
         public string CreateAccessToken(ApplicationUser user, string tokenId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(tokenId);
+            var key = Encoding.ASCII.GetBytes(_jwtSecret);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -39,18 +39,21 @@ namespace Questlog.Application.Services.Implementations
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
-                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Issuer = "https://localhost:7265/",
+                Audience = "http://localhost:5173/",
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenStr = tokenHandler.WriteToken(token);
+
             return tokenStr;
         }
 
         public async Task<TokenDTO> RefreshAccessToken(TokenDTO tokenDTO)
         {
             var existingRefreshToken = await _unitOfWork.Token.GetRefreshToken(tokenDTO.RefreshToken);
-            if(existingRefreshToken is null)
+            if (existingRefreshToken is null)
             {
                 return new TokenDTO();
             }
@@ -62,7 +65,7 @@ namespace Questlog.Application.Services.Implementations
                 return new TokenDTO();
             }
 
-            if(!existingRefreshToken.IsValid)
+            if (!existingRefreshToken.IsValid)
             {
                 await _unitOfWork.Token.InvalidateAllUsersTokens(existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
             }
@@ -70,7 +73,7 @@ namespace Questlog.Application.Services.Implementations
 
             if (existingRefreshToken.ExpiresAt < DateTime.UtcNow)
             {
-               InvalidateToken(existingRefreshToken);
+                InvalidateToken(existingRefreshToken);
                 return new TokenDTO();
             }
 
@@ -80,7 +83,7 @@ namespace Questlog.Application.Services.Implementations
 
             var applicationUser = await _unitOfWork.User.GetUserById(existingRefreshToken.UserId);
 
-            if(applicationUser is null)
+            if (applicationUser is null)
             {
                 return new TokenDTO();
             }
@@ -121,7 +124,7 @@ namespace Questlog.Application.Services.Implementations
         {
             var existingRefreshToken = await _unitOfWork.Token.GetRefreshToken(tokenDTO.RefreshToken);
 
-            if (existingRefreshToken is null) 
+            if (existingRefreshToken is null)
             {
                 return;
             }
@@ -135,7 +138,7 @@ namespace Questlog.Application.Services.Implementations
 
             await _unitOfWork.Token.InvalidateAllUsersTokens(existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
         }
-        
+
         private bool CheckIfTokenIsValid(string accessToken, string expectedUserId, string expectedTokenId)
         {
             try
