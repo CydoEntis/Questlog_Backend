@@ -10,8 +10,10 @@ namespace Questlog.Application.Common.Interfaces
     {
         IUserRepository User { get; }
         ITokenRepository Token { get; }
-    
-        
+        IMainQuestRepository MainQuest { get; }
+        IQuestBoardRepository QuestBoard { get; }
+        IQuestRepository Quest { get; }
+
         void Save();
 
         void SaveAsync();
