@@ -24,13 +24,13 @@ namespace Questlog.Infrastructure.Repositories
         public async Task CreateAsync(T entity)
         {
             await dbSet.AddAsync(entity);
-            await SaveAsync(entity);
+            await SaveAsync();
         }
 
         public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
-            
+
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -46,19 +46,37 @@ namespace Questlog.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
-        public Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeProperties = null)
+        public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeProperties = null)
         {
-            
+            IQueryable<T> query = dbSet;
+            if (!tracked)
+            {
+                query = query.AsNoTracking();
+            }
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (includeProperties != null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+            return await query.FirstOrDefaultAsync();
         }
 
-        public Task RemoveAsync(T entity)
+        public async Task RemoveAsync(T entity)
         {
-            throw new NotImplementedException();
+            dbSet.Remove(entity);
+            await SaveAsync();
         }
 
-        public Task SaveAsync(T entity)
+        public async Task SaveAsync()
         {
-            throw new NotImplementedException();
+            await _db.SaveChangesAsync();
         }
     }
 }
