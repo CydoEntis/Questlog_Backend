@@ -21,7 +21,7 @@ namespace Questlog.Application.Services.Implementations
         }
 
 
-        public async Task<mainQuest> GetMainQuest(string mainQuestId)
+        public async Task<MainQuest> GetMainQuest(string mainQuestId)
         {
             var mainQuest = await _unitOfWork.MainQuest.GetAsync(mainQuest => mainQuest.Id == mainQuestId);
             return mainQuest;

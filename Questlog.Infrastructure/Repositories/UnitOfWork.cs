@@ -13,12 +13,19 @@ namespace Questlog.Infrastructure.Repositories
         private readonly ApplicationDbContext _db;
         public IUserRepository User { get; private set; }
         public ITokenRepository Token { get; private set; }
+        public IMainQuestRepository MainQuest { get; private set; }
+        public IQuestBoardRepository QuestBoard { get; private set; }
+        public IQuestRepository Quest { get; private set; }
+
 
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             User = new UserRepository(db);
-            Token = new TokenRepository(db);    
+            Token = new TokenRepository(db); 
+            MainQuest = new MainQuestRepository(db);
+            QuestBoard = new QuestBoardRepository(db);
+            Quest = new QuestRepository(db);
         }
 
 
