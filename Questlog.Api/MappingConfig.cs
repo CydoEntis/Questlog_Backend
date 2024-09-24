@@ -9,9 +9,9 @@ namespace Questlog.Api
         public MappingConfig()
         {
             CreateMap<UserDTO, ApplicationUser>().ReverseMap();
-            CreateMap<MainQuest, MainQuestDTO>().ReverseMap();
-            CreateMap<QuestBoard, QuestBoardDTO>().ReverseMap();
-            CreateMap<Quest, QuestDTO>().ReverseMap();
+            CreateMap<MainQuest, CreateMainQuestRequestDTO>().ReverseMap();
+            CreateMap<QuestBoard, CreateQuestBoardRequestDTO>().ReverseMap();
+            CreateMap<Quest, QuestRequestDTO>().ReverseMap();
         }
     }
 }

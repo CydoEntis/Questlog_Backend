@@ -21,10 +21,12 @@ namespace Questlog.Infrastructure.Repositories
             this.dbSet = _db.Set<T>();
         }
 
-        public async Task CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity)
         {
             await dbSet.AddAsync(entity);
             await SaveAsync();
+
+            return entity;
         }
 
         public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)

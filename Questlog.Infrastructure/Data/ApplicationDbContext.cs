@@ -14,6 +14,9 @@ namespace Questlog.Infrastructure.Data
     {
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<MainQuest> MainQuests { get; set; }
+        public DbSet<QuestBoard> QuestBoards { get; set; }
+        public DbSet<Quest> Quests { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

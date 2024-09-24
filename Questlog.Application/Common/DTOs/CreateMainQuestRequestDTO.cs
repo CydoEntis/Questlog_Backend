@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs
 {
-    public class MainQuestDTO
+    public class CreateMainQuestRequestDTO
     {
-        public string Id { get; set; }
+
+        [Required]
         public string Title { get; set; }
+        [Required]
         public string QuestColor { get; set; }
+        [Required]
         public int Order { get; set; }
 
-        // Consider sending IDs or relevant information of quest boards
-        public List<QuestBoardDTO> QuestBoards { get; set; } = new List<QuestBoardDTO>();
+        public List<CreateQuestBoardRequestDTO> QuestBoards { get; set; } = new List<CreateQuestBoardRequestDTO>();
     }
 }

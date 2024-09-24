@@ -4,6 +4,7 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface IMainQuestService
     {
-        Task<MainQuest> GetMainQuest(string mainQuestId);
+        Task<MainQuest> GetMainQuest(int mainQuestId);
+        Task<int> CreateMainQuest(MainQuest mainQuest);
     }
 }

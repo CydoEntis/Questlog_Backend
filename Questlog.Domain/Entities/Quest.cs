@@ -6,7 +6,8 @@ namespace Questlog.Domain.Entities;
 public class Quest
 {
     [Key]
-    public string Id { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
     [Required]
     public string Title { get; set; }
     public string? Desc { get; set; }
@@ -19,7 +20,7 @@ public class Quest
     public int Order { get; set; }
     
     [Required]
-    public string QuestBoardId { get; set; }
+    public int QuestBoardId { get; set; }
     
     [ForeignKey("QuestBoardId")]
     public QuestBoard QuestBoard { get; set; }

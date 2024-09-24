@@ -16,7 +16,7 @@ namespace Questlog.Application.Common.Interfaces
 
         void Save();
 
-        void SaveAsync();
+        Task SaveAsync();
     }
 
 }

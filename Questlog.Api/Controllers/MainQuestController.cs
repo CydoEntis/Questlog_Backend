@@ -1,15 +1,18 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Services.Interfaces;
+using Questlog.Domain.Entities;
 using System.Net;
 
 namespace Questlog.Api.Controllers
 {
     [Route("api/main-quest")]
     [ApiController]
+    [Authorize]
     public class MainQuestController : ControllerBase
     {
         protected ApiResponse _response;
@@ -23,10 +26,10 @@ namespace Questlog.Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("{id:string", Name = "GetMainQuest")]
-        public async Task<ActionResult<ApiResponse>> GetMainQuest(string id)
+        [HttpGet("{id:int}", Name = "GetMainQuest")]
+        public async Task<ActionResult<ApiResponse>> GetMainQuest(int id)
         {
-            if (id is null || string.IsNullOrEmpty(id))
+            if (id == 0)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 return BadRequest(_response);
@@ -40,9 +43,29 @@ namespace Questlog.Api.Controllers
                 return NotFound(_response);
             }
 
-            _response.Result = _mapper.Map<MainQuestDTO>(mainQuest);
+            _response.Result = _mapper.Map<CreateMainQuestRequestDTO>(mainQuest);
             _response.StatusCode = HttpStatusCode.OK;
             return Ok(_response);
         }
+
+        [HttpPost]
+        public async Task<ActionResult<ApiResponse>> CreateMainQuest([FromBody] CreateMainQuestRequestDTO createMainQuestDTO)
+        {
+            if (createMainQuestDTO == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                return _response;
+            }
+
+            var mainQuest = _mapper.Map<MainQuest>(createMainQuestDTO);
+
+            int newQuestId = await _mainQuestService.CreateMainQuest(mainQuest);
+
+
+            _response.StatusCode = HttpStatusCode.Created;
+            _response.Result = $"Main Quest with id {newQuestId} was created successfully";
+            return Ok(_response);
+        }
+
     }
 }

@@ -34,9 +34,9 @@ namespace Questlog.Infrastructure.Repositories
             _db.SaveChanges();
         }
 
-        public void SaveAsync()
+        public async Task SaveAsync()
         {
-            _db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
         }
     }
 }

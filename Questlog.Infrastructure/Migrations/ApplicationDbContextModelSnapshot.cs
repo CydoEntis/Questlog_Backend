@@ -230,6 +230,97 @@ namespace Questlog.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Questlog.Domain.Entities.MainQuest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QuestColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MainQuests");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Desc")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Items")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("QuestBoardId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestBoardId");
+
+                    b.ToTable("Quests");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.QuestBoard", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BoardColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MainQuestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MainQuestId");
+
+                    b.ToTable("QuestBoards");
+                });
+
             modelBuilder.Entity("Questlog.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -310,6 +401,38 @@ namespace Questlog.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
+                {
+                    b.HasOne("Questlog.Domain.Entities.QuestBoard", "QuestBoard")
+                        .WithMany("Quests")
+                        .HasForeignKey("QuestBoardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("QuestBoard");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.QuestBoard", b =>
+                {
+                    b.HasOne("Questlog.Domain.Entities.MainQuest", "MainQuest")
+                        .WithMany("QuestBoards")
+                        .HasForeignKey("MainQuestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MainQuest");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.MainQuest", b =>
+                {
+                    b.Navigation("QuestBoards");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.QuestBoard", b =>
+                {
+                    b.Navigation("Quests");
                 });
 #pragma warning restore 612, 618
         }
