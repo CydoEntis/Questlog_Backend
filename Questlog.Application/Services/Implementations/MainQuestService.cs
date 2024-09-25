@@ -110,7 +110,7 @@ namespace Questlog.Application.Services.Implementations
             catch (Exception ex)
             {
                 // Handle other exceptions
-                throw new Exception($"An unexpected error occurred: {ex.Message}", ex);
+                throw;
             }
         }
 

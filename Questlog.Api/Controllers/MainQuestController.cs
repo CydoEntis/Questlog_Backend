@@ -119,6 +119,13 @@ namespace Questlog.Api.Controllers
                 //return CreatedAtAction(nameof(GetMainQuest), new { id = newQuestId }, _response);
                 return Ok(_response);
             }
+            catch (KeyNotFoundException ex)
+            {
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                return NotFound(_response);
+            }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
