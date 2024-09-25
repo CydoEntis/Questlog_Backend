@@ -7,6 +7,7 @@ using Questlog.Application.Common.DTOs;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System.Net;
+using System.Security.Claims;
 
 namespace Questlog.Api.Controllers
 {
@@ -26,6 +27,36 @@ namespace Questlog.Api.Controllers
             _mapper = mapper;
         }
 
+        private string GetUserIdFromToken()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse>> GetAllMainQuests()
+        {
+            string userId = GetUserIdFromToken();
+
+            try
+            {
+                var mainQuests = await _mainQuestService.GetAllMainQuestsForUser(userId);
+                // TODO: Add a Response DTO and include quest board ID's
+                var mainQuestDtos = _mapper.Map<List<CreateMainQuestRequestDTO>>(mainQuests);
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.Result = mainQuestDtos;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the MainQuests." });
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
+        }
+
+
         [HttpGet("{id:int}", Name = "GetMainQuest")]
         public async Task<ActionResult<ApiResponse>> GetMainQuest(int id)
         {
@@ -37,9 +68,11 @@ namespace Questlog.Api.Controllers
                 return BadRequest(_response);
             }
 
+            string userId = GetUserIdFromToken();
+
             try
             {
-                var mainQuest = await _mainQuestService.GetMainQuest(id);
+                var mainQuest = await _mainQuestService.GetMainQuest(id, userId);
                 _response.Result = _mapper.Map<CreateMainQuestRequestDTO>(mainQuest);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -56,7 +89,6 @@ namespace Questlog.Api.Controllers
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the MainQuest." });
-                // Optionally log the exception (not shown here)
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -73,10 +105,11 @@ namespace Questlog.Api.Controllers
             }
 
             var mainQuest = _mapper.Map<MainQuest>(createMainQuestDTO);
+            string userId = GetUserIdFromToken();
 
             try
             {
-                int newQuestId = await _mainQuestService.CreateMainQuest(mainQuest);
+                int newQuestId = await _mainQuestService.CreateMainQuest(mainQuest, userId);
                 _response.StatusCode = HttpStatusCode.Created;
                 _response.Result = $"Main Quest with id {newQuestId} was created successfully";
                 return CreatedAtAction(nameof(GetMainQuest), new { id = newQuestId }, _response);
@@ -93,7 +126,6 @@ namespace Questlog.Api.Controllers
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while creating the MainQuest." });
-                // Optionally log the exception (not shown here)
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -110,13 +142,13 @@ namespace Questlog.Api.Controllers
             }
 
             var mainQuest = _mapper.Map<MainQuest>(updateMainQuestDTO);
+            string userId = GetUserIdFromToken();
 
             try
             {
-                var updatedMainQuest = await _mainQuestService.UpdateMainQuest(mainQuest);
+                var updatedMainQuest = await _mainQuestService.UpdateMainQuest(mainQuest, userId);
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.Result = updatedMainQuest;
-                //return CreatedAtAction(nameof(GetMainQuest), new { id = newQuestId }, _response);
                 return Ok(_response);
             }
             catch (KeyNotFoundException ex)
@@ -131,22 +163,23 @@ namespace Questlog.Api.Controllers
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the MainQuest." });
-                // Optionally log the exception (not shown here)
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
 
         [HttpDelete("{id:int}", Name = "DeleteMainQuest")]
-        public async Task<ActionResult<ApiResponse>> DeleteMainQuest(int id) 
+        public async Task<ActionResult<ApiResponse>> DeleteMainQuest(int id)
         {
             if (id == 0)
             {
                 return BadRequest();
             }
 
+            string userId = GetUserIdFromToken();
+
             try
             {
-                await _mainQuestService.DeleteMainQuest(id);
+                await _mainQuestService.DeleteMainQuest(id, userId);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return NoContent();
             }
@@ -162,7 +195,6 @@ namespace Questlog.Api.Controllers
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the MainQuest." });
-                // Optionally log the exception (not shown here)
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }

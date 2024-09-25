@@ -10,13 +10,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Questlog.Application.Services.Implementations
 {
     public class MainQuestService : IMainQuestService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<MainQuestService> _logger; // Inject logger
+        private readonly ILogger<MainQuestService> _logger;
 
         public MainQuestService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<MainQuestService> logger)
         {
@@ -24,26 +25,50 @@ namespace Questlog.Application.Services.Implementations
             _logger = logger;
         }
 
-        public async Task<MainQuest> GetMainQuest(int mainQuestId)
+        public async Task<MainQuest> GetMainQuest(int mainQuestId, string userId)
         {
             try
             {
-                var mainQuest = await _unitOfWork.MainQuest.GetAsync(mainQuest => mainQuest.Id == mainQuestId, includeProperties: "QuestBoards");
+                var mainQuest = await _unitOfWork.MainQuest.GetAsync(
+                    mq => mq.Id == mainQuestId && mq.UserId == userId,
+                    includeProperties: "QuestBoards");
+
                 if (mainQuest == null)
                 {
-                    _logger.LogWarning($"MainQuest with ID {mainQuestId} not found.");
-                    throw new KeyNotFoundException($"Could not find Main Quest with matching Id");
+                    _logger.LogWarning($"MainQuest with ID {mainQuestId} not found for user {userId}.");
+                    throw new KeyNotFoundException($"Could not find Main Quest with matching Id for user {userId}");
                 }
                 return mainQuest;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while retrieving MainQuest with ID {mainQuestId}.");
+                _logger.LogError(ex, $"An error occurred while retrieving MainQuest with ID {mainQuestId} for user {userId}.");
                 throw;
             }
         }
 
-        public async Task<int> CreateMainQuest(MainQuest mainQuest)
+        public async Task<IEnumerable<MainQuest>> GetAllMainQuestsForUser(string userId)
+        {
+            try
+            {
+                var mainQuests = await _unitOfWork.MainQuest.GetAllAsync(mq => mq.UserId == userId); // Filter by UserId
+
+                if (mainQuests == null || !mainQuests.Any())
+                {
+                    _logger.LogWarning($"No MainQuests found for user {userId}.");
+                    return Enumerable.Empty<MainQuest>();
+                }
+
+                return mainQuests;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while retrieving MainQuests for user {userId}.");
+                throw;
+            }
+        }
+
+        public async Task<int> CreateMainQuest(MainQuest mainQuest, string userId)
         {
             if (mainQuest == null)
             {
@@ -52,13 +77,21 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
+                mainQuest.UserId = userId;
+
+                foreach (var questBoard in mainQuest.QuestBoards)
+                {
+                    questBoard.UserId = userId;
+                }
+
                 var newMainQuest = await _unitOfWork.MainQuest.CreateAsync(mainQuest);
 
                 if (mainQuest.QuestBoards != null)
+
                 {
                     foreach (var questBoard in mainQuest.QuestBoards)
                     {
-                        questBoard.MainQuestId = newMainQuest.Id; // Set the foreign key
+                        questBoard.MainQuestId = newMainQuest.Id;
                     }
 
                     await _unitOfWork.SaveAsync();
@@ -78,7 +111,7 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
-        public async Task<MainQuest> UpdateMainQuest(MainQuest mainQuest)
+        public async Task<MainQuest> UpdateMainQuest(MainQuest mainQuest, string userId)
         {
             if (mainQuest == null)
             {
@@ -87,14 +120,18 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                // Attempt to retrieve the existing MainQuest
-                var foundMainQuest = await _unitOfWork.MainQuest.GetAsync(mq => mq.Id == mainQuest.Id, tracked: false);
+                var foundMainQuest = await _unitOfWork.MainQuest.GetAsync(
+                    mq => mq.Id == mainQuest.Id && mq.UserId == userId, tracked: false);
+
                 if (foundMainQuest == null)
                 {
-                    throw new KeyNotFoundException($"MainQuest with ID {mainQuest.Id} was not found.");
+                    throw new KeyNotFoundException($"MainQuest with ID {mainQuest.Id} was not found for user {userId}.");
                 }
 
-                var updatedMainQuest = await _unitOfWork.MainQuest.UpdateAsync(mainQuest);
+                foundMainQuest.Title = mainQuest.Title;
+                foundMainQuest.QuestColor = mainQuest.QuestColor;
+
+                var updatedMainQuest = await _unitOfWork.MainQuest.UpdateAsync(foundMainQuest);
                 return updatedMainQuest;
             }
             catch (DbUpdateConcurrencyException ex)
@@ -114,7 +151,7 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
-        public async Task DeleteMainQuest(int id)
+        public async Task DeleteMainQuest(int id, string userId)
         {
             if (id == 0)
             {
@@ -123,10 +160,12 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                var foundMainQuest = await _unitOfWork.MainQuest.GetAsync(mq => mq.Id == id);
+                var foundMainQuest = await _unitOfWork.MainQuest.GetAsync(
+                    mq => mq.Id == id && mq.UserId == userId); // Filter by UserId
+
                 if (foundMainQuest == null)
                 {
-                    throw new KeyNotFoundException($"MainQuest with ID {id} was not found.");
+                    throw new KeyNotFoundException($"MainQuest with ID {id} was not found for user {userId}.");
                 }
 
                 await _unitOfWork.MainQuest.RemoveAsync(foundMainQuest);
@@ -144,6 +183,5 @@ namespace Questlog.Application.Services.Implementations
                 throw;
             }
         }
-
     }
 }

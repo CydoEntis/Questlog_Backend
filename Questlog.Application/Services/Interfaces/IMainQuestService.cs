@@ -4,9 +4,10 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface IMainQuestService
     {
-        Task<MainQuest> GetMainQuest(int mainQuestId);
-        Task<int> CreateMainQuest(MainQuest mainQuest);
-        Task<MainQuest> UpdateMainQuest(MainQuest mainQuest);
-        Task DeleteMainQuest(int id);
+        Task<IEnumerable<MainQuest>> GetAllMainQuestsForUser(string userId);
+        Task<MainQuest> GetMainQuest(int mainQuestId, string userId);
+        Task<int> CreateMainQuest(MainQuest mainQuest, string userId);
+        Task<MainQuest> UpdateMainQuest(MainQuest mainQuest, string userId);
+        Task DeleteMainQuest(int id, string userId);
     }
 }
