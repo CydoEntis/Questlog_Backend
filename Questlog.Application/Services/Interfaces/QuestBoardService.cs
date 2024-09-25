@@ -42,6 +42,28 @@ namespace Questlog.Application.Services.Interfaces
             }
         }
 
+        public async Task<IEnumerable<QuestBoard>> GetAllQuestsBoardsForUser(string userId)
+        {
+            try
+            {
+                var questBoards = await _unitOfWork.QuestBoard.GetAllAsync(qb => qb.UserId == userId, includeProperties: "Quests");
+
+                if (questBoards is null || !questBoards.Any())
+                {
+                    _logger.LogWarning($"No Quest Boards found for user with ID {userId}");
+                    return Enumerable.Empty<QuestBoard>();
+                }
+
+                return questBoards;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while retrieving Quest Boards for user with id {userId}");
+                throw;
+            }
+
+        }
+
 
         public async Task<int> CreateQuestBoard(QuestBoard questBoard)
         {
