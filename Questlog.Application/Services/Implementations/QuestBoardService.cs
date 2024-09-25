@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.Interfaces;
+using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Questlog.Application.Services.Interfaces
+namespace Questlog.Application.Services.Implementations
 {
-    public class QuestBoardService
+    public class QuestBoardService : IQuestBoardService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
@@ -43,7 +44,7 @@ namespace Questlog.Application.Services.Interfaces
             }
         }
 
-        public async Task<IEnumerable<QuestBoard>> GetAllQuestsBoardsForUser(string userId)
+        public async Task<IEnumerable<QuestBoard>> GetAllQuestBoardsForUser(string userId)
         {
             try
             {
@@ -68,9 +69,9 @@ namespace Questlog.Application.Services.Interfaces
 
         public async Task<int> CreateQuestBoard(QuestBoard questBoard, string userId)
         {
-            if(questBoard is null)
+            if (questBoard is null)
             {
-                throw new ArgumentNullException(nameof(questBoard), "Quest Board cannot be null");    
+                throw new ArgumentNullException(nameof(questBoard), "Quest Board cannot be null");
             }
 
             try
@@ -140,7 +141,7 @@ namespace Questlog.Application.Services.Interfaces
             try
             {
                 var foundQuestBoard = await _unitOfWork.QuestBoard.GetAsync(
-                    mq => mq.Id == id && mq.UserId == userId); 
+                    mq => mq.Id == id && mq.UserId == userId);
 
                 if (foundQuestBoard == null)
                 {
