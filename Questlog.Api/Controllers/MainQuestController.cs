@@ -41,7 +41,7 @@ namespace Questlog.Api.Controllers
             {
                 var mainQuests = await _mainQuestService.GetAllMainQuestsForUser(userId);
                 // TODO: Add a Response DTO and include quest board ID's
-                var mainQuestDtos = _mapper.Map<List<CreateMainQuestRequestDTO>>(mainQuests);
+                var mainQuestDtos = _mapper.Map<List<MainQuestResponseDTO>>(mainQuests);
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.Result = mainQuestDtos;

@@ -51,7 +51,7 @@ namespace Questlog.Application.Services.Implementations
         {
             try
             {
-                var mainQuests = await _unitOfWork.MainQuest.GetAllAsync(mq => mq.UserId == userId); // Filter by UserId
+                var mainQuests = await _unitOfWork.MainQuest.GetAllAsync(mq => mq.UserId == userId, includeProperties: "QuestBoards"); // Filter by UserId
 
                 if (mainQuests == null || !mainQuests.Any())
                 {
