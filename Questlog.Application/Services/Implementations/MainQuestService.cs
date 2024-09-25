@@ -36,8 +36,10 @@ namespace Questlog.Application.Services.Implementations
                 if (mainQuest == null)
                 {
                     _logger.LogWarning($"MainQuest with ID {mainQuestId} not found for user {userId}.");
-                    throw new KeyNotFoundException($"Could not find Main Quest with matching Id for user {userId}");
+                    throw new KeyNotFoundException($"Could not find Main Quest with matching Id");
                 }
+
+
                 return mainQuest;
             }
             catch (Exception ex)
