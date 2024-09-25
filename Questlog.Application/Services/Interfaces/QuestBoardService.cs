@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Domain.Entities;
@@ -65,10 +66,32 @@ namespace Questlog.Application.Services.Interfaces
         }
 
 
-        public async Task<int> CreateQuestBoard(QuestBoard questBoard)
+
+
+        public async Task<int> CreateQuestBoard(QuestBoard questBoard, string userId)
         {
-            var newQuestBoard = await _unitOfWork.QuestBoard.CreateAsync(questBoard);
-            return newQuestBoard.Id;
+            if(questBoard is null)
+            {
+                throw new ArgumentNullException(nameof(questBoard), "Quest Board cannot be null");    
+            }
+
+            try
+            {
+                questBoard.UserId = userId;
+                var newQuestBoard = _unitOfWork.QuestBoard.CreateAsync(questBoard);
+
+                return newQuestBoard.Id;
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database update error while creating Quest Board.");
+                throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating Quest Board.");
+                throw;
+            }
         }
     }
 }

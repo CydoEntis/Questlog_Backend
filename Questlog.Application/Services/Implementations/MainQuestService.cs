@@ -44,7 +44,7 @@ namespace Questlog.Application.Services.Implementations
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while retrieving MainQuest with ID {mainQuestId} for user {userId}.");
+                _logger.LogError(ex, $"An error occurred while retrieving Main Quest with ID {mainQuestId} for user {userId}.");
                 throw;
             }
         }
@@ -57,7 +57,7 @@ namespace Questlog.Application.Services.Implementations
 
                 if (mainQuests == null || !mainQuests.Any())
                 {
-                    _logger.LogWarning($"No MainQuests found for user {userId}.");
+                    _logger.LogWarning($"No Main Quests found for user {userId}.");
                     return Enumerable.Empty<MainQuest>();
                 }
 
@@ -74,7 +74,7 @@ namespace Questlog.Application.Services.Implementations
         {
             if (mainQuest == null)
             {
-                throw new ArgumentNullException(nameof(mainQuest), "MainQuest cannot be null.");
+                throw new ArgumentNullException(nameof(mainQuest), "Main Quest cannot be null.");
             }
 
             try
@@ -103,7 +103,7 @@ namespace Questlog.Application.Services.Implementations
             }
             catch (DbUpdateException dbEx)
             {
-                _logger.LogError(dbEx, "Database update error while creating MainQuest.");
+                _logger.LogError(dbEx, "Database update error while creating Main Quest.");
                 throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
             }
             catch (Exception ex)
@@ -117,7 +117,7 @@ namespace Questlog.Application.Services.Implementations
         {
             if (mainQuest == null)
             {
-                throw new ArgumentNullException(nameof(mainQuest), "MainQuest cannot be null.");
+                throw new ArgumentNullException(nameof(mainQuest), "Main Quest cannot be null.");
             }
 
             try
@@ -127,7 +127,7 @@ namespace Questlog.Application.Services.Implementations
 
                 if (foundMainQuest == null)
                 {
-                    throw new KeyNotFoundException($"MainQuest with ID {mainQuest.Id} was not found for user {userId}.");
+                    throw new KeyNotFoundException($"Main Quest with ID {mainQuest.Id} was not found for user {userId}.");
                 }
 
                 foundMainQuest.Title = mainQuest.Title;
@@ -139,7 +139,7 @@ namespace Questlog.Application.Services.Implementations
             catch (DbUpdateConcurrencyException ex)
             {
                 // Handle concurrency exceptions
-                throw new Exception($"A concurrency error occurred while updating MainQuest: {ex.Message}", ex);
+                throw new Exception($"A concurrency error occurred while updating Main Quest: {ex.Message}", ex);
             }
             catch (DbUpdateException ex)
             {
@@ -174,7 +174,7 @@ namespace Questlog.Application.Services.Implementations
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                throw new Exception($"A concurrency error occurred while deleting MainQuest: {ex.Message}", ex);
+                throw new Exception($"A concurrency error occurred while deleting Main Quest: {ex.Message}", ex);
             }
             catch (DbUpdateException ex)
             {
