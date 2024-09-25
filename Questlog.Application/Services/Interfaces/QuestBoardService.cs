@@ -66,8 +66,6 @@ namespace Questlog.Application.Services.Interfaces
         }
 
 
-
-
         public async Task<int> CreateQuestBoard(QuestBoard questBoard, string userId)
         {
             if(questBoard is null)
@@ -132,6 +130,37 @@ namespace Questlog.Application.Services.Interfaces
             }
         }
 
+        public async Task DeleteQuestBoard(int id, string userId)
+        {
+            if (id == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(id), "ID must be greater than zero.");
+            }
 
+            try
+            {
+                var foundQuestBoard = await _unitOfWork.QuestBoard.GetAsync(
+                    mq => mq.Id == id && mq.UserId == userId); 
+
+                if (foundQuestBoard == null)
+                {
+                    throw new KeyNotFoundException($"Quest Board with ID {id} was not found for user {userId}.");
+                }
+
+                await _unitOfWork.QuestBoard.RemoveAsync(foundQuestBoard);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new Exception($"A concurrency error occurred while deleting Quest Board: {ex.Message}", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"An error occurred while deleting from the database: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

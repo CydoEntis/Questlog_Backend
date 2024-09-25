@@ -138,17 +138,14 @@ namespace Questlog.Application.Services.Implementations
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                // Handle concurrency exceptions
                 throw new Exception($"A concurrency error occurred while updating Main Quest: {ex.Message}", ex);
             }
             catch (DbUpdateException ex)
             {
-                // Handle database update exceptions
                 throw new Exception($"An error occurred while updating the database: {ex.Message}", ex);
             }
             catch (Exception ex)
             {
-                // Handle other exceptions
                 throw;
             }
         }
@@ -163,7 +160,7 @@ namespace Questlog.Application.Services.Implementations
             try
             {
                 var foundMainQuest = await _unitOfWork.MainQuest.GetAsync(
-                    mq => mq.Id == id && mq.UserId == userId); // Filter by UserId
+                    mq => mq.Id == id && mq.UserId == userId); 
 
                 if (foundMainQuest == null)
                 {
