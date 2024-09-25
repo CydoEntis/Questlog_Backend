@@ -114,5 +114,36 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
+        public async Task DeleteMainQuest(int id)
+        {
+            if (id == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(id), "ID must be greater than zero.");
+            }
+
+            try
+            {
+                var foundMainQuest = await _unitOfWork.MainQuest.GetAsync(mq => mq.Id == id);
+                if (foundMainQuest == null)
+                {
+                    throw new KeyNotFoundException($"MainQuest with ID {id} was not found.");
+                }
+
+                await _unitOfWork.MainQuest.RemoveAsync(foundMainQuest);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new Exception($"A concurrency error occurred while deleting MainQuest: {ex.Message}", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"An error occurred while deleting from the database: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
     }
 }

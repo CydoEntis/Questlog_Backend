@@ -135,5 +135,36 @@ namespace Questlog.Api.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
+
+        [HttpDelete("{id:int}", Name = "DeleteMainQuest")]
+        public async Task<ActionResult<ApiResponse>> DeleteMainQuest(int id) 
+        {
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                await _mainQuestService.DeleteMainQuest(id);
+                _response.StatusCode = HttpStatusCode.NoContent;
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                return NotFound(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the MainQuest." });
+                // Optionally log the exception (not shown here)
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
+        }
     }
 }
