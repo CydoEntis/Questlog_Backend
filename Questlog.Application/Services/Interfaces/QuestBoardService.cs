@@ -93,5 +93,45 @@ namespace Questlog.Application.Services.Interfaces
                 throw;
             }
         }
+
+        public async Task<QuestBoard> UpdateQuestBoard(QuestBoard questBoard, string userId)
+        {
+            if (questBoard == null)
+            {
+                throw new ArgumentNullException(nameof(questBoard), "Quest Board cannot be null.");
+            }
+
+            try
+            {
+                var foundQuestBoard = await _unitOfWork.QuestBoard.GetAsync(
+                    mq => mq.Id == questBoard.Id && mq.UserId == userId, tracked: false);
+
+                if (foundQuestBoard == null)
+                {
+                    throw new KeyNotFoundException($"Quest Board with ID {questBoard.Id} was not found for user {userId}.");
+                }
+
+                foundQuestBoard.Title = questBoard.Title;
+                foundQuestBoard.BoardColor = questBoard.BoardColor;
+                foundQuestBoard.Order = questBoard.Order;
+
+                var updatedQuestBoard = await _unitOfWork.QuestBoard.UpdateAsync(foundQuestBoard);
+                return updatedQuestBoard;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new Exception($"A concurrency error occurred while updating Quest Board: {ex.Message}", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"An error occurred while updating the database: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+
     }
 }
