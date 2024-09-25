@@ -3,28 +3,44 @@ using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
+using Microsoft.Extensions.Logging; 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Questlog.Application.Services.Implementations
 {
     public class MainQuestService : IMainQuestService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<MainQuestService> _logger; // Inject logger
 
-        public MainQuestService(IUnitOfWork unitOfWork, IMapper mapper)
+        public MainQuestService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<MainQuestService> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
-
 
         public async Task<MainQuest> GetMainQuest(int mainQuestId)
         {
-            var mainQuest = await _unitOfWork.MainQuest.GetAsync(mainQuest => mainQuest.Id == mainQuestId, includeProperties: "QuestBoards");
-            return mainQuest;
+            try
+            {
+                var mainQuest = await _unitOfWork.MainQuest.GetAsync(mainQuest => mainQuest.Id == mainQuestId, includeProperties: "QuestBoards");
+                if (mainQuest == null)
+                {
+                    _logger.LogWarning($"MainQuest with ID {mainQuestId} not found.");
+                    throw new KeyNotFoundException($"Could not find Main Quest with matching Id");
+                }
+                return mainQuest;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while retrieving MainQuest with ID {mainQuestId}.");
+                throw; 
+            }
         }
 
         public async Task<int> CreateMainQuest(MainQuest mainQuest)
@@ -36,33 +52,32 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                // First, create and save the MainQuest to get the ID
                 var newMainQuest = await _unitOfWork.MainQuest.CreateAsync(mainQuest);
 
-                // Ensure QuestBoards are loaded and attached correctly
                 if (mainQuest.QuestBoards != null)
                 {
-                    // Update the QuestBoards with the generated MainQuest ID
                     foreach (var questBoard in mainQuest.QuestBoards)
                     {
                         questBoard.MainQuestId = newMainQuest.Id; // Set the foreign key
                     }
 
-                    // Save changes after setting the MainQuestId
                     await _unitOfWork.SaveAsync();
                 }
 
                 return newMainQuest.Id;
-
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database update error while creating MainQuest.");
+                throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while creating MainQuest: {ex.Message}");
-                throw;
+                _logger.LogError(ex, "An error occurred while creating MainQuest.");
+                throw; 
             }
         }
 
-
-
+        public async Task<>
     }
 }

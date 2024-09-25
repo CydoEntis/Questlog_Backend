@@ -29,23 +29,36 @@ namespace Questlog.Api.Controllers
         [HttpGet("{id:int}", Name = "GetMainQuest")]
         public async Task<ActionResult<ApiResponse>> GetMainQuest(int id)
         {
-            if (id == 0)
+            if (id <= 0)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("InvalidId", new List<string> { "ID must be greater than zero." });
                 return BadRequest(_response);
             }
 
-            var mainQuest = await _mainQuestService.GetMainQuest(id);
-
-            if (mainQuest is null)
+            try
+            {
+                var mainQuest = await _mainQuestService.GetMainQuest(id);
+                _response.Result = _mapper.Map<CreateMainQuestRequestDTO>(mainQuest);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (KeyNotFoundException ex)
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
-
-            _response.Result = _mapper.Map<CreateMainQuestRequestDTO>(mainQuest);
-            _response.StatusCode = HttpStatusCode.OK;
-            return Ok(_response);
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the MainQuest." });
+                // Optionally log the exception (not shown here)
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
         }
 
         [HttpPost]
@@ -54,18 +67,35 @@ namespace Questlog.Api.Controllers
             if (createMainQuestDTO == null)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
-                return _response;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("BadRequest", new List<string> { "CreateMainQuestRequestDTO cannot be null." });
+                return BadRequest(_response);
             }
 
             var mainQuest = _mapper.Map<MainQuest>(createMainQuestDTO);
 
-            int newQuestId = await _mainQuestService.CreateMainQuest(mainQuest);
-
-
-            _response.StatusCode = HttpStatusCode.Created;
-            _response.Result = $"Main Quest with id {newQuestId} was created successfully";
-            return Ok(_response);
+            try
+            {
+                int newQuestId = await _mainQuestService.CreateMainQuest(mainQuest);
+                _response.StatusCode = HttpStatusCode.Created;
+                _response.Result = $"Main Quest with id {newQuestId} was created successfully";
+                return CreatedAtAction(nameof(GetMainQuest), new { id = newQuestId }, _response);
+            }
+            catch (ArgumentNullException ex)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ArgumentNull", new List<string> { ex.Message });
+                return BadRequest(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while creating the MainQuest." });
+                // Optionally log the exception (not shown here)
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
         }
-
     }
 }
