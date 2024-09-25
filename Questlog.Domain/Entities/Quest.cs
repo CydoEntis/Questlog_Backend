@@ -18,7 +18,11 @@ public class Quest
     public string Priority { get; set; }
     [Required]
     public int Order { get; set; }
-    
+
+
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime UpdatedAt { get; set; }
+
     [Required]
     public int QuestBoardId { get; set; }
     

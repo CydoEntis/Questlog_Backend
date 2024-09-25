@@ -14,7 +14,11 @@ public class QuestBoard
     public int Order { get; set; }
     [Required]
     public string BoardColor { get; set; }
-    
+
+
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime UpdatedAt { get; set; }
+
     [Required]
     public int MainQuestId { get; set; }
     

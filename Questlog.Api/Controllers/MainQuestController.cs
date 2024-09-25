@@ -97,5 +97,36 @@ namespace Questlog.Api.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
+
+        [HttpPut(Name = "UpdateMainQuest")]
+        public async Task<ActionResult<ApiResponse>> UpdateMainQuest([FromBody] UpdateMainQuestRequestDTO updateMainQuestDTO)
+        {
+            if (updateMainQuestDTO == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("BadRequest", new List<string> { "UpdateMainQuestRequestDTO cannot be null." });
+                return BadRequest(_response);
+            }
+
+            var mainQuest = _mapper.Map<MainQuest>(updateMainQuestDTO);
+
+            try
+            {
+                var updatedMainQuest = await _mainQuestService.UpdateMainQuest(mainQuest);
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.Result = updatedMainQuest;
+                //return CreatedAtAction(nameof(GetMainQuest), new { id = newQuestId }, _response);
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the MainQuest." });
+                // Optionally log the exception (not shown here)
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
+        }
     }
 }

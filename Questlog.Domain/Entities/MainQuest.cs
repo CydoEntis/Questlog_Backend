@@ -16,5 +16,8 @@ public class MainQuest
     [Required]
     public int Order { get; set; }
 
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime UpdatedAt { get; set; }
+
     public virtual List<QuestBoard> QuestBoards { get; set; } = new List<QuestBoard>();
 }

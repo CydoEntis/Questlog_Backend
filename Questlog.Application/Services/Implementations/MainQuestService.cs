@@ -3,7 +3,7 @@ using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
-using Microsoft.Extensions.Logging; 
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +39,7 @@ namespace Questlog.Application.Services.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while retrieving MainQuest with ID {mainQuestId}.");
-                throw; 
+                throw;
             }
         }
 
@@ -74,10 +74,45 @@ namespace Questlog.Application.Services.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while creating MainQuest.");
-                throw; 
+                throw;
             }
         }
 
-        public async Task<>
+        public async Task<MainQuest> UpdateMainQuest(MainQuest mainQuest)
+        {
+            if (mainQuest == null)
+            {
+                throw new ArgumentNullException(nameof(mainQuest), "MainQuest cannot be null.");
+            }
+
+            try
+            {
+                // Attempt to retrieve the existing MainQuest
+                var foundMainQuest = await _unitOfWork.MainQuest.GetAsync(mq => mq.Id == mainQuest.Id, tracked: false);
+                if (foundMainQuest == null)
+                {
+                    throw new KeyNotFoundException($"MainQuest with ID {mainQuest.Id} was not found.");
+                }
+
+                var updatedMainQuest = await _unitOfWork.MainQuest.UpdateAsync(mainQuest);
+                return updatedMainQuest;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Handle concurrency exceptions
+                throw new Exception($"A concurrency error occurred while updating MainQuest: {ex.Message}", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                // Handle database update exceptions
+                throw new Exception($"An error occurred while updating the database: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                // Handle other exceptions
+                throw new Exception($"An unexpected error occurred: {ex.Message}", ex);
+            }
+        }
+
     }
 }

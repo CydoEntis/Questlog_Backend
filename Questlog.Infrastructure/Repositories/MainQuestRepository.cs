@@ -18,9 +18,12 @@ namespace Questlog.Infrastructure.Repositories
             _db = db;
         }
 
-        public Task<MainQuest> UpdateAsync(MainQuest entity)
+        public async Task<MainQuest> UpdateAsync(MainQuest entity)
         {
-            throw new NotImplementedException();
+            entity.UpdatedAt = DateTime.Now;
+            _db.MainQuests.Update(entity);
+            await _db.SaveChangesAsync();
+            return entity;
         }
     }
 }

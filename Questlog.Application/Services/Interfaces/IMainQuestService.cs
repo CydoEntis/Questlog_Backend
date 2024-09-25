@@ -6,5 +6,6 @@ namespace Questlog.Application.Services.Interfaces
     {
         Task<MainQuest> GetMainQuest(int mainQuestId);
         Task<int> CreateMainQuest(MainQuest mainQuest);
+        Task<MainQuest> UpdateMainQuest(MainQuest mainQuest);
     }
 }
