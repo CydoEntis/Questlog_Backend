@@ -124,5 +124,42 @@ namespace Questlog.Api.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
+
+        [HttpPut(Name = "UpdateQuestBoard")]
+        public async Task<ActionResult<ApiResponse>> UpdateQuestBoard([FromBody] UpdateQuestBoardRequestDTO updateQuestBoardDTO)
+        {
+            if (updateQuestBoardDTO == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("BadRequest", new List<string> { "UpdateQuestBoardRequestDTO cannot be null." });
+                return BadRequest(_response);
+            }
+
+            var mainQuest = _mapper.Map<QuestBoard>(updateQuestBoardDTO);
+            string userId = HttpContext.Items["UserId"] as string;
+
+            try
+            {
+                var updatedQuestBoard = await _questBoardService.UpdateQuestBoard(mainQuest, userId);
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.Result = updatedQuestBoard;
+                return Ok(_response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                return NotFound(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the Quest Board." });
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
+        }
     }
 }

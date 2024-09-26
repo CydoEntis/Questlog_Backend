@@ -17,7 +17,9 @@ namespace Questlog.Api
             CreateMap<MainQuest, MainQuestResponseDTO>().ReverseMap();
 
             CreateMap<QuestBoard, CreateQuestBoardRequestDTO>().ReverseMap();
+            CreateMap<QuestBoard, UpdateQuestBoardRequestDTO>().ReverseMap();
             CreateMap<QuestBoard, QuestBoardResponseDTO>().ReverseMap();
+
 
             CreateMap<Quest, QuestRequestDTO>().ReverseMap();
         }
