@@ -106,7 +106,7 @@ namespace Questlog.Api.Controllers
             {
                 int newQuestId = await _questBoardService.CreateQuestBoard(questBoard, userId);
                 _response.StatusCode = HttpStatusCode.Created;
-                _response.Result = $"Main Quest with id {newQuestId} was created successfully";
+                _response.Result = $"Quest Board with id {newQuestId} was created successfully";
                 return CreatedAtAction(nameof(GetQuestBoard), new { id = newQuestId }, _response);
             }
             catch (ArgumentNullException ex)

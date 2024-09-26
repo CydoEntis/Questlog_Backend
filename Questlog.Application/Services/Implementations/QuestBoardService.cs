@@ -77,7 +77,7 @@ namespace Questlog.Application.Services.Implementations
             try
             {
                 questBoard.UserId = userId;
-                var newQuestBoard = _unitOfWork.QuestBoard.CreateAsync(questBoard);
+                var newQuestBoard = await _unitOfWork.QuestBoard.CreateAsync(questBoard);
 
                 return newQuestBoard.Id;
             }
