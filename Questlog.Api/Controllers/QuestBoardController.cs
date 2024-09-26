@@ -161,5 +161,37 @@ namespace Questlog.Api.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
+
+        [HttpDelete("{id:int}", Name = "DeleteQuestBoard")]
+        public async Task<ActionResult<ApiResponse>> DeleteQuestBoard(int id)
+        {
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+
+            string userId = HttpContext.Items["UserId"] as string;
+
+            try
+            {
+                await _questBoardService.DeleteQuestBoard(id, userId);
+                _response.StatusCode = HttpStatusCode.NoContent;
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                return NotFound(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the Quest Board." });
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
+        }
     }
 }
