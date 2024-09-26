@@ -43,7 +43,10 @@ namespace Questlog.Api.Controllers
             }
             catch (Exception ex)
             {
-
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the Quest Boards." });
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
 
