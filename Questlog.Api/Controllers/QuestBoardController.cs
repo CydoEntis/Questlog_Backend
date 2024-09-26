@@ -87,5 +87,42 @@ namespace Questlog.Api.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
+
+        [HttpPost]
+        public async Task<ActionResult<ApiResponse>> CreateQuestBoard([FromBody] CreateQuestBoardRequestDTO createQuestBoardDTO)
+        {
+            if (createQuestBoardDTO == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("BadRequest", new List<string> { "CreateQuestBoardRequestDTO cannot be null." });
+                return BadRequest(_response);
+            }
+
+            var questBoard = _mapper.Map<QuestBoard>(createQuestBoardDTO);
+            string userId = HttpContext.Items["UserId"] as string;
+
+            try
+            {
+                int newQuestId = await _questBoardService.CreateQuestBoard(questBoard, userId);
+                _response.StatusCode = HttpStatusCode.Created;
+                _response.Result = $"Main Quest with id {newQuestId} was created successfully";
+                return CreatedAtAction(nameof(GetQuestBoard), new { id = newQuestId }, _response);
+            }
+            catch (ArgumentNullException ex)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ArgumentNull", new List<string> { ex.Message });
+                return BadRequest(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while creating the Quest Board." });
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
+        }
     }
 }
