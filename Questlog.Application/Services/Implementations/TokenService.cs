@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
@@ -155,7 +156,6 @@ namespace Questlog.Application.Services.Implementations
                 return false;
             }
         }
-
 
     }
 }

@@ -1,19 +1,19 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
-using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.DTOs.MainQuest;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System.Net;
-using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Questlog.Api.Controllers
 {
     [Route("api/main-quest")]
     [ApiController]
     [Authorize]
+    [ServiceFilter(typeof(TokenValidationFilter))] // Apply the TokenValidationFilter
     public class MainQuestController : ControllerBase
     {
         protected ApiResponse _response;
@@ -27,20 +27,15 @@ namespace Questlog.Api.Controllers
             _mapper = mapper;
         }
 
-        private string GetUserIdFromToken()
-        {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
-
         [HttpGet]
         public async Task<ActionResult<ApiResponse>> GetAllMainQuests()
         {
-            string userId = GetUserIdFromToken();
+            // Get userId from HttpContext.Items set by TokenValidationFilter
+            string userId = HttpContext.Items["UserId"] as string;
 
             try
             {
                 var mainQuests = await _mainQuestService.GetAllMainQuestsForUser(userId);
-                // TODO: Add a Response DTO and include quest board ID's
                 var mainQuestDtos = _mapper.Map<List<MainQuestResponseDTO>>(mainQuests);
 
                 _response.StatusCode = HttpStatusCode.OK;
@@ -56,7 +51,6 @@ namespace Questlog.Api.Controllers
             }
         }
 
-
         [HttpGet("{id:int}", Name = "GetMainQuest")]
         public async Task<ActionResult<ApiResponse>> GetMainQuest(int id)
         {
@@ -68,7 +62,7 @@ namespace Questlog.Api.Controllers
                 return BadRequest(_response);
             }
 
-            string userId = GetUserIdFromToken();
+            string userId = HttpContext.Items["UserId"] as string;
 
             try
             {
@@ -105,7 +99,7 @@ namespace Questlog.Api.Controllers
             }
 
             var mainQuest = _mapper.Map<MainQuest>(createMainQuestDTO);
-            string userId = GetUserIdFromToken();
+            string userId = HttpContext.Items["UserId"] as string;
 
             try
             {
@@ -142,7 +136,7 @@ namespace Questlog.Api.Controllers
             }
 
             var mainQuest = _mapper.Map<MainQuest>(updateMainQuestDTO);
-            string userId = GetUserIdFromToken();
+            string userId = HttpContext.Items["UserId"] as string;
 
             try
             {
@@ -175,7 +169,7 @@ namespace Questlog.Api.Controllers
                 return BadRequest();
             }
 
-            string userId = GetUserIdFromToken();
+            string userId = HttpContext.Items["UserId"] as string;
 
             try
             {

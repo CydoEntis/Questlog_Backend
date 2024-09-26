@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Questlog.Application.Common.DTOs
+namespace Questlog.Application.Common.DTOs.Auth
 {
     public class RegisterRequestDTO
     {

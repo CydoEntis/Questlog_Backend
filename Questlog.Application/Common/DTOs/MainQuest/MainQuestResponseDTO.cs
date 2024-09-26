@@ -4,8 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Questlog.Application.Common.DTOs.QuestBoard;
 
-namespace Questlog.Application.Common.DTOs
+namespace Questlog.Application.Common.DTOs.MainQuest
 {
     public class MainQuestResponseDTO
     {

@@ -33,6 +33,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.AddScoped<TokenValidationFilter>();
+
+
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -42,7 +45,10 @@ builder.Services.AddScoped<IQuestBoardService, QuestBoardService>();
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new TokenValidationFilter());
+});
 
 var jwtKey = builder.Configuration["JwtSecret"];
 var jwtIssuer = builder.Configuration["JwtIssuer"];
@@ -62,10 +68,10 @@ builder.Services.AddAuthentication(x =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey)),
         ValidateIssuer = true,
-        ValidIssuer = jwtIssuer, 
+        ValidIssuer = jwtIssuer,
         ValidateAudience = true,
-        ValidAudience = jwtAudience, 
-        ClockSkew = TimeSpan.Zero, 
+        ValidAudience = jwtAudience,
+        ClockSkew = TimeSpan.Zero,
     };
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

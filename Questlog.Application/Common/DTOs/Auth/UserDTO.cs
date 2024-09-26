@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Questlog.Application.Common.DTOs
+namespace Questlog.Application.Common.DTOs.Auth
 {
-    public class LoginResponseDTO
+    public class UserDTO
     {
-        public string Email { get; set; }
+        public string Id { get; set; }
         public string DisplayName { get; set; }
-        public TokenDTO TokenDTO { get; set; }
+        public string Email { get; set; }
     }
 }

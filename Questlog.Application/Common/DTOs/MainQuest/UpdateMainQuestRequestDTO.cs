@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Questlog.Application.Common.DTOs
+namespace Questlog.Application.Common.DTOs.MainQuest
 {
     public class UpdateMainQuestRequestDTO
     {

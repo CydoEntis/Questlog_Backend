@@ -1,0 +1,53 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Questlog.Api.Models;
+using Questlog.Application.Common.DTOs.MainQuest;
+using Questlog.Application.Common.DTOs.QuestBoard;
+using Questlog.Application.Services.Interfaces;
+using Questlog.Domain.Entities;
+using System.Net;
+
+namespace Questlog.Api.Controllers
+{
+    [Route("api/quest-board")]
+    [ApiController]
+    [Authorize]
+    public class QuestBoardController : ControllerBase
+    {
+        protected ApiResponse _response;
+        private readonly IQuestBoardService _questBoardService;
+        private readonly IMapper _mapper;
+
+        public QuestBoardController(IQuestBoardService questBoardService, IMapper mapper)
+        {
+            _response = new ApiResponse();
+            _questBoardService = questBoardService;
+            _mapper = mapper;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse>> GetAllQuestBoards()
+        {
+            string userId = HttpContext.Items["UserId"] as string;
+
+            try
+            {
+                var questBoards = await _questBoardService.GetAllQuestBoardsForUser(userId);
+                var questBoardDtos = _mapper.Map<List<QuestBoardResponseDTO>>(questBoards);
+
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.Result = questBoardDtos;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+
+
+    }
+}

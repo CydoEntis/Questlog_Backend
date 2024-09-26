@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Application.Common.Errors;
 using Questlog.Application.Common.Exceptions;
 using Questlog.Application.Common.Interfaces;

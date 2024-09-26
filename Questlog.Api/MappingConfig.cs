@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
-using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.DTOs.Auth;
+using Questlog.Application.Common.DTOs.MainQuest;
+using Questlog.Application.Common.DTOs.Quest;
+using Questlog.Application.Common.DTOs.QuestBoard;
 using Questlog.Domain.Entities;
 
 namespace Questlog.Api

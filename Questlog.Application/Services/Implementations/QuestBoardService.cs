@@ -15,9 +15,9 @@ namespace Questlog.Application.Services.Implementations
     public class QuestBoardService : IQuestBoardService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger _logger;
+        private readonly ILogger<QuestBoardService> _logger;
 
-        public QuestBoardService(IUnitOfWork unitOfWork, ILogger logger)
+        public QuestBoardService(IUnitOfWork unitOfWork, ILogger<QuestBoardService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;

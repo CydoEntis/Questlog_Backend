@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
-using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Application.Common.Exceptions;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Application.Services.IServices;

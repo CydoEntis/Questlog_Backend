@@ -1,4 +1,4 @@
-﻿using Questlog.Application.Common.DTOs;
+﻿using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
