@@ -15,6 +15,7 @@ namespace Questlog.Api.Controllers
     [Route("api/quest-board")]
     [ApiController]
     [Authorize]
+    [ServiceFilter(typeof(TokenValidationFilter))]
     public class QuestBoardController : ControllerBase
     {
         protected ApiResponse _response;

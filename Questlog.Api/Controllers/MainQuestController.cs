@@ -13,7 +13,7 @@ namespace Questlog.Api.Controllers
     [Route("api/main-quest")]
     [ApiController]
     [Authorize]
-    [ServiceFilter(typeof(TokenValidationFilter))] // Apply the TokenValidationFilter
+    [ServiceFilter(typeof(TokenValidationFilter))] 
     public class MainQuestController : ControllerBase
     {
         protected ApiResponse _response;
