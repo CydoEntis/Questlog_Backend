@@ -15,9 +15,9 @@ namespace Questlog.Application.Services.Implementations
     public class QuestService : IQuestService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger _logger;
+        private readonly ILogger<Quest> _logger;
 
-        public QuestService(IUnitOfWork unitOfWork, ILogger logger)
+        public QuestService(IUnitOfWork unitOfWork, ILogger<Quest> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -27,7 +27,7 @@ namespace Questlog.Application.Services.Implementations
         {
             try
             {
-                var quest = await _unitOfWork.Quest.GetAsync(qb => qb.Id == questId && qb.UserId == userId, includeProperties: "Quests");
+                var quest = await _unitOfWork.Quest.GetAsync(qb => qb.Id == questId && qb.UserId == userId);
 
                 if (quest is null)
                 {
@@ -48,7 +48,7 @@ namespace Questlog.Application.Services.Implementations
         {
             try
             {
-                var quests = await _unitOfWork.Quest.GetAllAsync(qb => qb.UserId == userId, includeProperties: "Quests");
+                var quests = await _unitOfWork.Quest.GetAllAsync(qb => qb.UserId == userId);
 
                 if (quests is null || !quests.Any())
                 {
@@ -76,7 +76,7 @@ namespace Questlog.Application.Services.Implementations
             try
             {
                 quest.UserId = userId;
-                var newQuest = _unitOfWork.Quest.CreateAsync(quest);
+                var newQuest = await _unitOfWork.Quest.CreateAsync(quest);
 
                 return newQuest.Id;
             }

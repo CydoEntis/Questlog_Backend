@@ -42,6 +42,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMainQuestService, MainQuestService>();
 builder.Services.AddScoped<IQuestBoardService, QuestBoardService>();
+builder.Services.AddScoped<IQuestService, QuestService>();
+
 
 
 
