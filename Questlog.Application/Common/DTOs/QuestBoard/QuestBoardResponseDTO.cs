@@ -15,6 +15,6 @@ namespace Questlog.Application.Common.DTOs.QuestBoard
         public int Order { get; set; }
         public string BoardColor { get; set; }
 
-        public List<QuestRequestDTO> Quests { get; set; } = new List<QuestRequestDTO>();
+        public List<QuestResponseDTO> Quests { get; set; } = new List<QuestResponseDTO>();
     }
 }

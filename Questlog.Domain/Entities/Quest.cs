@@ -27,13 +27,14 @@ namespace Questlog.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; }
 
+
+        [Required]
+        public string UserId { get; set; }
+
         [Required]
         public int QuestBoardId { get; set; }
 
         [ForeignKey("QuestBoardId")]
         public QuestBoard QuestBoard { get; set; }
-
-        [Required]
-        public string UserId { get; set; } 
     }
 }

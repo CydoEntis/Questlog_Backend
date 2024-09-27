@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
@@ -13,7 +14,7 @@ namespace Questlog.Api.Controllers
     [Route("api/main-quest")]
     [ApiController]
     [Authorize]
-    [ServiceFilter(typeof(TokenValidationFilter))] 
+    [ServiceFilter(typeof(TokenValidationFilter))]
     public class MainQuestController : ControllerBase
     {
         protected ApiResponse _response;
@@ -103,10 +104,14 @@ namespace Questlog.Api.Controllers
 
             try
             {
-                int newQuestId = await _mainQuestService.CreateMainQuest(mainQuest, userId);
+                var newMainQuest = await _mainQuestService.CreateMainQuest(mainQuest, userId);
                 _response.StatusCode = HttpStatusCode.Created;
-                _response.Result = $"Main Quest with id {newQuestId} was created successfully";
-                return CreatedAtAction(nameof(GetMainQuest), new { id = newQuestId }, _response);
+                _response.Result = new
+                {
+                    Message = $"Main Quest with id {newMainQuest.Id} was created successfully",
+                    MainQuest = newMainQuest
+                };
+                return CreatedAtAction(nameof(GetMainQuest), new { id = newMainQuest.Id }, _response);
             }
             catch (ArgumentNullException ex)
             {

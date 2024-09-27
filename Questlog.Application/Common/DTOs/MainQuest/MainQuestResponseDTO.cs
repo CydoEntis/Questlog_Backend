@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Questlog.Application.Common.DTOs.QuestBoard;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Questlog.Application.Common.DTOs.QuestBoard;
 
 namespace Questlog.Application.Common.DTOs.MainQuest
 {
@@ -15,6 +15,6 @@ namespace Questlog.Application.Common.DTOs.MainQuest
         public string QuestColor { get; set; }
         public int Order { get; set; }
 
-        public List<CreateQuestBoardRequestDTO> QuestBoards { get; set; } = new List<CreateQuestBoardRequestDTO>();
+        public List<QuestBoardResponseDTO> QuestBoards { get; set; } = new List<QuestBoardResponseDTO>();
     }
 }

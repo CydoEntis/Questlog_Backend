@@ -53,7 +53,7 @@ namespace Questlog.Application.Services.Implementations
         {
             try
             {
-                var mainQuests = await _unitOfWork.MainQuest.GetAllAsync(mq => mq.UserId == userId, includeProperties: "QuestBoards"); // Filter by UserId
+                var mainQuests = await _unitOfWork.MainQuest.GetAllAsync(mq => mq.UserId == userId, includeProperties: "QuestBoards,QuestBoards.Quests"); // Filter by UserId
 
                 if (mainQuests == null || !mainQuests.Any())
                 {
@@ -70,7 +70,7 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
-        public async Task<int> CreateMainQuest(MainQuest mainQuest, string userId)
+        public async Task<MainQuest> CreateMainQuest(MainQuest mainQuest, string userId)
         {
             if (mainQuest == null)
             {
@@ -99,7 +99,7 @@ namespace Questlog.Application.Services.Implementations
                     await _unitOfWork.SaveAsync();
                 }
 
-                return newMainQuest.Id;
+                return newMainQuest;
             }
             catch (DbUpdateException dbEx)
             {
@@ -160,7 +160,7 @@ namespace Questlog.Application.Services.Implementations
             try
             {
                 var foundMainQuest = await _unitOfWork.MainQuest.GetAsync(
-                    mq => mq.Id == id && mq.UserId == userId); 
+                    mq => mq.Id == id && mq.UserId == userId);
 
                 if (foundMainQuest == null)
                 {

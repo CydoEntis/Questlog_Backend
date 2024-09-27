@@ -49,7 +49,7 @@ builder.Services.AddScoped<IQuestService, QuestService>();
 
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add(new TokenValidationFilter());
+    options.Filters.Add<TokenValidationFilter>();
 });
 
 var jwtKey = builder.Configuration["JwtSecret"];

@@ -1,11 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 
 public class TokenValidationFilter : IAuthorizationFilter
 {
     public void OnAuthorization(AuthorizationFilterContext context)
     {
+        var requestPath = context.HttpContext.Request.Path.Value;
+
+        var excludedRoutes = new[] { "/api/auth/login", "/api/auth/register" };
+
+        if (excludedRoutes.Any(route => requestPath.Contains(route, StringComparison.OrdinalIgnoreCase)))
+        {
+            return; 
+        }
+
         var request = context.HttpContext.Request;
         var authorizationHeader = request.Headers["Authorization"].FirstOrDefault();
 
