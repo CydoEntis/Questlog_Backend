@@ -24,7 +24,6 @@ public class QuestBoard
     [Required]
     public int MainQuestId { get; set; }
 
-    [JsonIgnore]
     [ForeignKey("MainQuestId")]
     public MainQuest MainQuest { get; set; }
 

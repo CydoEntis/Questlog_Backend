@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.DTOs.QuestBoard;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
@@ -44,13 +45,27 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
-        public async Task<IEnumerable<QuestBoard>> GetAllQuestBoardsForUser(string userId)
+        public async Task<IEnumerable<QuestBoard>> GetAllQuestBoardsForUser(QuestBoardFilterParams filterParams, string userId)
         {
             try
             {
-                var questBoards = await _unitOfWork.QuestBoard.GetAllAsync(qb => qb.UserId == userId, includeProperties: "Quests");
+                IEnumerable<QuestBoard> questBoards;
 
-                if (questBoards is null || !questBoards.Any())
+                // Check if filterParams is null or does not contain filters
+                if (filterParams == null || !filterParams.MainQuestId.HasValue)
+                {
+                    questBoards = await _unitOfWork.QuestBoard.GetAllAsync(
+                        qb => qb.UserId == userId, includeProperties: "Quests");
+                }
+                else
+                {
+                    // Apply the filter for MainQuestId
+                    questBoards = await _unitOfWork.QuestBoard.GetAllAsync(
+                        qb => qb.MainQuestId == filterParams.MainQuestId && qb.UserId == userId, includeProperties: "Quests");
+                }
+
+                // Log a warning if no quest boards found
+                if (questBoards == null || !questBoards.Any())
                 {
                     _logger.LogWarning($"No Quest Boards found for user with ID {userId}");
                     return Enumerable.Empty<QuestBoard>();
@@ -63,8 +78,11 @@ namespace Questlog.Application.Services.Implementations
                 _logger.LogError(ex, $"An error occurred while retrieving Quest Boards for user with id {userId}");
                 throw;
             }
-
         }
+
+
+
+
 
 
         public async Task<int> CreateQuestBoard(QuestBoard questBoard, string userId)

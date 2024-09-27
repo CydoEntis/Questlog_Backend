@@ -30,13 +30,13 @@ namespace Questlog.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAllQuestBoards()
+        public async Task<ActionResult<ApiResponse>> GetAllQuestBoards([FromQuery] QuestBoardFilterParams filterParams)
         {
             string userId = HttpContext.Items["UserId"] as string;
 
             try
             {
-                var questBoards = await _questBoardService.GetAllQuestBoardsForUser(userId);
+                var questBoards = await _questBoardService.GetAllQuestBoardsForUser(filterParams, userId);
                 var questBoardDtos = _mapper.Map<List<QuestBoardResponseDTO>>(questBoards);
 
                 _response.StatusCode = HttpStatusCode.OK;
@@ -51,6 +51,7 @@ namespace Questlog.Api.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
+
 
         [HttpGet("{id:int}", Name = "GetQuestBoard")]
         public async Task<ActionResult<ApiResponse>> GetQuestBoard(int id)
