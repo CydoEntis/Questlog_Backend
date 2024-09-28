@@ -68,7 +68,7 @@ namespace Questlog.Api.Controllers
             try
             {
                 var mainQuest = await _mainQuestService.GetMainQuest(id, userId);
-                _response.Result = _mapper.Map<CreateMainQuestRequestDTO>(mainQuest);
+                _response.Result = _mapper.Map<MainQuestResponseDTO>(mainQuest);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -104,14 +104,14 @@ namespace Questlog.Api.Controllers
 
             try
             {
-                var newMainQuest = await _mainQuestService.CreateMainQuest(mainQuest, userId);
+                var newMainQuestId = await _mainQuestService.CreateMainQuest(mainQuest, userId);
                 _response.StatusCode = HttpStatusCode.Created;
                 _response.Result = new
                 {
-                    Message = $"Main Quest with id {newMainQuest.Id} was created successfully",
-                    MainQuest = newMainQuest
+                    Message = $"Main Quest with id {newMainQuestId} was created successfully",
+                    MainQuestId = newMainQuestId
                 };
-                return CreatedAtAction(nameof(GetMainQuest), new { id = newMainQuest.Id }, _response);
+                return CreatedAtAction(nameof(GetMainQuest), new { id = newMainQuestId }, _response);
             }
             catch (ArgumentNullException ex)
             {

@@ -30,8 +30,7 @@ namespace Questlog.Application.Services.Implementations
             try
             {
                 var mainQuest = await _unitOfWork.MainQuest.GetAsync(
-                    mq => mq.Id == mainQuestId && mq.UserId == userId,
-                    includeProperties: "QuestBoards");
+                    mq => mq.Id == mainQuestId && mq.UserId == userId);
 
                 if (mainQuest == null)
                 {
@@ -70,7 +69,7 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
-        public async Task<MainQuest> CreateMainQuest(MainQuest mainQuest, string userId)
+        public async Task<int> CreateMainQuest(MainQuest mainQuest, string userId)
         {
             if (mainQuest == null)
             {
@@ -99,7 +98,7 @@ namespace Questlog.Application.Services.Implementations
                     await _unitOfWork.SaveAsync();
                 }
 
-                return newMainQuest;
+                return newMainQuest.Id;
             }
             catch (DbUpdateException dbEx)
             {

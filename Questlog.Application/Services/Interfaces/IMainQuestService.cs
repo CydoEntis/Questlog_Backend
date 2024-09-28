@@ -6,7 +6,7 @@ namespace Questlog.Application.Services.Interfaces
     {
         Task<IEnumerable<MainQuest>> GetAllMainQuestsForUser(string userId);
         Task<MainQuest> GetMainQuest(int mainQuestId, string userId);
-        Task<MainQuest> CreateMainQuest(MainQuest mainQuest, string userId);
+        Task<int> CreateMainQuest(MainQuest mainQuest, string userId);
         Task<MainQuest> UpdateMainQuest(MainQuest mainQuest, string userId);
         Task DeleteMainQuest(int id, string userId);
     }
