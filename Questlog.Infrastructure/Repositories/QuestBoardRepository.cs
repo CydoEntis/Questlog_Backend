@@ -25,5 +25,12 @@ namespace Questlog.Infrastructure.Repositories
             await _db.SaveChangesAsync();
             return entity;
         }
+
+        public async Task<List<QuestBoard>> UpdateRangeAsync(List<QuestBoard> entities)
+        {
+            _db.QuestBoards.UpdateRange(entities);
+            await _db.SaveChangesAsync();
+            return entities;
+        }
     }
 }

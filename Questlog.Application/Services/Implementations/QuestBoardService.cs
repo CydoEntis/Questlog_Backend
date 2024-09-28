@@ -149,6 +149,50 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
+        public async Task<List<QuestBoard>> UpdateQuestBoardsOrder(List<QuestBoard> questBoards, string userId)
+        {
+            if (questBoards == null || !questBoards.Any())
+            {
+                throw new ArgumentNullException(nameof(questBoards), "Quest Boards cannot be null or empty.");
+            }
+
+            try
+            {
+                var questBoardIds = questBoards.Select(qb => qb.Id).ToList();
+
+                var foundQuestBoards = await _unitOfWork.QuestBoard.GetAllAsync(
+                    qb => questBoardIds.Contains(qb.Id) && qb.UserId == userId);
+
+                if (foundQuestBoards == null || !foundQuestBoards.Any())
+                {
+                    throw new KeyNotFoundException($"No quest boards were found for the given user {userId}.");
+                }
+
+                foreach (var foundQuestBoard in foundQuestBoards)
+                {
+                    var updatedQuestBoard = questBoards.First(qb => qb.Id == foundQuestBoard.Id);
+                    foundQuestBoard.Order = updatedQuestBoard.Order;
+                }
+
+                var updatedQuestBoards = await _unitOfWork.QuestBoard.UpdateRangeAsync(foundQuestBoards);
+
+                return updatedQuestBoards;  
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new Exception($"A concurrency error occurred while updating quest boards: {ex.Message}", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"An error occurred while updating the database: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+
         public async Task DeleteQuestBoard(int id, string userId)
         {
             if (id == 0)
