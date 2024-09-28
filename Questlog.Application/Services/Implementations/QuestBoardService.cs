@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.QuestBoard;
+using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
@@ -45,13 +46,14 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
-        public async Task<IEnumerable<QuestBoard>> GetAllQuestBoardsForUser(QuestBoardFilterParams filterParams, string userId)
+        public async Task<IEnumerable<QuestBoard>> GetAllQuestBoardsForUser(
+            QuestBoardFilterParams filterParams,
+            string userId) 
         {
             try
             {
                 IEnumerable<QuestBoard> questBoards;
 
-                // Check if filterParams is null or does not contain filters
                 if (filterParams == null || !filterParams.MainQuestId.HasValue)
                 {
                     questBoards = await _unitOfWork.QuestBoard.GetAllAsync(
@@ -59,16 +61,24 @@ namespace Questlog.Application.Services.Implementations
                 }
                 else
                 {
-                    // Apply the filter for MainQuestId
                     questBoards = await _unitOfWork.QuestBoard.GetAllAsync(
                         qb => qb.MainQuestId == filterParams.MainQuestId && qb.UserId == userId, includeProperties: "Quests");
                 }
 
-                // Log a warning if no quest boards found
                 if (questBoards == null || !questBoards.Any())
                 {
                     _logger.LogWarning($"No Quest Boards found for user with ID {userId}");
                     return Enumerable.Empty<QuestBoard>();
+                }
+
+                // Use the Order from filterParams
+                if (filterParams.Order == SortOrder.Desc)
+                {
+                    questBoards = questBoards.OrderByDescending(qb => qb.Order);
+                }
+                else // Defaults to Ascending if Order is Asc or not specified
+                {
+                    questBoards = questBoards.OrderBy(qb => qb.Order);
                 }
 
                 return questBoards;
@@ -79,6 +89,9 @@ namespace Questlog.Application.Services.Implementations
                 throw;
             }
         }
+
+
+
 
 
 
@@ -176,7 +189,7 @@ namespace Questlog.Application.Services.Implementations
 
                 var updatedQuestBoards = await _unitOfWork.QuestBoard.UpdateRangeAsync(foundQuestBoards);
 
-                return updatedQuestBoards;  
+                return updatedQuestBoards;
             }
             catch (DbUpdateConcurrencyException ex)
             {

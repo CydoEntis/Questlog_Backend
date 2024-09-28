@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Questlog.Application.Common.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,6 @@ namespace Questlog.Application.Common.DTOs.QuestBoard
     {
         public int? Id { get; set; }
         public int? MainQuestId { get; set; }
+        public SortOrder? Order { get; set; } = SortOrder.Asc;
     }
 }
