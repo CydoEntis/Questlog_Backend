@@ -202,6 +202,64 @@ namespace Questlog.Api.Controllers
             }
         }
 
+        [HttpPut("change-questboard", Name = "UpdateQuestsQuestBoard")]
+        public async Task<ActionResult<ApiResponse>> UpdateQuestsQuestBoard([FromBody] List<UpdateQuestOrderRequestDTO> updateQuestOrderDTOs)
+        {
+            // Initialize response object
+            var _response = new ApiResponse();
+
+            if (updateQuestOrderDTOs == null || !updateQuestOrderDTOs.Any())
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("BadRequest", new List<string> { "Quest order data is invalid." });
+                return BadRequest(_response);
+            }
+
+            // Retrieve the userId from the HttpContext (ensure that middleware properly sets it)
+            string userId = HttpContext.Items["UserId"] as string;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                _response.StatusCode = HttpStatusCode.Unauthorized;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("Unauthorized", new List<string> { "User is not authorized." });
+                return Unauthorized(_response);
+            }
+
+            try
+            {
+                // Map the DTO to Quest entities
+                var quests = _mapper.Map<List<Quest>>(updateQuestOrderDTOs);
+
+                // Call service to update quest order in the quest boards
+                var updatedQuests = await _questService.UpdateQuestsInQuestBoards(quests, userId);
+
+                // Return a successful response
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.Result = updatedQuests; // Return updated quests if needed
+                return Ok(_response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Handle case when the quests were not found for the user
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                return NotFound(_response);
+            }
+            catch (Exception ex)
+            {
+                // General server error handling
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the quests." });
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
+        }
+
+
         [HttpDelete("{id:int}", Name = "DeleteQuest")]
         public async Task<ActionResult<ApiResponse>> DeleteQuest(int id)
         {

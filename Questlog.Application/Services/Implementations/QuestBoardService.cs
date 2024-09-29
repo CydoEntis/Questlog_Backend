@@ -218,7 +218,6 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
-
         public async Task DeleteQuestBoard(int id, string userId)
         {
             if (id == 0)

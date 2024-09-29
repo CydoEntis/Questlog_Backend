@@ -176,6 +176,56 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
+        public async Task<List<Quest>> UpdateQuestsInQuestBoards(List<Quest> quests, string userId)
+        {
+            if (quests == null || !quests.Any())
+            {
+                throw new ArgumentNullException(nameof(quests), "Quest list cannot be null or empty.");
+            }
+
+            try
+            {
+                // Get the list of quest IDs to update
+                var questIds = quests.Select(q => q.Id).ToList();
+
+                // Retrieve all quests that match the provided IDs and belong to the user
+                var foundQuests = await _unitOfWork.Quest.GetAllAsync(
+                    q => questIds.Contains(q.Id) && q.UserId == userId);
+
+                if (foundQuests == null || !foundQuests.Any())
+                {
+                    throw new KeyNotFoundException($"No quests were found for the given user {userId}.");
+                }
+
+                // Update each found quest with the new QuestBoardId and the new order
+                foreach (var foundQuest in foundQuests)
+                {
+                    // Find the corresponding quest in the provided list and update it
+                    var updatedQuest = quests.First(q => q.Id == foundQuest.Id);
+
+                    // Update the quest board and order
+                    foundQuest.QuestBoardId = updatedQuest.QuestBoardId; // Use the QuestBoardId from the provided list
+                    foundQuest.Order = updatedQuest.Order;               // Assign the new order
+                }
+
+                // Save all updated quests in the database
+                var updatedQuests = await _unitOfWork.Quest.UpdateRangeAsync(foundQuests);
+
+                return updatedQuests;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new Exception($"A concurrency error occurred while updating quests: {ex.Message}", ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"An error occurred while updating the database: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
 
         public async Task DeleteQuest(int id, string userId)
         {
