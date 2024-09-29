@@ -10,6 +10,7 @@ namespace Questlog.Application.Common.DTOs.Quest
 {
     public record QuestResponseDTO
     {
+        public int Id { get; set; }
         public string Title { get; set; }
         public string? Desc { get; set; }
         public string[]? Items { get; set; }
