@@ -81,6 +81,19 @@ namespace Questlog.Application.Services.Implementations
                     questBoards = questBoards.OrderBy(qb => qb.Order);
                 }
 
+                // Make sure the quests are also sorted in the correct order.
+                foreach (var questBoard in questBoards)
+                {
+                    if (filterParams.Order == SortOrder.Desc)
+                    {
+                        questBoard.Quests = questBoard.Quests.OrderByDescending(q => q.Order).ToList();
+                    }
+                    else
+                    {
+                        questBoard.Quests = questBoard.Quests.OrderBy(q => q.Order).ToList();
+                    }
+                }
+
                 return questBoards;
             }
             catch (Exception ex)

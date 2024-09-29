@@ -166,6 +166,42 @@ namespace Questlog.Api.Controllers
             }
         }
 
+        [HttpPut("reorder", Name = "UpdateQuestOrder")]
+        public async Task<ActionResult<ApiResponse>> UpdateQuestOrder([FromBody] List<UpdateQuestOrderRequestDTO> updateQuestOrderDTOs)
+        {
+            if (updateQuestOrderDTOs == null)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("BadRequest", new List<string> { "QuestBoard order data is invalid." });
+                return BadRequest(_response);
+            }
+
+            string userId = HttpContext.Items["UserId"] as string;
+
+            try
+            {
+                var quests = _mapper.Map<List<Quest>>(updateQuestOrderDTOs);
+                await _questService.UpdateQuestsOrderInQuestBoard(quests, userId);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                return NotFound(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while reordering the Quest Boards." });
+                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+            }
+        }
+
         [HttpDelete("{id:int}", Name = "DeleteQuest")]
         public async Task<ActionResult<ApiResponse>> DeleteQuest(int id)
         {

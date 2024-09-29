@@ -1,4 +1,5 @@
-﻿using Questlog.Application.Common.Interfaces;
+﻿
+using Questlog.Application.Common.Interfaces;
 using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
 using System;
@@ -24,6 +25,13 @@ namespace Questlog.Infrastructure.Repositories
             _db.Quests.Update(entity);
             await _db.SaveChangesAsync();
             return entity;
+        }
+
+        public async Task<List<Quest>> UpdateRangeAsync(List<Quest> entities)
+        {
+            _db.Quests.UpdateRange(entities);
+            await _db.SaveChangesAsync();
+            return entities;
         }
     }
 }

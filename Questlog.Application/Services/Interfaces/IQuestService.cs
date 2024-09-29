@@ -8,6 +8,7 @@ namespace Questlog.Application.Services.Interfaces
         Task<Quest> GetQuest(int questId, string userId);
         Task<int> CreateQuest(Quest quest, string userId);
         Task<Quest> UpdateQuest(Quest quest, string userId);
+        Task<List<Quest>> UpdateQuestsOrderInQuestBoard(List<Quest> quests, string userId);
         Task DeleteQuest(int id, string userId);
     }
 }

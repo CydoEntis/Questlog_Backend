@@ -10,5 +10,6 @@ namespace Questlog.Application.Common.Interfaces
     public interface IQuestRepository : IBaseRepository<Quest>
     {
         Task<Quest> UpdateAsync(Quest entity);
+        Task<List<Quest>> UpdateRangeAsync(List<Quest> entities);
     }
 }
