@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.Quest
 {
-    public class QuestRequestDTO
+    public record QuestRequestDTO
     {
         public string Title { get; set; }
         public string? Desc { get; set; }

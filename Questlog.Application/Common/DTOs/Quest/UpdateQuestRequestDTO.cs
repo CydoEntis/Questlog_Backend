@@ -8,7 +8,7 @@ using Questlog.Application.Common.DTOs.Quest;
 
 namespace Questlog.Application.Common.DTOs.Quest
 {
-    public class UpdateQuestRequestDTO
+    public record UpdateQuestRequestDTO
     {
         public int Id { get; set; }
         public string Title { get; set; }

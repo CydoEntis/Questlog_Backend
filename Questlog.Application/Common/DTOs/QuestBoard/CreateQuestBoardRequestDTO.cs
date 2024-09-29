@@ -8,7 +8,7 @@ using Questlog.Application.Common.DTOs.Quest;
 
 namespace Questlog.Application.Common.DTOs.QuestBoard
 {
-    public class CreateQuestBoardRequestDTO
+    public record CreateQuestBoardRequestDTO
     {
         [Required]
         public string Title { get; set; }

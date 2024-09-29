@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.MainQuest
 {
-    public class UpdateMainQuestRequestDTO
+    public record UpdateMainQuestRequestDTO
     {
         [Required]
         public int Id { get; set; }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.Auth
 {
-    public class UserDTO
+    public record UserDTO
     {
         public string Id { get; set; }
         public string DisplayName { get; set; }

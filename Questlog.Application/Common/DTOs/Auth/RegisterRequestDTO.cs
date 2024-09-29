@@ -2,7 +2,7 @@
 
 namespace Questlog.Application.Common.DTOs.Auth
 {
-    public class RegisterRequestDTO
+    public record RegisterRequestDTO
     {
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address.")]

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.MainQuest
 {
-    public class MainQuestResponseDTO
+    public record MainQuestResponseDTO
     {
         public int Id { get; set; }
         public string Title { get; set; }

@@ -8,7 +8,7 @@ using Questlog.Application.Common.DTOs.Quest;
 
 namespace Questlog.Application.Common.DTOs.QuestBoard
 {
-    public class UpdateQuestBoardRequestDTO
+    public record UpdateQuestBoardRequestDTO
     {
         public int Id { get; set; }
         public string? Title { get; set; }

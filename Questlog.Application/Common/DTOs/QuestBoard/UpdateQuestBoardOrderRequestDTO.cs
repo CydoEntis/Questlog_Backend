@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.QuestBoard
 {
-    public class UpdateQuestBoardOrderRequestDTO
+    public record UpdateQuestBoardOrderRequestDTO
     {
         [Required]
         public int Id { get; set; }

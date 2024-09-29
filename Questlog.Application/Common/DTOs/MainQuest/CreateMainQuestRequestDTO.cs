@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.MainQuest
 {
-    public class CreateMainQuestRequestDTO
+    public record CreateMainQuestRequestDTO
     {
 
         [Required]
