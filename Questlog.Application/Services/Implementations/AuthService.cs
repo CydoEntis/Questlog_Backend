@@ -72,15 +72,27 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
+                // Create the user
                 var result = await _userManager.CreateAsync(user, registerRequestDTO.Password);
 
                 if (result.Succeeded)
                 {
+                    // Create UserLevel for the newly registered user
+                    var userLevel = new UserLevel
+                    {
+                        ApplicationUserId = user.Id, // Set the foreign key
+                        CurrentLevel = 1,
+                        CurrentExp = 0
+                    };
+
+                    // Add the UserLevel to the database
+                    await _unitOfWork.UserLevel.CreateAsync(userLevel);
+                    await _unitOfWork.SaveAsync(); // Save changes to the database
+
                     var loginRequestDTO = new LoginRequestDTO
                     {
                         Email = registerRequestDTO.Email,
                         Password = registerRequestDTO.Password,
-
                     };
 
                     return await Login(loginRequestDTO);
@@ -93,9 +105,9 @@ namespace Questlog.Application.Services.Implementations
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw ex; // You may want to handle exceptions more gracefully
             }
-
         }
+
     }
 }

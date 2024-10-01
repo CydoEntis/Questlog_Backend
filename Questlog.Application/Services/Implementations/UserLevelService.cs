@@ -1,5 +1,6 @@
 ﻿using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Interfaces;
+using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,24 @@ namespace Questlog.Application.Services.Implementations
         {
             _unitOfWork = unitOfWork;
         }
+
+
+
+        public async Task<UserLevel> CreateDefaultUserLevelAsync(string applicationUserId)
+        {
+            // Create a new UserLevel instance with default values
+            var userLevel = new UserLevel
+            {
+                ApplicationUserId = applicationUserId,
+                CurrentLevel = 1,
+                CurrentExp = 0
+            };
+
+            await _unitOfWork.UserLevel.CreateAsync(userLevel);
+
+            return userLevel; 
+        }
+
 
         public async Task AddExpAsync(string userId, string priority)
         {
@@ -39,8 +58,29 @@ namespace Questlog.Application.Services.Implementations
             }
         }
 
+        public async Task RemoveExpAsync(string userId, string priority)
+        {
+            var userLevel = await _unitOfWork.UserLevel.GetUserLevelByUserIdAsync(userId);
 
+            if (userLevel is null)
+            {
+                throw new Exception("User level not found."); 
+            }
 
+            int expToDeduct = GetExpForPriority(priority);
+
+            int newExp = userLevel.CurrentExp - expToDeduct;
+
+            while (newExp < 0 && userLevel.CurrentLevel > 1)
+            {
+                userLevel.CurrentLevel--;
+                newExp += userLevel.CalculateExpForLevel(); 
+            }
+
+            userLevel.CurrentExp = Math.Max(0, newExp);
+
+            await _unitOfWork.SaveAsync();
+        }
 
 
         private int GetExpForPriority(string priority)
@@ -51,7 +91,7 @@ namespace Questlog.Application.Services.Implementations
                 "medium" => 10,
                 "high" => 15,
                 "urgent" => 20,
-                _ => 0 // Default case for unknown priority
+                _ => 0 
             };
         }
     }

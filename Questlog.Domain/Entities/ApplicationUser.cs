@@ -13,6 +13,6 @@ namespace Questlog.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
-        public UserLevel UserLevel { get; set; }
+        public virtual UserLevel UserLevel { get; set; }
     }
 }

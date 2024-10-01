@@ -48,6 +48,28 @@ namespace Questlog.Api.Controllers
             return Ok(_response);
         }
 
+        [HttpPost("remove-exp")]
+        public async Task<ActionResult<ApiResponse>> RemoveExpFromUser([FromBody] string questPriority)
+        {
+            string userId = HttpContext.Items["UserId"] as string;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("BadRequest", new List<string> { "User Id cannot be null." });
+                return BadRequest(_response);
+            }
+
+            // Call the service to add experience based on the quest priority
+            await _userLevelService.RemoveExpAsync(userId, questPriority);
+
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.IsSuccess = true;
+            _response.Result = "Experience points added successfully.";
+            return Ok(_response);
+        }
+
 
     }
 }

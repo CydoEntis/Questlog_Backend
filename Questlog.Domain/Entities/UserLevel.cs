@@ -15,11 +15,13 @@ namespace Questlog.Domain.Entities
         public int Id { get; set; }
         public int CurrentLevel { get; set; }
         public int CurrentExp { get; set; }
-        public int ExpForNextLevel => CalculateExpForNextLevel();
+        [NotMapped]
+        public int ExpForNextLevel => CalculateExpForLevel();
 
         public string ApplicationUserId { get; set; }
 
-        public ApplicationUser ApplicationUser { get; set; }
+        [ForeignKey("ApplicationUserId")]
+        public virtual ApplicationUser ApplicationUser { get; set; }
 
         public UserLevel()
         {
@@ -27,11 +29,13 @@ namespace Questlog.Domain.Entities
             CurrentExp = 0;
         }
 
-        private int CalculateExpForNextLevel()
+
+        public int CalculateExpForLevel()
         {
             int baseExp = 100;
             return baseExp * CurrentLevel;
         }
+
 
     }
 }

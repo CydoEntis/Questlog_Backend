@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.Interfaces
 {
-    public interface IUserLevelRepository
+    public interface IUserLevelRepository : IBaseRepository<UserLevel>
     {
         Task<UserLevel?> GetUserLevelByUserIdAsync(string userId);
     }

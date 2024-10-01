@@ -9,5 +9,6 @@ namespace Questlog.Application.Services.Interfaces
     public interface IUserLevelService
     {
         Task AddExpAsync(string userId, string priority);
+        Task RemoveExpAsync(string userId, string priority);
     }
 }
