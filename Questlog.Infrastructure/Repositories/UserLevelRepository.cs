@@ -24,6 +24,5 @@ namespace Questlog.Infrastructure.Repositories
             return await GetAsync(x => x.ApplicationUserId == userId, tracked: true);
         }
 
-
     }
 }
