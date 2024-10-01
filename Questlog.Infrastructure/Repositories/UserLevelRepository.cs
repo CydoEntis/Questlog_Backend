@@ -19,6 +19,11 @@ namespace Questlog.Infrastructure.Repositories
             _db = db;
         }
 
+        public async Task<UserLevel?> GetUserLevelByUserIdAsync(string userId)
+        {
+            return await GetAsync(x => x.ApplicationUserId == userId, tracked: true);
+        }
+
 
     }
 }

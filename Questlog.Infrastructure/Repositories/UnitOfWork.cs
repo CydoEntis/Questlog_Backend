@@ -16,6 +16,7 @@ namespace Questlog.Infrastructure.Repositories
         public IMainQuestRepository MainQuest { get; private set; }
         public IQuestBoardRepository QuestBoard { get; private set; }
         public IQuestRepository Quest { get; private set; }
+        public IUserLevelRepository UserLevel { get; private set; }
 
 
         public UnitOfWork(ApplicationDbContext db)
@@ -26,6 +27,7 @@ namespace Questlog.Infrastructure.Repositories
             MainQuest = new MainQuestRepository(db);
             QuestBoard = new QuestBoardRepository(db);
             Quest = new QuestRepository(db);
+            UserLevel = new UserLevelRepository(db);
         }
 
 
