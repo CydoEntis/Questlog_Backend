@@ -9,13 +9,29 @@ namespace Questlog.Application.Services.Implementations
 {
     public class UserLevelService
     {
-        private readonly IUserLevelRepository _userLevelRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserLevelService(IUserLevelRepository userLevelRepository)
+        public UserLevelService(IUnitOfWork unitOfWork)
         {
-            _userLevelRepository = userLevelRepository;
+            _unitOfWork = unitOfWork;
         }
 
+        public async Task AddExpAsync(string userId, int expToAdd)
+        {
+            var userLevel = await _unitOfWork.UserLevel.GetUserLevelByUserIdAsync(userId);
+            if (userLevel != null)
+            {
+                userLevel.CurrentExp += expToAdd;
 
+                // If the user's experience exceeds the required experience for the next level, level up
+                while (userLevel.CurrentExp >= userLevel.ExpForNextLevel)
+                {
+                    userLevel.CurrentExp -= userLevel.ExpForNextLevel;
+                    userLevel.CurrentLevel++;
+                }
+
+                await _unitOfWork.SaveAsync();
+            }
+        }
     }
 }

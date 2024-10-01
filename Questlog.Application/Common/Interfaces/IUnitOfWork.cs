@@ -13,6 +13,8 @@ namespace Questlog.Application.Common.Interfaces
         IMainQuestRepository MainQuest { get; }
         IQuestBoardRepository QuestBoard { get; }
         IQuestRepository Quest { get; }
+        IUserLevelRepository UserLevel { get; }
+
 
         void Save();
 
