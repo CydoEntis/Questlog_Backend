@@ -16,7 +16,7 @@ namespace Questlog.Domain.Entities
         public string[]? Items { get; set; }
 
         [Required]
-        public bool Completed { get; set; }
+        public bool Completed { get; set; } = false;
 
         [Required]
         public string Priority { get; set; }
@@ -27,6 +27,7 @@ namespace Questlog.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; }
 
+        public string? CompletedById { get; set; }
 
         [Required]
         public string UserId { get; set; }

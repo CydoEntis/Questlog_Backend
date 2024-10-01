@@ -185,10 +185,8 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                // Get the list of quest IDs to update
                 var questIds = quests.Select(q => q.Id).ToList();
 
-                // Retrieve all quests that match the provided IDs and belong to the user
                 var foundQuests = await _unitOfWork.Quest.GetAllAsync(
                     q => questIds.Contains(q.Id) && q.UserId == userId);
 
@@ -197,18 +195,23 @@ namespace Questlog.Application.Services.Implementations
                     throw new KeyNotFoundException($"No quests were found for the given user {userId}.");
                 }
 
-                // Update each found quest with the new QuestBoardId and the new order
                 foreach (var foundQuest in foundQuests)
                 {
-                    // Find the corresponding quest in the provided list and update it
                     var updatedQuest = quests.First(q => q.Id == foundQuest.Id);
 
-                    // Update the quest board and order
-                    foundQuest.QuestBoardId = updatedQuest.QuestBoardId; // Use the QuestBoardId from the provided list
-                    foundQuest.Order = updatedQuest.Order;               // Assign the new order
+                    foundQuest.QuestBoardId = updatedQuest.QuestBoardId; 
+                    foundQuest.Order = updatedQuest.Order;
+                    foundQuest.Completed = updatedQuest.Completed;
+
+                    if(updatedQuest.Completed)
+                    {
+                        foundQuest.CompletedById = userId;
+                    } else
+                    {
+                        foundQuest.CompletedById = null;
+                    }
                 }
 
-                // Save all updated quests in the database
                 var updatedQuests = await _unitOfWork.Quest.UpdateRangeAsync(foundQuests);
 
                 return updatedQuests;

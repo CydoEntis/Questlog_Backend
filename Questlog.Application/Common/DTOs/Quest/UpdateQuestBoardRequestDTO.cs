@@ -15,5 +15,7 @@ namespace Questlog.Application.Common.DTOs.Quest
         public int QuestBoardId { get; set; }
         [Required]
         public int Order { get; set; }
+        [Required]
+        public bool Completed { get; set; }
     }
 }
