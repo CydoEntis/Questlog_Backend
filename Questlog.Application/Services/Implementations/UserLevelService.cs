@@ -14,9 +14,9 @@ namespace Questlog.Application.Services.Implementations
     public class UserLevelService : IUserLevelService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger _logger;
+        private readonly ILogger<UserLevelService> _logger;
 
-        public UserLevelService(IUnitOfWork unitOfWork, ILogger logger)
+        public UserLevelService(IUnitOfWork unitOfWork, ILogger<UserLevelService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;

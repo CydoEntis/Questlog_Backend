@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Questlog.Application.Common.DTOs.UserLevel;
+using Questlog.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +12,6 @@ namespace Questlog.Application.Common.DTOs.Auth
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
+        public UserLevelResponseDTO UserLevel { get; set; }
     }
 }

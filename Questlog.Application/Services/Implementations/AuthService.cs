@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Questlog.Application.Common.DTOs.Auth;
+using Questlog.Application.Common.DTOs.UserLevel;
 using Questlog.Application.Common.Errors;
 using Questlog.Application.Common.Exceptions;
 using Questlog.Application.Common.Interfaces;
@@ -49,10 +50,13 @@ namespace Questlog.Application.Services.Implementations
             var accessToken = _tokenService.CreateAccessToken(user, jwtTokenId);
             var refreshToken = await _tokenService.CreateRefreshToken(user.Id, jwtTokenId);
 
+            var userLevelDTO = _mapper.Map<UserLevelResponseDTO>(user.UserLevel);
+
             TokenDTO tokenDTO = new TokenDTO()
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                UserLevel = userLevelDTO
             };
 
             return tokenDTO;

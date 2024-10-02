@@ -3,6 +3,7 @@ using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Application.Common.DTOs.MainQuest;
 using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Application.Common.DTOs.QuestBoard;
+using Questlog.Application.Common.DTOs.UserLevel;
 using Questlog.Domain.Entities;
 
 namespace Questlog.Api
@@ -31,6 +32,9 @@ namespace Questlog.Api
 
 
             CreateMap<Quest, QuestRequestDTO>().ReverseMap();
+
+            CreateMap<UserLevel, UserLevelResponseDTO>().ReverseMap();
+
         }
     }
 }

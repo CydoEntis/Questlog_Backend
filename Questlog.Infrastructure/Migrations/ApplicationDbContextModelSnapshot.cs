@@ -191,7 +191,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.HasIndex("MainQuestId");
 
-                    b.ToTable("QuestBoards");
+                    b.ToTable("QuestBoards", (string)null);
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
@@ -300,7 +300,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MainQuests");
+                    b.ToTable("MainQuests", (string)null);
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
@@ -351,7 +351,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.HasIndex("QuestBoardId");
 
-                    b.ToTable("Quests");
+                    b.ToTable("Quests", (string)null);
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.RefreshToken", b =>
@@ -382,7 +382,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.UserLevel", b =>
@@ -408,7 +408,7 @@ namespace Questlog.Infrastructure.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("UserLevels");
+                    b.ToTable("UserLevels", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
