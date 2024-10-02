@@ -104,13 +104,6 @@ namespace Questlog.Application.Services.Implementations
         }
 
 
-
-
-
-
-
-
-
         public async Task<int> CreateQuestBoard(QuestBoard questBoard, string userId)
         {
             if (questBoard is null)

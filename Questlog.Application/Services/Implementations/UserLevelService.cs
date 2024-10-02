@@ -1,4 +1,6 @@
-﻿using Questlog.Application.Common.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System;
@@ -12,42 +14,97 @@ namespace Questlog.Application.Services.Implementations
     public class UserLevelService : IUserLevelService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger _logger;
 
-        public UserLevelService(IUnitOfWork unitOfWork)
+        public UserLevelService(IUnitOfWork unitOfWork, ILogger logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
-
-
-        public async Task<UserLevel> CreateDefaultUserLevelAsync(string applicationUserId)
+        public async Task<UserLevel> GetUserLevel(string userId)
         {
-            // Create a new UserLevel instance with default values
-            var userLevel = new UserLevel
+            try
             {
-                ApplicationUserId = applicationUserId,
-                CurrentLevel = 1,
-                CurrentExp = 0
-            };
+                var userLevel = await _unitOfWork.UserLevel.GetUserLevelByUserIdAsync(userId);
 
-            await _unitOfWork.UserLevel.CreateAsync(userLevel);
+                if (userLevel is null)
+                {
+                    _logger.LogWarning($"User Level not found for user with ID {userId}");
+                    throw new KeyNotFoundException($"Could not find User Level for User with id {userId}");
+                }
 
-            return userLevel; 
+                return userLevel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occured while retrieving User Level for user with id: {userId}");
+                throw;
+            }
+
+        }
+
+        public async Task<UserLevel> CreateDefaultUserLevelAsync(string userId)
+        {
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentNullException(nameof(userId), "User id cannot be null");
+            }
+
+            try
+            {
+                var userLevel = new UserLevel
+                {
+                    ApplicationUserId = userId,
+                    CurrentLevel = 1,
+                    CurrentExp = 0
+                };
+
+                await _unitOfWork.UserLevel.CreateAsync(userLevel);
+
+                return userLevel;
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database update error while creating User Level.");
+                throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating User Level.");
+                throw;
+            }
+
+
         }
 
 
         public async Task AddExpAsync(string userId, string priority)
         {
-            var userLevel = await _unitOfWork.UserLevel.GetUserLevelByUserIdAsync(userId);
-            if (userLevel != null)
+            if (string.IsNullOrEmpty(userId))
             {
-                // Determine experience points based on quest priority
+                throw new ArgumentNullException(nameof(userId), "User id cannot be null");
+
+            }
+
+            if (string.IsNullOrEmpty(priority))
+            {
+                throw new ArgumentNullException(nameof(priority), "Priority cannot be null");
+            }
+
+            try
+            {
+                var userLevel = await _unitOfWork.UserLevel.GetUserLevelByUserIdAsync(userId);
+                if (userLevel is null)
+                {
+                    _logger.LogWarning($"User Level not found for user with ID {userId}");
+                    throw new KeyNotFoundException($"Could not find User Level for User with id {userId}");
+                }
                 int expToAdd = GetExpForPriority(priority);
 
-                // Add experience to the user
                 userLevel.CurrentExp += expToAdd;
 
-                // Handle level-up logic
                 while (userLevel.CurrentExp >= userLevel.ExpForNextLevel)
                 {
                     userLevel.CurrentExp -= userLevel.ExpForNextLevel;
@@ -56,30 +113,67 @@ namespace Questlog.Application.Services.Implementations
 
                 await _unitOfWork.SaveAsync();
             }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database update error while adding exp to UserLevel.");
+                throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding exp to user level.");
+                throw;
+            }
         }
 
         public async Task RemoveExpAsync(string userId, string priority)
         {
-            var userLevel = await _unitOfWork.UserLevel.GetUserLevelByUserIdAsync(userId);
 
-            if (userLevel is null)
+            if (string.IsNullOrEmpty(userId))
             {
-                throw new Exception("User level not found."); 
+                throw new ArgumentNullException(nameof(userId), "User id cannot be null");
+
             }
 
-            int expToDeduct = GetExpForPriority(priority);
-
-            int newExp = userLevel.CurrentExp - expToDeduct;
-
-            while (newExp < 0 && userLevel.CurrentLevel > 1)
+            if (string.IsNullOrEmpty(priority))
             {
-                userLevel.CurrentLevel--;
-                newExp += userLevel.CalculateExpForLevel(); 
+                throw new ArgumentNullException(nameof(priority), "Priority cannot be null");
             }
 
-            userLevel.CurrentExp = Math.Max(0, newExp);
+            try
+            {
+                var userLevel = await _unitOfWork.UserLevel.GetUserLevelByUserIdAsync(userId);
+                if (userLevel is null)
+                {
+                    _logger.LogWarning($"User Level not found for user with ID {userId}");
+                    throw new KeyNotFoundException($"Could not find User Level for User with id {userId}");
+                }
+                int expToDeduct = GetExpForPriority(priority);
 
-            await _unitOfWork.SaveAsync();
+                int newExp = userLevel.CurrentExp - expToDeduct;
+
+                while (newExp < 0 && userLevel.CurrentLevel > 1)
+                {
+                    userLevel.CurrentLevel--;
+                    newExp += userLevel.CalculateExpForLevel();
+                }
+
+                userLevel.CurrentExp = Math.Max(0, newExp);
+
+                await _unitOfWork.SaveAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database update error while removing exp from UserLevel.");
+                throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while removing exp from user level.");
+                throw;
+            }
+
+
+
         }
 
 
@@ -91,7 +185,7 @@ namespace Questlog.Application.Services.Implementations
                 "medium" => 10,
                 "high" => 15,
                 "urgent" => 20,
-                _ => 0 
+                _ => 0
             };
         }
     }
