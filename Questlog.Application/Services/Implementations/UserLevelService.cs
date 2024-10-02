@@ -22,7 +22,7 @@ namespace Questlog.Application.Services.Implementations
             _logger = logger;
         }
 
-        public async Task<UserLevel> GetUserLevel(string userId)
+        public async Task<UserLevel> GetUserLevelAsync(string userId)
         {
             try
             {
