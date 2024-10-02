@@ -10,8 +10,8 @@ namespace Questlog.Application.Services.IServices
     public interface IAuthService
     {
         Task<bool> CheckIfUsernameIsUnique(string username);
-        Task<TokenDTO> Login(LoginRequestDTO loginRequestDTO);
-        Task<TokenDTO> Register(RegisterRequestDTO registerRequestDTO);
-
+        Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
+        // Fix registering
+        Task<LoginResponseDTO> Register(RegisterRequestDTO registerRequestDTO);
     }
 }

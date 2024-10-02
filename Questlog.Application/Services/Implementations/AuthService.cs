@@ -33,17 +33,27 @@ namespace Questlog.Application.Services.Implementations
             return await _unitOfWork.User.isUserUnique(username);
         }
 
-        public async Task<TokenDTO> Login(LoginRequestDTO loginRequestDTO)
+        public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
             var user = await _unitOfWork.User.GetByEmail(loginRequestDTO.Email);
             bool isUserValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
 
             if (user is null || !isUserValid)
             {
-                return new TokenDTO()
+                return new LoginResponseDTO()
                 {
-                    AccessToken = ""
+                    Email = "",
+                    DisplayName = "",
+                    Tokens = new TokenDTO()
+                    {
+                        AccessToken = "",
+                        RefreshToken = "",
+                    },
                 };
+                //return new TokenDTO()
+                //{
+                //    AccessToken = ""
+                //};
             }
 
             var jwtTokenId = $"JTI{Guid.NewGuid()}";
@@ -52,17 +62,29 @@ namespace Questlog.Application.Services.Implementations
 
             var userLevelDTO = _mapper.Map<UserLevelResponseDTO>(user.UserLevel);
 
-            TokenDTO tokenDTO = new TokenDTO()
+            LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-                UserLevel = userLevelDTO
+                Email = user.Email,
+                DisplayName = user.DisplayName,
+                Tokens = new TokenDTO()
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                },
+                UserLevel = userLevelDTO,
             };
 
-            return tokenDTO;
+            return loginResponseDTO;
+            //TokenDTO tokenDTO = new TokenDTO()
+            //{
+            //    AccessToken = accessToken,
+            //    RefreshToken = refreshToken,
+            //};
+
+            //return tokenDTO;
         }
 
-        public async Task<TokenDTO> Register(RegisterRequestDTO registerRequestDTO)
+        public async Task<LoginResponseDTO> Register(RegisterRequestDTO registerRequestDTO)
         {
             ApplicationUser user = new()
             {

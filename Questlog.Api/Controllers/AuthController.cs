@@ -87,8 +87,8 @@ namespace Questlog.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
-            var tokenDTO = await _authService.Login(loginRequestDTO);
-            if (tokenDTO is null || string.IsNullOrEmpty(tokenDTO.AccessToken))
+            var loginResponseDTO = await _authService.Login(loginRequestDTO);
+            if (loginResponseDTO.Tokens is null || string.IsNullOrEmpty(loginResponseDTO.Tokens.AccessToken))
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
@@ -98,7 +98,7 @@ namespace Questlog.Api.Controllers
 
             _response.StatusCode = HttpStatusCode.OK;
             _response.IsSuccess = true;
-            _response.Result = tokenDTO;
+            _response.Result = loginResponseDTO;
             return Ok(_response);
         }
 
