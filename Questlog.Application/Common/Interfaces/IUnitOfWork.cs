@@ -16,8 +16,6 @@ namespace Questlog.Application.Common.Interfaces
         IUserLevelRepository UserLevel { get; }
 
 
-        void Save();
-
         Task SaveAsync();
     }
 

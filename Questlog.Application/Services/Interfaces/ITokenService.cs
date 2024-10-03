@@ -13,7 +13,7 @@ namespace Questlog.Application.Services.Interfaces
         string CreateAccessToken(ApplicationUser user, string tokeId);
         Task<TokenDTO> RefreshAccessToken(TokenDTO tokenDTO);
         Task<string> CreateRefreshToken(string userId, string tokenId);
-        void InvalidateToken(RefreshToken refreshToken);
+        Task InvalidateToken(RefreshToken refreshToken);
         Task RevokeRefreshToken(TokenDTO tokenDTO);
     }
 }

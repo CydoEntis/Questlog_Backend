@@ -63,7 +63,7 @@ namespace Questlog.Application.Services.Implementations
             var isTokenValid = CheckIfTokenIsValid(tokenDTO.AccessToken, existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
             if (!isTokenValid)
             {
-                InvalidateToken(existingRefreshToken);
+                await InvalidateToken(existingRefreshToken);
                 return new TokenDTO();
             }
 
@@ -75,13 +75,13 @@ namespace Questlog.Application.Services.Implementations
 
             if (existingRefreshToken.ExpiresAt < DateTime.UtcNow)
             {
-                InvalidateToken(existingRefreshToken);
+                await InvalidateToken(existingRefreshToken);
                 return new TokenDTO();
             }
 
             var newRefreshToken = await CreateRefreshToken(existingRefreshToken.UserId, existingRefreshToken.JwtTokenId);
 
-            InvalidateToken(existingRefreshToken);
+            await InvalidateToken(existingRefreshToken);
 
             var applicationUser = await _unitOfWork.User.GetUserById(existingRefreshToken.UserId);
 
@@ -116,10 +116,11 @@ namespace Questlog.Application.Services.Implementations
 
         }
 
-        public void InvalidateToken(RefreshToken refreshToken)
+        public async Task InvalidateToken(RefreshToken refreshToken)
         {
             refreshToken.IsValid = false;
-            _unitOfWork.SaveAsync();
+            await _unitOfWork.SaveAsync();
+            return;
         }
 
         public async Task RevokeRefreshToken(TokenDTO tokenDTO)
