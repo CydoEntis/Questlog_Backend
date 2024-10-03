@@ -96,16 +96,16 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.Use(async (context, next) =>
-{
-    Console.WriteLine($"Request Path: {context.Request.Path}");
-    if (context.Request.Headers.ContainsKey("Authorization"))
-    {
-        Console.WriteLine($"Authorization Header: {context.Request.Headers["Authorization"]}");
-    }
-    await next();
-    Console.WriteLine($"Response Status Code: {context.Response.StatusCode}");
-});
+//app.Use(async (context, next) =>
+//{
+//    Console.WriteLine($"Request Path: {context.Request.Path}");
+//    if (context.Request.Headers.ContainsKey("Authorization"))
+//    {
+//        Console.WriteLine($"Authorization Header: {context.Request.Headers["Authorization"]}");
+//    }
+//    await next();
+//    Console.WriteLine($"Response Status Code: {context.Response.StatusCode}");
+//});
 
 
 

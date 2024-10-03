@@ -115,18 +115,20 @@ namespace Questlog.Api.Controllers
             }
 
             var newTokenDTO = await _tokenService.RefreshAccessToken(tokenDTO);
-            if (newTokenDTO is null || string.IsNullOrEmpty(newTokenDTO.AccessToken))
+            if (newTokenDTO == null || string.IsNullOrEmpty(newTokenDTO.AccessToken))
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("Token", new List<string> { "Invalid token" });
                 return BadRequest(_response);
             }
+
             _response.StatusCode = HttpStatusCode.OK;
             _response.IsSuccess = true;
             _response.Result = newTokenDTO;
             return Ok(_response);
         }
+
 
         [HttpPost("revoke")]
         public async Task<IActionResult> RevokeRefreshToken([FromBody] TokenDTO tokenDTO)
