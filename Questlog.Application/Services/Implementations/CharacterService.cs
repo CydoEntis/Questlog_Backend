@@ -62,8 +62,6 @@ namespace Questlog.Application.Services.Implementations
                 var newCharacter = new Character {
                     DisplayName = character.DisplayName,
                     Archetype = character.Archetype,
-
-
                 };
 
                 await _unitOfWork.Character.CreateAsync(character);
@@ -98,7 +96,7 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                var character = await _unitOfWork.Character.GetCharacterByUserIdAsync(userId);
+                var character = await _unitOfWork.Character.GetCharacterAsync(userId);
                 if (character is null)
                 {
                     _logger.LogWarning($"Character not found for user with ID {userId}");
@@ -108,9 +106,9 @@ namespace Questlog.Application.Services.Implementations
 
                 character.CurrentExp += expToAdd;
 
-                while (character.CurrentExp >= character.ExpForNextLevel)
+                while (character.CurrentExp >= character.ExpToNextLevel)
                 {
-                    character.CurrentExp -= character.ExpForNextLevel;
+                    character.CurrentExp -= character.ExpToNextLevel;
                     character.CurrentLevel++;
                 }
 
@@ -144,7 +142,7 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                var character = await _unitOfWork.Character.GetCharacterByUserIdAsync(userId);
+                var character = await _unitOfWork.Character.GetCharacterAsync(userId);
                 if (character is null)
                 {
                     _logger.LogWarning($"Character not found for user with ID {userId}");

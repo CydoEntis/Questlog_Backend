@@ -20,6 +20,8 @@ namespace Questlog.Domain.Entities
         [Required]
         public Archetype Archetype { get; set; }
         [Required]
+        public int CurrentLevel { get; set; } = 0;
+        [Required]
         public int CurrentExp { get; set; } = 0;
         [Required]
         public int ExpToNextLevel { get; set; } = 100;
@@ -30,5 +32,18 @@ namespace Questlog.Domain.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+
+        public Character()
+        {
+            CurrentLevel = 1;
+            CurrentExp = 0;
+        }
+
+
+        public int CalculateExpForLevel()
+        {
+            int baseExp = 100;
+            return baseExp * CurrentLevel;
+        }
     }
 }

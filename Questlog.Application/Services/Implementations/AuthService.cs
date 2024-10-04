@@ -1,7 +1,8 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Questlog.Application.Common.DTOs.Auth;
-using Questlog.Application.Common.DTOs.UserLevel;
+using Questlog.Application.Common.DTOs.Character;
 using Questlog.Application.Common.Errors;
 using Questlog.Application.Common.Exceptions;
 using Questlog.Application.Common.Interfaces;
@@ -15,17 +16,19 @@ namespace Questlog.Application.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITokenService _tokenService;
+        private readonly ICharacterService _characterService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly ErrorMapper _errorMapper;
 
-        public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, ITokenService tokenService)
+        public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, ITokenService tokenService, ICharacterService characterService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
             _tokenService = tokenService;
             _errorMapper = new();
+            _characterService = characterService;
         }
 
         public async Task<bool> CheckIfUsernameIsUnique(string username)
@@ -43,54 +46,48 @@ namespace Questlog.Application.Services.Implementations
                 return new LoginResponseDTO()
                 {
                     Email = "",
-                    DisplayName = "",
                     Tokens = new TokenDTO()
                     {
                         AccessToken = "",
                         RefreshToken = "",
                     },
+                    Character = new CharacterResponseDTO(),
                 };
-                //return new TokenDTO()
-                //{
-                //    AccessToken = ""
-                //};
             }
 
             var jwtTokenId = $"JTI{Guid.NewGuid()}";
             var accessToken = _tokenService.CreateAccessToken(user, jwtTokenId);
             var refreshToken = await _tokenService.CreateRefreshToken(user.Id, jwtTokenId);
 
-            var userLevelDTO = _mapper.Map<UserLevelResponseDTO>(user.UserLevel);
+            var characterResponseDTO = _mapper.Map<CharacterResponseDTO>(user.Character);
 
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
                 Email = user.Email,
-                DisplayName = user.DisplayName,
                 Tokens = new TokenDTO()
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                 },
-                UserLevel = userLevelDTO,
+                Character = characterResponseDTO,
             };
 
             return loginResponseDTO;
-            //TokenDTO tokenDTO = new TokenDTO()
-            //{
-            //    AccessToken = accessToken,
-            //    RefreshToken = refreshToken,
-            //};
 
-            //return tokenDTO;
         }
 
         public async Task<LoginResponseDTO> Register(RegisterRequestDTO registerRequestDTO)
         {
+            var existingUser = await _userManager.FindByEmailAsync(registerRequestDTO.Email);
+            if (existingUser != null)
+            {
+                throw new ArgumentException("A user with this email already exists.", nameof(registerRequestDTO.Email));
+            }
+
             ApplicationUser user = new()
             {
                 UserName = registerRequestDTO.Email,
                 Email = registerRequestDTO.Email,
-                DisplayName = registerRequestDTO.DisplayName,
                 NormalizedEmail = registerRequestDTO.Email.ToUpper(),
                 NormalizedUserName = registerRequestDTO.Email.ToUpper(),
                 CreatedAt = DateTime.Now,
@@ -98,27 +95,28 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                // Create the user
                 var result = await _userManager.CreateAsync(user, registerRequestDTO.Password);
 
                 if (result.Succeeded)
                 {
-                    // Create UserLevel for the newly registered user
-                    var userLevel = new UserLevel
+                    var newCharacter = new Character
                     {
-                        ApplicationUserId = user.Id, // Set the foreign key
-                        CurrentLevel = 1,
-                        CurrentExp = 0
+                        DisplayName = registerRequestDTO.DisplayName,
+                        Archetype = registerRequestDTO.Archetype,
+                        User = user,
                     };
 
-                    // Add the UserLevel to the database
-                    await _unitOfWork.UserLevel.CreateAsync(userLevel);
-                    await _unitOfWork.SaveAsync(); // Save changes to the database
+                    await _characterService.CreateCharacterAsync(user.Id, newCharacter);
+
+                    user.CharacterId = newCharacter.Id;
+
+                    await _userManager.UpdateAsync(user);
 
                     var loginRequestDTO = new LoginRequestDTO
                     {
                         Email = registerRequestDTO.Email,
                         Password = registerRequestDTO.Password,
+                      
                     };
 
                     return await Login(loginRequestDTO);
@@ -131,9 +129,10 @@ namespace Questlog.Application.Services.Implementations
             }
             catch (Exception ex)
             {
-                throw ex; // You may want to handle exceptions more gracefully
+                throw;
             }
         }
+
 
     }
 }

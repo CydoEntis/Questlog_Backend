@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Questlog.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Questlog.Infrastructure.Data;
 namespace Questlog.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241004011625_removedUserLevelAndDisplayNameFromApplicationUser")]
+    partial class removedUserLevelAndDisplayNameFromApplicationUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,7 +205,7 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CharacterId")
+                    b.Property<int>("CharacterId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -258,8 +261,7 @@ namespace Questlog.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CharacterId")
-                        .IsUnique()
-                        .HasFilter("[CharacterId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -555,7 +557,9 @@ namespace Questlog.Infrastructure.Migrations
                 {
                     b.HasOne("Questlog.Domain.Entities.Character", "Character")
                         .WithOne("User")
-                        .HasForeignKey("Questlog.Domain.Entities.ApplicationUser", "CharacterId");
+                        .HasForeignKey("Questlog.Domain.Entities.ApplicationUser", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Character");
                 });

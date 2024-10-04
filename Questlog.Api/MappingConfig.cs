@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Questlog.Application.Common.DTOs.Auth;
+using Questlog.Application.Common.DTOs.Character;
 using Questlog.Application.Common.DTOs.MainQuest;
 using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Application.Common.DTOs.QuestBoard;
@@ -34,6 +35,11 @@ namespace Questlog.Api
             CreateMap<Quest, QuestRequestDTO>().ReverseMap();
 
             CreateMap<UserLevel, UserLevelResponseDTO>().ReverseMap();
+
+            CreateMap<Character, CharacterResponseDTO>().ReverseMap();
+            CreateMap<Character, CharacterRequestDTO>().ReverseMap();
+
+
 
         }
     }

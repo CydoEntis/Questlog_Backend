@@ -44,6 +44,8 @@ builder.Services.AddScoped<IMainQuestService, MainQuestService>();
 builder.Services.AddScoped<IQuestBoardService, QuestBoardService>();
 builder.Services.AddScoped<IQuestService, QuestService>();
 builder.Services.AddScoped<IUserLevelService, UserLevelService>();
+builder.Services.AddScoped<ICharacterService, CharacterService>();
+
 
 
 
