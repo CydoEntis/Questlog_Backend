@@ -24,7 +24,8 @@ namespace Questlog.Domain.Entities
         [Required]
         public int ExpToNextLevel { get; set; } = 100;
 
-
         public List<Unlockable> Inventory { get; set; } = new List<Unlockable>();
+
+        public ApplicationUser User { get; set; }
     }
 }
