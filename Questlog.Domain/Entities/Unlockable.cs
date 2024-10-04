@@ -26,5 +26,8 @@ namespace Questlog.Domain.Entities
         public int CharacterId { get; set; }
 
         public Character Character { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

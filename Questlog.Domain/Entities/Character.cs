@@ -27,5 +27,9 @@ namespace Questlog.Domain.Entities
         public List<Unlockable> Inventory { get; set; } = new List<Unlockable>();
 
         public ApplicationUser User { get; set; }
+
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }
