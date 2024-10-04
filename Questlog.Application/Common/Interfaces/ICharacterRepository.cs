@@ -9,6 +9,7 @@ namespace Questlog.Application.Common.Interfaces
 {
     public interface ICharacterRepository : IBaseRepository<Character>
     {
+        Task<Character?> GetCharacterAsync(string userId);
         Task<Character> UpdateAsync(Character entity);
     }
 }

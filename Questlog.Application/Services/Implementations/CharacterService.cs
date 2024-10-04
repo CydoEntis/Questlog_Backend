@@ -26,25 +26,25 @@ namespace Questlog.Application.Services.Implementations
         {
             try
             {
-                var userLevel = await _unitOfWork.Character.GetCharacterByUserIdAsync(userId);
+                var character = await _unitOfWork.Character.GetCharacterAsync(userId);
 
-                if (userLevel is null)
+                if (character is null)
                 {
-                    _logger.LogWarning($"User Level not found for user with ID {userId}");
-                    throw new KeyNotFoundException($"Could not find User Level for User with id {userId}");
+                    _logger.LogWarning($"Character not found for user with ID {userId}");
+                    throw new KeyNotFoundException($"Could not find Character for User with id {userId}");
                 }
 
-                return userLevel;
+                return character;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occured while retrieving User Level for user with id: {userId}");
+                _logger.LogError(ex, $"An error occured while retrieving Character for user with id: {userId}");
                 throw;
             }
 
         }
 
-        public async Task<Character> CreateDefaultCharacterAsync(string userId)
+        public async Task<Character> CreateCharacterAsync(string userId, Character character)
         {
 
             if (string.IsNullOrEmpty(userId))
@@ -52,31 +52,34 @@ namespace Questlog.Application.Services.Implementations
                 throw new ArgumentNullException(nameof(userId), "User id cannot be null");
             }
 
+            if (character is null)
+            {
+                throw new ArgumentNullException(nameof(character), "Character cannot be null");
+            }
+
             try
             {
-                var userLevel = new Character
-                {
-                    ApplicationUserId = userId,
-                    CurrentLevel = 1,
-                    CurrentExp = 0
+                var newCharacter = new Character {
+                    DisplayName = character.DisplayName,
+                    Archetype = character.Archetype,
+
+
                 };
 
-                await _unitOfWork.Character.CreateAsync(userLevel);
+                await _unitOfWork.Character.CreateAsync(character);
 
-                return userLevel;
+                return character;
             }
             catch (DbUpdateException dbEx)
             {
-                _logger.LogError(dbEx, "Database update error while creating User Level.");
+                _logger.LogError(dbEx, "Database update error while creating Character.");
                 throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating User Level.");
+                _logger.LogError(ex, "An error occurred while creating Character.");
                 throw;
             }
-
-
         }
 
 
@@ -95,20 +98,20 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                var userLevel = await _unitOfWork.Character.GetCharacterByUserIdAsync(userId);
-                if (userLevel is null)
+                var character = await _unitOfWork.Character.GetCharacterByUserIdAsync(userId);
+                if (character is null)
                 {
-                    _logger.LogWarning($"User Level not found for user with ID {userId}");
-                    throw new KeyNotFoundException($"Could not find User Level for User with id {userId}");
+                    _logger.LogWarning($"Character not found for user with ID {userId}");
+                    throw new KeyNotFoundException($"Could not find Character for User with id {userId}");
                 }
                 int expToAdd = GetExpForPriority(priority);
 
-                userLevel.CurrentExp += expToAdd;
+                character.CurrentExp += expToAdd;
 
-                while (userLevel.CurrentExp >= userLevel.ExpForNextLevel)
+                while (character.CurrentExp >= character.ExpForNextLevel)
                 {
-                    userLevel.CurrentExp -= userLevel.ExpForNextLevel;
-                    userLevel.CurrentLevel++;
+                    character.CurrentExp -= character.ExpForNextLevel;
+                    character.CurrentLevel++;
                 }
 
                 await _unitOfWork.SaveAsync();
@@ -141,23 +144,23 @@ namespace Questlog.Application.Services.Implementations
 
             try
             {
-                var userLevel = await _unitOfWork.Character.GetCharacterByUserIdAsync(userId);
-                if (userLevel is null)
+                var character = await _unitOfWork.Character.GetCharacterByUserIdAsync(userId);
+                if (character is null)
                 {
-                    _logger.LogWarning($"User Level not found for user with ID {userId}");
-                    throw new KeyNotFoundException($"Could not find User Level for User with id {userId}");
+                    _logger.LogWarning($"Character not found for user with ID {userId}");
+                    throw new KeyNotFoundException($"Could not find Character for User with id {userId}");
                 }
                 int expToDeduct = GetExpForPriority(priority);
 
-                int newExp = userLevel.CurrentExp - expToDeduct;
+                int newExp = character.CurrentExp - expToDeduct;
 
-                while (newExp < 0 && userLevel.CurrentLevel > 1)
+                while (newExp < 0 && character.CurrentLevel > 1)
                 {
-                    userLevel.CurrentLevel--;
-                    newExp += userLevel.CalculateExpForLevel();
+                    character.CurrentLevel--;
+                    newExp += character.CalculateExpForLevel();
                 }
 
-                userLevel.CurrentExp = Math.Max(0, newExp);
+                character.CurrentExp = Math.Max(0, newExp);
 
                 await _unitOfWork.SaveAsync();
             }

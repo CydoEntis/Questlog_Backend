@@ -10,6 +10,7 @@ namespace Questlog.Application.Services.Interfaces
     public interface ICharacterService
     {
         Task<Character> GetCharacterAsync(string userId);
+        Task<Character> CreateCharacterAsync(string userId, Character character);
         Task AddExpAsync(string userId, string priority);
         Task RemoveExpAsync(string userId, string priority);
     }

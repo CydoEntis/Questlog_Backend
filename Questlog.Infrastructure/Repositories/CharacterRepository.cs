@@ -18,10 +18,15 @@ namespace Questlog.Infrastructure.Repositories
             _db = db;
         }
 
+        public async Task<Character?> GetCharacterAsync(string userId)
+        {
+            return await GetAsync(x => x.User.Id == userId, tracked: true);
+        }
+
         public async Task<Character> UpdateAsync(Character entity)
         {
             entity.UpdatedAt = DateTime.Now;
-            _db.MainQuests.Update(entity);
+            _db.Characters.Update(entity);
             await _db.SaveChangesAsync();
             return entity;
         }

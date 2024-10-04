@@ -28,8 +28,7 @@ namespace Questlog.Domain.Entities
 
         public ApplicationUser User { get; set; }
 
-
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }
 }
