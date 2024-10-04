@@ -30,6 +30,14 @@ namespace Questlog.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            // Added Cascade on Delete for ApplicationUser and Character
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(a => a.Character)
+                .WithOne(c => c.User)
+                .HasForeignKey<ApplicationUser>(a => a.CharacterId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
