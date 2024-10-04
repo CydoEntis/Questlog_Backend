@@ -10,8 +10,12 @@ namespace Questlog.Domain.Entities
 {
     public class ApplicationUser : IdentityUser
     {
+        public string DisplayName { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+
+        public UserLevel UserLevel { get; set; }
 
         public int CharacterId { get; set; }
 

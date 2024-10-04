@@ -17,17 +17,22 @@ namespace Questlog.Infrastructure.Repositories
         public IQuestBoardRepository QuestBoard { get; private set; }
         public IQuestRepository Quest { get; private set; }
         public IUserLevelRepository UserLevel { get; private set; }
+        public ICharacterRepository Character { get; private set; }
+        public IUnlockableRepository Unlockable { get; private set; }
+
 
 
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             User = new UserRepository(db);
-            Token = new TokenRepository(db); 
+            Token = new TokenRepository(db);
             MainQuest = new MainQuestRepository(db);
             QuestBoard = new QuestBoardRepository(db);
             Quest = new QuestRepository(db);
             UserLevel = new UserLevelRepository(db);
+            Character = new CharacterRepository(db);
+            Unlockable = new UnlockableRepository(db);
         }
 
 

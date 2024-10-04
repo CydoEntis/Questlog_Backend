@@ -19,6 +19,10 @@ namespace Questlog.Infrastructure.Data
         public DbSet<Quest> Quests { get; set; }
         public DbSet<UserLevel> UserLevels { get; set; }
 
+        public DbSet<Character> Characters { get; set; }
+        public DbSet<Unlockable> Unlockables { get; set; }
+
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }

@@ -15,6 +15,8 @@ namespace Questlog.Application.Common.Interfaces
         IQuestRepository Quest { get; }
         IUserLevelRepository UserLevel { get; }
 
+        ICharacterRepository Character { get; }
+        IUnlockableRepository Unlockable { get; }
 
         Task SaveAsync();
     }
