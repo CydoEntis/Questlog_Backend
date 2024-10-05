@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Domain.Entities;
@@ -10,38 +11,36 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Services.Implementations
 {
-    public class GuildService
+    public class PartyMemberMemberService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<GuildService> _logger;
+        private readonly ILogger<PartyMemberMemberService> _logger;
 
-
-        public GuildService(IUnitOfWork unitOfWork, ILogger<GuildService> logger)
+        public PartyMemberMemberService(IUnitOfWork unitOfWork, ILogger<PartyMemberMemberService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-
         }
 
-        public async Task<Guild> CreateGuild(string userId, Guild guild)
+        public async Task<PartyMember> CreatePartyMember(string userId, PartyMember partyMember)
         {
             if (string.IsNullOrEmpty(userId))
                 throw new ArgumentNullException(nameof(userId), "User id cannot be null");
 
-            if (guild is null)
-                throw new ArgumentNullException(nameof(guild), "Guild cannot be null");
+            if (partyMember is null)
+                throw new ArgumentNullException(nameof(partyMember), "Party Member cannot be null");
 
             try
             {
-                var newGuild = new Guild
+                var newPartyMember = new PartyMember
                 {
-                    Name = guild.Name,
-                    Description = guild.Description
+                    UserId = userId,
+                    PartyId = partyMember.PartyId,
+                    Role = partyMember.Role
                 };
+                await _unitOfWork.PartyMember.CreateAsync(newPartyMember);
 
-                await _unitOfWork.Guild.CreateAsync(newGuild);
-
-                return newGuild;
+                return newPartyMember;
             }
             catch (DbUpdateException dbEx)
             {

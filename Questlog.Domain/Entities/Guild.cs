@@ -14,7 +14,15 @@ namespace Questlog.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [Required]
+        [MinLength(3)]
+        [MaxLength(25)]
         public string Name { get; set; }
+
+        [Required]
+        [MinLength(5)]
+        [MaxLength(100)]
+        public string Description { get; set; }
 
         public List<Party> Parties { get; set; }
 

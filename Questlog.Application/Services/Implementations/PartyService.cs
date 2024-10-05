@@ -21,20 +21,20 @@ namespace Questlog.Application.Services.Implementations
             _logger = logger;
         }
 
-        public async Task<Party> CreateParty(string userId, Party guild)
+        public async Task<Party> CreateParty(string userId, Party party)
         {
             if (string.IsNullOrEmpty(userId))
                 throw new ArgumentNullException(nameof(userId), "User id cannot be null");
 
-            if (guild is null)
-                throw new ArgumentNullException(nameof(guild), "Party cannot be null");
+            if (party is null)
+                throw new ArgumentNullException(nameof(party), "Party id cannot be null");
 
             try
             {
                 var newParty = new Party
                 {
-                    //DisplayName = character.DisplayName,
-                    //Archetype = character.Archetype,
+                    GuildId = party.GuildId,
+                    Name = party.Name,
                 };
                 await _unitOfWork.Party.CreateAsync(newParty);
 

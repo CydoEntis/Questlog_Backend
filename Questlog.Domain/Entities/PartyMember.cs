@@ -20,7 +20,7 @@ namespace Questlog.Domain.Entities
         public Party Party { get; set; }
 
         // Role inside the party (e.g., Leader, Member)
-        public string Role { get; set; }
+        public IdentityRole Role { get; set; }
 
         public DateTime JoinedOn { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

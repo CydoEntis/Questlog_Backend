@@ -11,6 +11,11 @@ namespace Questlog.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [Required]
+        [MinLength(3)]
+        [MaxLength(25)]
+        public string Name { get; set; }
+
         [ForeignKey("Guild")]
         public int GuildId { get; set; }
         public Guild Guild { get; set; }
