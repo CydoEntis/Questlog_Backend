@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Questlog.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Questlog.Infrastructure.Data;
 namespace Questlog.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241004195903_addedCascadeOnDeleteForApplicationUserAndCharacter")]
+    partial class addedCascadeOnDeleteForApplicationUserAndCharacter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,6 +205,9 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CharacterId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -254,6 +260,10 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CharacterId")
+                        .IsUnique()
+                        .HasFilter("[CharacterId] IS NOT NULL");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -272,10 +282,6 @@ namespace Questlog.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Archetype")
                         .HasColumnType("int");
@@ -301,9 +307,6 @@ namespace Questlog.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId")
-                        .IsUnique();
 
                     b.ToTable("Characters");
                 });
@@ -551,15 +554,14 @@ namespace Questlog.Infrastructure.Migrations
                     b.Navigation("MainQuest");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
+            modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", "User")
-                        .WithOne("Character")
-                        .HasForeignKey("Questlog.Domain.Entities.Character", "ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Questlog.Domain.Entities.Character", "Character")
+                        .WithOne("User")
+                        .HasForeignKey("Questlog.Domain.Entities.ApplicationUser", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("User");
+                    b.Navigation("Character");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
@@ -600,15 +602,12 @@ namespace Questlog.Infrastructure.Migrations
                     b.Navigation("Quests");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
-                {
-                    b.Navigation("Character")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
                 {
                     b.Navigation("Inventory");
+
+                    b.Navigation("User")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.MainQuest", b =>

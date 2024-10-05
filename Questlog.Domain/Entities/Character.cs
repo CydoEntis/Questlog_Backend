@@ -13,20 +13,29 @@ namespace Questlog.Domain.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         [Required]
         [MaxLength(12)]
         [MinLength(3)]
         public string DisplayName { get; set; }
+
         [Required]
         public Archetype Archetype { get; set; }
+
         [Required]
         public int CurrentLevel { get; set; } = 0;
+
         [Required]
         public int CurrentExp { get; set; } = 0;
+
         [Required]
         public int ExpToNextLevel { get; set; } = 100;
 
         public List<Unlockable> Inventory { get; set; } = new List<Unlockable>();
+
+        // Foreign key to ApplicationUser
+        [ForeignKey("ApplicationUserId")]
+        public string ApplicationUserId { get; set; }
 
         public ApplicationUser User { get; set; }
 
@@ -38,7 +47,6 @@ namespace Questlog.Domain.Entities
             CurrentLevel = 1;
             CurrentExp = 0;
         }
-
 
         public int CalculateExpForLevel()
         {
