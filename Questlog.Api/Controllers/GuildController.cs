@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
+using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.DTOs.Guild;
 using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Application.Services.Implementations;
@@ -24,14 +25,16 @@ namespace Questlog.Api.Controllers
         private readonly IGuildService _guildService;
         private readonly IPartyService _partyService;
         private readonly IPartyMemberService _partyMemberService;
+        private readonly ICharacterService _characterService;
         private readonly IMapper _mapper;
 
-        public GuildController(IGuildService guildService, IPartyService partyService, IPartyMemberService partyMemberService, IMapper mapper)
+        public GuildController(IGuildService guildService, IPartyService partyService, IPartyMemberService partyMemberService, ICharacterService characterService, IMapper mapper)
         {
             _response = new ApiResponse();
             _guildService = guildService;
             _partyService = partyService;
             _partyMemberService = partyMemberService;
+            _characterService = characterService;
             _mapper = mapper;
         }
 
@@ -61,13 +64,16 @@ namespace Questlog.Api.Controllers
 
                 Party createdParty = await _partyService.CreateParty(userId, newParty);
 
+                Character character = await _characterService.GetCharacterAsync(userId);
+
                 PartyMember newPartyMember = new PartyMember
                 {
-                    //UserId = userId,
-
+                    CharacterId = character.Id,
+                    PartyId = createdParty.Id,
+                    Role = RoleConstants.GetRole(RoleConstants.Leader)
                 };
 
-                //PartyMember createdPartyMember = await _partyMemberService.CreatePartyMember(userId, partyMember);
+                PartyMember createdPartyMember = await _partyMemberService.CreatePartyMember(userId, newPartyMember);
 
                 //Party newParty = new Party
                 //{

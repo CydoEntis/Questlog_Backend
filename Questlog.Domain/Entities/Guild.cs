@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Questlog.Domain.Entities
 {
@@ -24,7 +21,12 @@ namespace Questlog.Domain.Entities
         [MaxLength(100)]
         public string Description { get; set; }
 
-        public List<Party> Parties { get; set; }
+        public string GuildLeaderId { get; set; }
+
+        [ForeignKey("GuildLeaderId")]
+        public virtual ApplicationUser GuildLeader { get; set; }
+
+        public List<Party> Parties { get; set; } = new List<Party>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
