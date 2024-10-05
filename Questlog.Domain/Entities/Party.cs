@@ -20,5 +20,8 @@ namespace Questlog.Domain.Entities
         public Adventure Adventure { get; set; }
 
         public virtual List<PartyMember> PartyMembers { get; set; } = new List<PartyMember>();
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

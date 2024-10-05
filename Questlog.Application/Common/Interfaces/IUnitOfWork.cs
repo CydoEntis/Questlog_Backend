@@ -13,10 +13,14 @@ namespace Questlog.Application.Common.Interfaces
         IMainQuestRepository MainQuest { get; }
         IQuestBoardRepository QuestBoard { get; }
         IQuestRepository Quest { get; }
-        IUserLevelRepository UserLevel { get; }
 
         ICharacterRepository Character { get; }
         IUnlockableRepository Unlockable { get; }
+
+        IAdventureRepository Adventure { get; }
+        IPartyRepository Party { get; }
+        IPartyMemberRepository PartyMember { get; }
+
 
         Task SaveAsync();
     }

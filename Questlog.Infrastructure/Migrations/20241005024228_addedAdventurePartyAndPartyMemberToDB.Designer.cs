@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Questlog.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Questlog.Infrastructure.Data;
 namespace Questlog.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241005024228_addedAdventurePartyAndPartyMemberToDB")]
+    partial class addedAdventurePartyAndPartyMemberToDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,23 +197,6 @@ namespace Questlog.Infrastructure.Migrations
                     b.ToTable("QuestBoards");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.Adventure", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Adventures");
-                });
-
             modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -357,49 +343,6 @@ namespace Questlog.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MainQuests");
-                });
-
-            modelBuilder.Entity("Questlog.Domain.Entities.Party", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AdventureId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdventureId")
-                        .IsUnique();
-
-                    b.ToTable("Parties");
-                });
-
-            modelBuilder.Entity("Questlog.Domain.Entities.PartyMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PartyId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PartyId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PartyMembers");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
@@ -622,36 +565,6 @@ namespace Questlog.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.Party", b =>
-                {
-                    b.HasOne("Questlog.Domain.Entities.Adventure", "Adventure")
-                        .WithOne("Party")
-                        .HasForeignKey("Questlog.Domain.Entities.Party", "AdventureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Adventure");
-                });
-
-            modelBuilder.Entity("Questlog.Domain.Entities.PartyMember", b =>
-                {
-                    b.HasOne("Questlog.Domain.Entities.Party", "Party")
-                        .WithMany("PartyMembers")
-                        .HasForeignKey("PartyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-
-                    b.Navigation("Party");
-                });
-
             modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
                 {
                     b.HasOne("QuestBoard", "QuestBoard")
@@ -690,12 +603,6 @@ namespace Questlog.Infrastructure.Migrations
                     b.Navigation("Quests");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.Adventure", b =>
-                {
-                    b.Navigation("Party")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("Character")
@@ -710,11 +617,6 @@ namespace Questlog.Infrastructure.Migrations
             modelBuilder.Entity("Questlog.Domain.Entities.MainQuest", b =>
                 {
                     b.Navigation("QuestBoards");
-                });
-
-            modelBuilder.Entity("Questlog.Domain.Entities.Party", b =>
-                {
-                    b.Navigation("PartyMembers");
                 });
 #pragma warning restore 612, 618
         }

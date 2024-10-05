@@ -16,9 +16,15 @@ namespace Questlog.Domain.Entities
 
         public string UserId { get; set; }
 
+        [ForeignKey("UserId")]
+        public ApplicationUser ApplicationUser { get; set; }
+
         [ForeignKey("Party")]
         public int PartyId { get; set; }
 
         public Party Party { get; set; }
+
+        public DateTime JoinedOn { get; set; } = DateTime.UtcNow;
+        public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
     }
 }

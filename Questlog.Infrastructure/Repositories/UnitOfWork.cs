@@ -16,9 +16,13 @@ namespace Questlog.Infrastructure.Repositories
         public IMainQuestRepository MainQuest { get; private set; }
         public IQuestBoardRepository QuestBoard { get; private set; }
         public IQuestRepository Quest { get; private set; }
-        public IUserLevelRepository UserLevel { get; private set; }
+
+
         public ICharacterRepository Character { get; private set; }
         public IUnlockableRepository Unlockable { get; private set; }
+        public IAdventureRepository Adventure { get; private set; }
+        public IPartyRepository Party { get; private set; }
+        public IPartyMemberRepository PartyMember { get; private set; }
 
 
 
@@ -26,14 +30,25 @@ namespace Questlog.Infrastructure.Repositories
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
+
             User = new UserRepository(db);
             Token = new TokenRepository(db);
+
+
+            Adventure = new AdventureRepository(db);
+            Party = new PartyRepository(db);
+            PartyMember = new PartyMemberRepository(db);
+
+            Character = new CharacterRepository(db);
+            Unlockable = new UnlockableRepository(db);
+
+            // TODO: Still need  to be reworked/refactored
             MainQuest = new MainQuestRepository(db);
             QuestBoard = new QuestBoardRepository(db);
             Quest = new QuestRepository(db);
-            UserLevel = new UserLevelRepository(db);
-            Character = new CharacterRepository(db);
-            Unlockable = new UnlockableRepository(db);
+
+
+ 
         }
 
 
