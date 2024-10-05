@@ -11,9 +11,9 @@ namespace Questlog.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [ForeignKey("ApplicationUser")]
-        public string UserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        [ForeignKey("Character")]
+        public int CharacterId { get; set; }
+        public Character Character { get; set; }
 
         [ForeignKey("Party")]
         public int PartyId { get; set; }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Interfaces;
+using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Services.Implementations
 {
-    public class PartyMemberMemberService
+    public class PartyMemberMemberService : IPartyMemberService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<PartyMemberMemberService> _logger;
@@ -34,7 +35,7 @@ namespace Questlog.Application.Services.Implementations
             {
                 var newPartyMember = new PartyMember
                 {
-                    UserId = userId,
+                    //UserId = userId,
                     PartyId = partyMember.PartyId,
                     Role = partyMember.Role
                 };
