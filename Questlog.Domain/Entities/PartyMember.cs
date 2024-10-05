@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
 namespace Questlog.Domain.Entities
@@ -15,19 +11,18 @@ namespace Questlog.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [ForeignKey("ApplicationUser")]
         public string UserId { get; set; }
-
-        [ForeignKey("CharacterId")]
-        public Character Character { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
 
         [ForeignKey("Party")]
         public int PartyId { get; set; }
-
         public Party Party { get; set; }
 
-        public IdentityRole Role { get; set; }
+        // Role inside the party (e.g., Leader, Member)
+        public string Role { get; set; }
 
         public DateTime JoinedOn { get; set; } = DateTime.UtcNow;
-        public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

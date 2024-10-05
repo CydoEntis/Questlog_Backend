@@ -20,7 +20,7 @@ namespace Questlog.Infrastructure.Repositories
 
         public ICharacterRepository Character { get; private set; }
         public IUnlockableRepository Unlockable { get; private set; }
-        public IAdventureRepository Adventure { get; private set; }
+        public IGuildRepository Guild { get; private set; }
         public IPartyRepository Party { get; private set; }
         public IPartyMemberRepository PartyMember { get; private set; }
 
@@ -34,7 +34,7 @@ namespace Questlog.Infrastructure.Repositories
             Token = new TokenRepository(db);
 
 
-            Adventure = new AdventureRepository(db);
+            Guild = new GuildRepository(db);
             Party = new PartyRepository(db);
             PartyMember = new PartyMemberRepository(db);
 

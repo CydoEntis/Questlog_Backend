@@ -21,7 +21,7 @@ namespace Questlog.Infrastructure.Data
         public DbSet<Character> Characters { get; set; }
         public DbSet<Unlockable> Unlockables { get; set; }
 
-        public DbSet<Adventure> Adventures { get; set; }
+        public DbSet<Guild> Guilds { get; set; }
         public DbSet<Party> Parties { get; set; }
         public DbSet<PartyMember> PartyMembers { get; set; }
 

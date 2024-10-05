@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.Interfaces
 {
-    public interface IAdventureRepository : IBaseRepository<Adventure>
+    public interface IGuildRepository : IBaseRepository<Guild>
     {
-        Task<Adventure> UpdateAsync(Adventure entity);
+        Task<Guild> UpdateAsync(Guild entity);
     }
 }

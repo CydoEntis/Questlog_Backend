@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Questlog.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Questlog.Infrastructure.Data;
 namespace Questlog.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241005165529_addedGuildUserRelationshipAndRemovedAdventure")]
+    partial class addedGuildUserRelationshipAndRemovedAdventure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -265,6 +268,26 @@ namespace Questlog.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUserGuild", b =>
+                {
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("GuildId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PartyId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ApplicationUserId", "GuildId");
+
+                    b.HasIndex("GuildId");
+
+                    b.HasIndex("PartyId");
+
+                    b.ToTable("ApplicationUserGuild");
+                });
+
             modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
                 {
                     b.Property<int>("Id")
@@ -373,18 +396,18 @@ namespace Questlog.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AdventureId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("GuildId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GuildId");
+                    b.HasIndex("AdventureId");
 
                     b.ToTable("Parties");
                 });
@@ -397,28 +420,32 @@ namespace Questlog.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CharacterId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("JoinedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("PartyId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime>("UpdateAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CharacterId");
+
                     b.HasIndex("PartyId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("PartyMembers");
                 });
@@ -607,6 +634,29 @@ namespace Questlog.Infrastructure.Migrations
                     b.Navigation("MainQuest");
                 });
 
+            modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUserGuild", b =>
+                {
+                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany("ApplicationUserGuilds")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Questlog.Domain.Entities.Guild", "Guild")
+                        .WithMany()
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Questlog.Domain.Entities.Party", null)
+                        .WithMany("ApplicationUserGuilds")
+                        .HasForeignKey("PartyId");
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Guild");
+                });
+
             modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
                 {
                     b.HasOne("Questlog.Domain.Entities.ApplicationUser", "User")
@@ -620,32 +670,38 @@ namespace Questlog.Infrastructure.Migrations
 
             modelBuilder.Entity("Questlog.Domain.Entities.Party", b =>
                 {
-                    b.HasOne("Questlog.Domain.Entities.Guild", "Guild")
+                    b.HasOne("Questlog.Domain.Entities.Guild", "Adventure")
                         .WithMany("Parties")
-                        .HasForeignKey("GuildId")
+                        .HasForeignKey("AdventureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Guild");
+                    b.Navigation("Adventure");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.PartyMember", b =>
                 {
+                    b.HasOne("Questlog.Domain.Entities.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Questlog.Domain.Entities.Party", "Party")
                         .WithMany("PartyMembers")
                         .HasForeignKey("PartyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany("JoinedParties")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId");
 
-                    b.Navigation("ApplicationUser");
+                    b.Navigation("Character");
 
                     b.Navigation("Party");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
@@ -677,10 +733,10 @@ namespace Questlog.Infrastructure.Migrations
 
             modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
                 {
+                    b.Navigation("ApplicationUserGuilds");
+
                     b.Navigation("Character")
                         .IsRequired();
-
-                    b.Navigation("JoinedParties");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
@@ -700,6 +756,8 @@ namespace Questlog.Infrastructure.Migrations
 
             modelBuilder.Entity("Questlog.Domain.Entities.Party", b =>
                 {
+                    b.Navigation("ApplicationUserGuilds");
+
                     b.Navigation("PartyMembers");
                 });
 #pragma warning restore 612, 618

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Domain.Entities
 {
-    public class Adventure
+    public class Guild
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -16,7 +16,7 @@ namespace Questlog.Domain.Entities
 
         public string Name { get; set; }
 
-        public Party Party { get; set; }
+        public List<Party> Parties { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

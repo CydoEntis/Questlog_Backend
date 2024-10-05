@@ -17,7 +17,7 @@ namespace Questlog.Application.Common.Interfaces
         ICharacterRepository Character { get; }
         IUnlockableRepository Unlockable { get; }
 
-        IAdventureRepository Adventure { get; }
+        IGuildRepository Guild { get; }
         IPartyRepository Party { get; }
         IPartyMemberRepository PartyMember { get; }
 

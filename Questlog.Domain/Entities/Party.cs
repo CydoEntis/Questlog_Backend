@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Questlog.Domain.Entities
 {
@@ -14,11 +11,11 @@ namespace Questlog.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [ForeignKey("Adventure")]
-        public int AdventureId { get; set; }
+        [ForeignKey("Guild")]
+        public int GuildId { get; set; }
+        public Guild Guild { get; set; }
 
-        public Adventure Adventure { get; set; }
-
+        // List of party members
         public virtual List<PartyMember> PartyMembers { get; set; } = new List<PartyMember>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

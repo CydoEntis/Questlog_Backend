@@ -10,19 +10,19 @@ using System.Threading.Tasks;
 
 namespace Questlog.Infrastructure.Repositories
 {
-    public class AdventureRepository : BaseRepository<Adventure>, IAdventureRepository
+    public class GuildRepository : BaseRepository<Guild>, IGuildRepository
     {
         private readonly ApplicationDbContext _db;
 
-        public AdventureRepository(ApplicationDbContext db) : base(db)
+        public GuildRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
         }
 
-        public async Task<Adventure> UpdateAsync(Adventure entity)
+        public async Task<Guild> UpdateAsync(Guild entity)
         {
             entity.UpdatedAt = DateTime.Now;
-            _db.Adventures.Update(entity);
+            _db.Guilds.Update(entity);
             await _db.SaveChangesAsync();
             return entity;
         }
