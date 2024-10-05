@@ -1,5 +1,4 @@
 ﻿using Questlog.Application.Common.DTOs.Character;
-using Questlog.Application.Common.DTOs.UserLevel;
 using System;
 using System.Collections.Generic;
 using System.Linq;

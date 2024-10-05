@@ -1,5 +1,4 @@
-﻿using Questlog.Application.Common.DTOs.UserLevel;
-using Questlog.Domain.Entities;
+﻿using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

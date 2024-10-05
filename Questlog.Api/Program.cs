@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using Questlog.Api;
+using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Implementations;
 using Questlog.Application.Services.Interfaces;
@@ -30,8 +31,10 @@ var connectionString = builder.Configuration["DefaultConnectionString"];
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<TokenValidationFilter>();
 
@@ -43,11 +46,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMainQuestService, MainQuestService>();
 builder.Services.AddScoped<IQuestBoardService, QuestBoardService>();
 builder.Services.AddScoped<IQuestService, QuestService>();
-builder.Services.AddScoped<IUserLevelService, UserLevelService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
-
-
-
 
 
 
@@ -86,6 +85,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Create roles before starting the app
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await CreateRoles(services);  
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -98,19 +104,26 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.Use(async (context, next) =>
-//{
-//    Console.WriteLine($"Request Path: {context.Request.Path}");
-//    if (context.Request.Headers.ContainsKey("Authorization"))
-//    {
-//        Console.WriteLine($"Authorization Header: {context.Request.Headers["Authorization"]}");
-//    }
-//    await next();
-//    Console.WriteLine($"Response Status Code: {context.Response.StatusCode}");
-//});
+
 
 
 
 app.MapControllers();
 
 app.Run();
+
+async Task CreateRoles(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    var roles = new List<string> { RoleConstants.Leader, RoleConstants.Strategist, RoleConstants.Member };
+
+    foreach (var role in roles)
+    {
+        var roleExists = await roleManager.RoleExistsAsync(role);
+        if (!roleExists)
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}

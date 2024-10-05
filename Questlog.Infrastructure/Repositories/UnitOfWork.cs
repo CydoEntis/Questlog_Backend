@@ -26,7 +26,6 @@ namespace Questlog.Infrastructure.Repositories
 
 
 
-
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
