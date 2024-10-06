@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Interfaces;
-using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Services.Implementations
 {
-    public class PartyMemberService : IPartyMemberService
+    public class GuildMemberService : IGuildMemberService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<PartyMemberService> _logger;
+        private readonly ILogger<GuildMemberService> _logger;
 
-        public PartyMemberService(IUnitOfWork unitOfWork, ILogger<PartyMemberService> logger)
+        public GuildMemberService(IUnitOfWork unitOfWork, ILogger<GuildMemberService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;

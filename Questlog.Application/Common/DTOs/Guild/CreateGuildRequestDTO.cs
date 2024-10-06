@@ -10,7 +10,7 @@ using Questlog.Application.Common.DTOs.Party;
 
 namespace Questlog.Application.Common.DTOs.Guild
 {
-    public class CreateGuildRequestDTO
+    public record CreateGuildRequestDTO
     {
         [Required]
         [MinLength(3)]

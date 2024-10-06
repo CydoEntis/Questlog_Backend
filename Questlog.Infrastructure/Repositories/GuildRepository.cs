@@ -1,5 +1,4 @@
-﻿
-using Questlog.Application.Common.Interfaces;
+﻿using Questlog.Application.Common.Interfaces;
 using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
 using System;
@@ -26,6 +25,5 @@ namespace Questlog.Infrastructure.Repositories
             await _db.SaveChangesAsync();
             return entity;
         }
-
     }
 }

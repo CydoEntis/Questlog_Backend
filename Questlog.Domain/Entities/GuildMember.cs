@@ -24,5 +24,6 @@ namespace Questlog.Domain.Entities
         public Guild Guild { get; set; }
 
         public DateTime JoinedOn { get; set; } = DateTime.Now;
+        public DateTime UpdatedOn { get; set; }
     }
 }

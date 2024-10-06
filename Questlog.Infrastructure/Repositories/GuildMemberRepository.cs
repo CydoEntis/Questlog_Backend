@@ -9,22 +9,21 @@ using System.Threading.Tasks;
 
 namespace Questlog.Infrastructure.Repositories
 {
-    public class GuildRepository : BaseRepository<Guild>, IGuildRepository
+    public class GuildMemberRepository : BaseRepository<GuildMember>, IGuildMemberRepository
     {
         private readonly ApplicationDbContext _db;
 
-        public GuildRepository(ApplicationDbContext db) : base(db)
+        public GuildMemberRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
         }
 
-        public async Task<Guild> UpdateAsync(Guild entity)
+        public async Task<GuildMember> UpdateAsync(GuildMember entity)
         {
-            entity.UpdatedAt = DateTime.Now;
-            _db.Guilds.Update(entity);
+            entity.UpdatedOn = DateTime.Now;
+            _db.GuildMembers.Update(entity);
             await _db.SaveChangesAsync();
             return entity;
         }
-
     }
 }
