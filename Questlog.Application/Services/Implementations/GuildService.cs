@@ -37,12 +37,13 @@ namespace Questlog.Application.Services.Implementations
                 var newGuild = new Guild
                 {
                     Name = guild.Name,
-                    Description = guild.Description
+                    Description = guild.Description,
+                    GuildLeaderId = userId
                 };
 
-                await _unitOfWork.Guild.CreateAsync(newGuild);
+                Guild createdGuild = await _unitOfWork.Guild.CreateAsync(newGuild);
 
-                return newGuild;
+                return createdGuild;
             }
             catch (DbUpdateException dbEx)
             {

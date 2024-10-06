@@ -21,6 +21,8 @@ namespace Questlog.Infrastructure.Repositories
         public ICharacterRepository Character { get; private set; }
         public IUnlockableRepository Unlockable { get; private set; }
         public IGuildRepository Guild { get; private set; }
+        public IGuildMemberRepository GuildMember { get; private set; }
+
         public IPartyRepository Party { get; private set; }
         public IPartyMemberRepository PartyMember { get; private set; }
 
@@ -35,6 +37,8 @@ namespace Questlog.Infrastructure.Repositories
 
 
             Guild = new GuildRepository(db);
+            GuildMember = new GuildMemberRepository(db);
+
             Party = new PartyRepository(db);
             PartyMember = new PartyMemberRepository(db);
 

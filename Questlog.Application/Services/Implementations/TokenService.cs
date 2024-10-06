@@ -40,7 +40,7 @@ namespace Questlog.Application.Services.Implementations
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 }),
                 //Expires = DateTime.UtcNow.AddMinutes(1),
-                Expires = DateTime.UtcNow.AddSeconds(30),
+                Expires = DateTime.UtcNow.AddMinutes(30),
                 SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = "https://localhost:7265/",
                 Audience = "http://localhost:5173/",
@@ -106,7 +106,7 @@ namespace Questlog.Application.Services.Implementations
                 IsValid = true,
                 UserId = userId,
                 JwtTokenId = tokenId,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+                ExpiresAt = DateTime.UtcNow.AddHours(1),
                 Refresh_Token = Guid.NewGuid() + "-" + Guid.NewGuid()
             };
 

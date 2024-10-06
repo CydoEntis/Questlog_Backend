@@ -60,17 +60,20 @@ namespace Questlog.Api.Controllers
                 {
                     UserId = userId,
                     GuildId = createdGuild.Id,
-                    
+                    Role = RoleConstants.GuildLeader,
                 };
 
+                GuildMember addedGuildMember = await _guildMemberService.CreateGuildMember(newGuildMember);
 
-    
+                CreatedGuildResponseDTO createdGuildResponseDTO = _mapper.Map<CreatedGuildResponseDTO>(createdGuild);
+                GuildMemberResponseDTO guildMemberResponseDTO = _mapper.Map<GuildMemberResponseDTO>(addedGuildMember);
+                createdGuildResponseDTO.GuildMembers = new List<GuildMemberResponseDTO> { guildMemberResponseDTO };
+
                 _response.StatusCode = HttpStatusCode.Created;
-                //_response.Result = responseDTO;
+                _response.Result = createdGuildResponseDTO;
 
                 return _response;
 
-                //return CreatedAtAction(nameof(GetQuest), new { id = newQuestId }, _response);
             }
             catch (ArgumentNullException ex)
             {

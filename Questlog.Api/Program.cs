@@ -48,6 +48,14 @@ builder.Services.AddScoped<IQuestBoardService, QuestBoardService>();
 builder.Services.AddScoped<IQuestService, QuestService>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 
+builder.Services.AddScoped<IGuildService, GuildService>();
+builder.Services.AddScoped<IGuildMemberService, GuildMemberService>();
+builder.Services.AddScoped<IPartyService, PartyService>();
+builder.Services.AddScoped<IPartyMemberService, PartyMemberService>();
+
+
+
+
 
 
 builder.Services.AddControllers(options =>

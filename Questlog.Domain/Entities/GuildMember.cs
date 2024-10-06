@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -22,6 +23,8 @@ namespace Questlog.Domain.Entities
         public int GuildId { get; set; }
 
         public Guild Guild { get; set; }
+
+        public string Role { get; set; }
 
         public DateTime JoinedOn { get; set; } = DateTime.Now;
         public DateTime UpdatedOn { get; set; }

@@ -18,6 +18,8 @@ namespace Questlog.Application.Common.Interfaces
         IUnlockableRepository Unlockable { get; }
 
         IGuildRepository Guild { get; }
+        IGuildMemberRepository GuildMember { get; }
+
         IPartyRepository Party { get; }
         IPartyMemberRepository PartyMember { get; }
 

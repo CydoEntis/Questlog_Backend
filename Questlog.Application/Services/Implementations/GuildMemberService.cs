@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Interfaces;
+using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -21,34 +22,28 @@ namespace Questlog.Application.Services.Implementations
             _logger = logger;
         }
 
-        public async Task<PartyMember> CreatePartyMember(string userId, PartyMember partyMember)
+        public async Task<GuildMember> CreateGuildMember(GuildMember guildMember)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentNullException(nameof(userId), "User id cannot be null");
+            if (guildMember is null)
+                throw new ArgumentNullException(nameof(guildMember), "Guild Member cannot be null");
 
-            if (partyMember is null)
-                throw new ArgumentNullException(nameof(partyMember), "Party Member cannot be null");
+            if (string.IsNullOrEmpty(guildMember.UserId))
+                throw new ArgumentNullException(nameof(guildMember.UserId), "User id cannot be null");
 
             try
             {
-                var newPartyMember = new PartyMember
-                {
-                    //UserId = userId,
-                    PartyId = partyMember.PartyId,
-                    Role = partyMember.Role
-                };
-                await _unitOfWork.PartyMember.CreateAsync(newPartyMember);
+                GuildMember createdGuildMember = await _unitOfWork.GuildMember.CreateAsync(guildMember);
 
-                return newPartyMember;
+                return createdGuildMember;
             }
             catch (DbUpdateException dbEx)
             {
-                _logger.LogError(dbEx, "Database update error while creating Character.");
+                _logger.LogError(dbEx, "Database update error while creating Guild Member.");
                 throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating Character.");
+                _logger.LogError(ex, "An error occurred while creating Guild Member.");
                 throw;
             }
         }

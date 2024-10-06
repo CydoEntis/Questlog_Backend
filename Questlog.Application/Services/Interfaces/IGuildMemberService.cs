@@ -9,6 +9,6 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface IGuildMemberService
     {
-        Task<PartyMember> CreatePartyMember(string userId, PartyMember partyMember);
+        Task<GuildMember> CreateGuildMember(GuildMember guildMember);
     }
 }
