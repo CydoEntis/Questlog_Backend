@@ -97,7 +97,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await CreateRoles(services);  
+    await CreateRoles(services);
 }
 
 // Configure the HTTP request pipeline.
@@ -124,7 +124,15 @@ async Task CreateRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    var roles = new List<string> { RoleConstants.GuildLeader, RoleConstants.GuildOfficer, RoleConstants.GuildMember, RoleConstants.PartyCaptain, RoleConstants.PartyStrategist, RoleConstants.PartyMember };
+    var roles = new List<string> {
+        RoleConstants.GuildLeader,
+        RoleConstants.GuildOfficer,
+        RoleConstants.GuildMember,
+        RoleConstants.PartyLeader,
+        RoleConstants.PartyCaptain,
+        RoleConstants.PartyStrategist,
+        RoleConstants.PartyMember
+    };
 
     foreach (var role in roles)
     {

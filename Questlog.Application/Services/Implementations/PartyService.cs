@@ -22,11 +22,8 @@ namespace Questlog.Application.Services.Implementations
             _logger = logger;
         }
 
-        public async Task<Party> CreateParty(string userId, Party party)
+        public async Task<Party> CreateParty(Party party)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentNullException(nameof(userId), "User id cannot be null");
-
             if (party is null)
                 throw new ArgumentNullException(nameof(party), "Party id cannot be null");
 

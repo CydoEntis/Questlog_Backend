@@ -9,6 +9,6 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface IPartyService
     {
-        Task<Party> CreateParty(string userId, Party party);
+        Task<Party> CreateParty(Party party);
     }
 }

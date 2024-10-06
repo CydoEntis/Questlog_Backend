@@ -23,25 +23,16 @@ namespace Questlog.Application.Services.Implementations
             _logger = logger;
         }
 
-        public async Task<PartyMember> CreatePartyMember(string userId, PartyMember partyMember)
+        public async Task<PartyMember> CreatePartyMember(PartyMember partyMember)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentNullException(nameof(userId), "User id cannot be null");
-
             if (partyMember is null)
                 throw new ArgumentNullException(nameof(partyMember), "Party Member cannot be null");
 
             try
             {
-                var newPartyMember = new PartyMember
-                {
-                    //UserId = userId,
-                    PartyId = partyMember.PartyId,
-                    Role = partyMember.Role
-                };
-                await _unitOfWork.PartyMember.CreateAsync(newPartyMember);
+                PartyMember createdPartyMember = await _unitOfWork.PartyMember.CreateAsync(partyMember);
 
-                return newPartyMember;
+                return createdPartyMember;
             }
             catch (DbUpdateException dbEx)
             {
