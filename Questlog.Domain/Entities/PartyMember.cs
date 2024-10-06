@@ -11,21 +11,20 @@ namespace Questlog.Domain.Entities
         public int Id { get; set; }
 
         [ForeignKey("ApplicationUser")]
-        public string UserId { get; set; } // Foreign key to GuildMember
+        public string UserId { get; set; } 
 
-        // Foreign key to Guild (to relate to GuildMember)
+   
         [ForeignKey("GuildMember")]
-        public int GuildId { get; set; } // This references the Guild through GuildMember
+        public int GuildId { get; set; } 
 
-        // Navigation property to GuildMember
         public GuildMember GuildMember { get; set; }
 
         [ForeignKey("Party")]
-        public int PartyId { get; set; } // Foreign key to Party
+        public int PartyId { get; set; } 
 
-        public Party Party { get; set; } // Navigation property to Party
+        public Party Party { get; set; } 
 
-        public DateTime JoinedAt { get; set; } = DateTime.UtcNow; // Timestamp for when the member joined the party
+        public DateTime JoinedAt { get; set; } = DateTime.UtcNow; 
 
 
         public IdentityRole Role { get; set; } 

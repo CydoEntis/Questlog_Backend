@@ -10,7 +10,7 @@ namespace Questlog.Infrastructure.Data
         public DbSet<MainQuest> MainQuests { get; set; }
         public DbSet<QuestBoard> QuestBoards { get; set; }
         public DbSet<Quest> Quests { get; set; }
-        public DbSet<Unlockable> Unlockables { get; set; } // Might need to change
+        public DbSet<Unlockable> Unlockables { get; set; } 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Character> Characters { get; set; }
         public DbSet<Guild> Guilds { get; set; }
@@ -68,9 +68,6 @@ namespace Questlog.Infrastructure.Data
                 .WithMany(p => p.PartyMembers)
                 .OnDelete(DeleteBehavior.Cascade);
         }
-
-
-
 
     }
 }
