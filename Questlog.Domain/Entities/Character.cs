@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Questlog.Domain.Entities;
 
 namespace Questlog.Domain.Entities
 {
@@ -23,7 +24,7 @@ namespace Questlog.Domain.Entities
         public Archetype Archetype { get; set; }
 
         [Required]
-        public int CurrentLevel { get; set; } = 0;
+        public int CurrentLevel { get; set; } = 1;
 
         [Required]
         public int CurrentExp { get; set; } = 0;
@@ -31,16 +32,14 @@ namespace Questlog.Domain.Entities
         [Required]
         public int ExpToNextLevel { get; set; } = 100;
 
-        public List<Unlockable> Inventory { get; set; } = new List<Unlockable>();
-
-        // Foreign key to ApplicationUser
-        [ForeignKey("ApplicationUserId")]
-        public string ApplicationUserId { get; set; }
-
-        public ApplicationUser User { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+
+        [ForeignKey("ApplicationUser")]
+        public string UserId { get; set; }
+
+        public virtual ApplicationUser ApplicationUser { get; set; }
 
         public Character()
         {
@@ -55,3 +54,4 @@ namespace Questlog.Domain.Entities
         }
     }
 }
+

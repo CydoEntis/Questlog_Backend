@@ -20,7 +20,7 @@ namespace Questlog.Infrastructure.Repositories
 
         public async Task<Character?> GetCharacterAsync(string userId)
         {
-            return await GetAsync(x => x.User.Id == userId, tracked: true);
+            return await GetAsync(x => x.ApplicationUser.Id == userId, tracked: true);
         }
 
         public async Task<Character> UpdateAsync(Character entity)

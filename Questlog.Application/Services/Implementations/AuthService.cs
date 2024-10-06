@@ -104,7 +104,7 @@ namespace Questlog.Application.Services.Implementations
                     {
                         DisplayName = registerRequestDTO.DisplayName,
                         Archetype = registerRequestDTO.Archetype,
-                        User = user, // This sets the User navigation property to the new ApplicationUser
+                        ApplicationUser = user, // This sets the User navigation property to the new ApplicationUser
                     };
 
                     await _characterService.CreateCharacterAsync(user.Id, newCharacter);

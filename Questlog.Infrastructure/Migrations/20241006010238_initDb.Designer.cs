@@ -12,8 +12,8 @@ using Questlog.Infrastructure.Data;
 namespace Questlog.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241004011625_removedUserLevelAndDisplayNameFromApplicationUser")]
-    partial class removedUserLevelAndDisplayNameFromApplicationUser
+    [Migration("20241006010238_initDb")]
+    partial class initDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -205,9 +205,6 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("CharacterId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -260,9 +257,6 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CharacterId")
-                        .IsUnique();
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -305,9 +299,83 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
                     b.ToTable("Characters");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.Guild", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("GuildLeaderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("GuildLeaderId");
+
+                    b.ToTable("Guilds");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.GuildMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GuildId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("JoinedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GuildMembers");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.MainQuest", b =>
@@ -342,6 +410,70 @@ namespace Questlog.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MainQuests");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.Party", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GuildId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildId");
+
+                    b.ToTable("Parties");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.PartyMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GuildId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PartyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildId");
+
+                    b.HasIndex("PartyId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("PartyMembers");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
@@ -466,31 +598,6 @@ namespace Questlog.Infrastructure.Migrations
                     b.ToTable("Unlockables");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.UserLevel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CurrentExp")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CurrentLevel")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("UserLevels");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -553,15 +660,85 @@ namespace Questlog.Infrastructure.Migrations
                     b.Navigation("MainQuest");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
                 {
-                    b.HasOne("Questlog.Domain.Entities.Character", "Character")
-                        .WithOne("User")
-                        .HasForeignKey("Questlog.Domain.Entities.ApplicationUser", "CharacterId")
+                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", "ApplicationUser")
+                        .WithOne("Character")
+                        .HasForeignKey("Questlog.Domain.Entities.Character", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Character");
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.Guild", b =>
+                {
+                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", null)
+                        .WithMany("Guilds")
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", "GuildLeader")
+                        .WithMany()
+                        .HasForeignKey("GuildLeaderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GuildLeader");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.GuildMember", b =>
+                {
+                    b.HasOne("Questlog.Domain.Entities.Guild", "Guild")
+                        .WithMany("GuildMembers")
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany("GuildMembers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Guild");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.Party", b =>
+                {
+                    b.HasOne("Questlog.Domain.Entities.Guild", "Guild")
+                        .WithMany("Parties")
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guild");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.PartyMember", b =>
+                {
+                    b.HasOne("Questlog.Domain.Entities.GuildMember", "GuildMember")
+                        .WithMany()
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Questlog.Domain.Entities.Party", "Party")
+                        .WithMany("PartyMembers")
+                        .HasForeignKey("PartyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId");
+
+                    b.Navigation("GuildMember");
+
+                    b.Navigation("Party");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.Quest", b =>
@@ -578,7 +755,7 @@ namespace Questlog.Infrastructure.Migrations
             modelBuilder.Entity("Questlog.Domain.Entities.Unlockable", b =>
                 {
                     b.HasOne("Questlog.Domain.Entities.Character", "Character")
-                        .WithMany("Inventory")
+                        .WithMany()
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -586,33 +763,36 @@ namespace Questlog.Infrastructure.Migrations
                     b.Navigation("Character");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.UserLevel", b =>
-                {
-                    b.HasOne("Questlog.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-                });
-
             modelBuilder.Entity("QuestBoard", b =>
                 {
                     b.Navigation("Quests");
                 });
 
-            modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
+            modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.Navigation("Inventory");
-
-                    b.Navigation("User")
+                    b.Navigation("Character")
                         .IsRequired();
+
+                    b.Navigation("GuildMembers");
+
+                    b.Navigation("Guilds");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.Guild", b =>
+                {
+                    b.Navigation("GuildMembers");
+
+                    b.Navigation("Parties");
                 });
 
             modelBuilder.Entity("Questlog.Domain.Entities.MainQuest", b =>
                 {
                     b.Navigation("QuestBoards");
+                });
+
+            modelBuilder.Entity("Questlog.Domain.Entities.Party", b =>
+                {
+                    b.Navigation("PartyMembers");
                 });
 #pragma warning restore 612, 618
         }

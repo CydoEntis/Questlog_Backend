@@ -8,21 +8,27 @@ namespace Questlog.Domain.Entities
     public class PartyMember
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [ForeignKey("Character")]
-        public int CharacterId { get; set; }
-        public Character Character { get; set; }
+        [ForeignKey("ApplicationUser")]
+        public string UserId { get; set; } // Foreign key to GuildMember
+
+        // Foreign key to Guild (to relate to GuildMember)
+        [ForeignKey("GuildMember")]
+        public int GuildId { get; set; } // This references the Guild through GuildMember
+
+        // Navigation property to GuildMember
+        public GuildMember GuildMember { get; set; }
 
         [ForeignKey("Party")]
-        public int PartyId { get; set; }
-        public Party Party { get; set; }
+        public int PartyId { get; set; } // Foreign key to Party
 
-        // Role inside the party (e.g., Leader, Member)
-        public IdentityRole Role { get; set; }
+        public Party Party { get; set; } // Navigation property to Party
 
-        public DateTime JoinedOn { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime JoinedAt { get; set; } = DateTime.UtcNow; // Timestamp for when the member joined the party
+
+
+        public IdentityRole Role { get; set; } 
     }
+
 }

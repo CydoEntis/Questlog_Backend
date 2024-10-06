@@ -68,7 +68,6 @@ namespace Questlog.Api.Controllers
 
                 PartyMember newPartyMember = new PartyMember
                 {
-                    CharacterId = character.Id,
                     PartyId = createdParty.Id,
                     Role = RoleConstants.GetRole(RoleConstants.Leader)
                 };

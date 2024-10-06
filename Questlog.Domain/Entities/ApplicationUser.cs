@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 
@@ -9,12 +10,10 @@ namespace Questlog.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
-        public Character Character { get; set; }
+        public virtual Character Character { get; set; }
 
-        // List of parties this user is part of
-        public virtual List<PartyMember> JoinedParties { get; set; } = new List<PartyMember>();
+        public virtual ICollection<Guild> Guilds { get; set; } = new List<Guild>();
 
-        // List of guilds this user owns
-        public virtual List<Guild> OwnedGuilds { get; set; } = new List<Guild>();
+        public virtual ICollection<GuildMember> GuildMembers { get; set; } = new List<GuildMember>();
     }
 }
