@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.Guild
 {
-    public class GuildResponseDTO
+    public record GuildResponseDTO
     {
         [Required]
         public int Id { get; set; }

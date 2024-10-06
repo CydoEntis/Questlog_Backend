@@ -10,7 +10,7 @@ using Questlog.Application.Common.DTOs.PartyMember;
 
 namespace Questlog.Application.Common.DTOs.Party
 {
-    public class PartyResponseDTO
+    public record PartyResponseDTO
     {
         [Required]
         public int Id { get; set; }

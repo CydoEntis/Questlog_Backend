@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.Party
 {
-    public class CreatePartyRequestDTO
+    public record CreatePartyRequestDTO
     {
         [Required]
         [MinLength(3)]

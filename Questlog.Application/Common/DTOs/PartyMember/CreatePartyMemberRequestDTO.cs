@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.PartyMember
 {
-    public class CreatePartyMemberRequestDTO
+    public record CreatePartyMemberRequestDTO
     {
         [Required]
         public int CharacterId { get; set; }

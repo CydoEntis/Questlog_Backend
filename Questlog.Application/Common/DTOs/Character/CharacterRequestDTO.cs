@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.Character
 {
-    public class CharacterRequestDTO
+    public record CharacterRequestDTO
     {
         [Required]
         public string DisplayName { get; set; }

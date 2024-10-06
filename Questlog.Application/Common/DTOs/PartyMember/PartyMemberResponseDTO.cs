@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.PartyMember
 {
-    public class PartyMemberResponseDTO
+    public record PartyMemberResponseDTO
     {
         [Required]
         public int Id { get; set; }
