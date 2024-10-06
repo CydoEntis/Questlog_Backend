@@ -116,7 +116,7 @@ async Task CreateRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    var roles = new List<string> { RoleConstants.Leader, RoleConstants.Strategist, RoleConstants.Member };
+    var roles = new List<string> { RoleConstants.Leader, RoleConstants.Captain, RoleConstants.Strategist, RoleConstants.Member };
 
     foreach (var role in roles)
     {

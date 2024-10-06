@@ -5,6 +5,7 @@ namespace Questlog.Application.Common.Constants
     public static class RoleConstants
     {
         public const string Leader = "Leader";
+        public const string Captain = "Captain";
         public const string Strategist = "Strategist";
         public const string Member = "Member";
 
