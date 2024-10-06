@@ -23,15 +23,17 @@ namespace Questlog.Api.Controllers
 
         protected ApiResponse _response;
         private readonly IGuildService _guildService;
+        private readonly IGuildMemberService _guildMemberService;
         private readonly IPartyService _partyService;
         private readonly IPartyMemberService _partyMemberService;
         private readonly ICharacterService _characterService;
         private readonly IMapper _mapper;
 
-        public GuildController(IGuildService guildService, IPartyService partyService, IPartyMemberService partyMemberService, ICharacterService characterService, IMapper mapper)
+        public GuildController(IGuildService guildService, IGuildMemberService guildMemberService, IPartyService partyService, IPartyMemberService partyMemberService, ICharacterService characterService, IMapper mapper)
         {
             _response = new ApiResponse();
             _guildService = guildService;
+            _guildMemberService = guildMemberService;
             _partyService = partyService;
             _partyMemberService = partyMemberService;
             _characterService = characterService;
@@ -51,38 +53,18 @@ namespace Questlog.Api.Controllers
 
             string userId = HttpContext.Items["UserId"] as string;
             Guild guild = _mapper.Map<Guild>(requestDTO);
-            Party party = _mapper.Map<Party>(requestDTO.Party);
             try
             {
                 Guild createdGuild = await _guildService.CreateGuild(userId, guild);
-
-                Party newParty = new Party
+                GuildMember newGuildMember = new GuildMember
                 {
-                    Name = party.Name,
+                    UserId = userId,
                     GuildId = createdGuild.Id,
+                    
                 };
 
-                Party createdParty = await _partyService.CreateParty(userId, newParty);
 
-                Character character = await _characterService.GetCharacterAsync(userId);
-
-                PartyMember newPartyMember = new PartyMember
-                {
-                    PartyId = createdParty.Id,
-                    Role = RoleConstants.GetRole(RoleConstants.Leader)
-                };
-
-                PartyMember createdPartyMember = await _partyMemberService.CreatePartyMember(userId, newPartyMember);
-
-                //Party newParty = new Party
-                //{
-                //    Name = guild.Party.Name,
-                //};
-
-                //Party createdParty = await _partyService.CreateParty(userId, newParty);
-
-
-                //GuildResponseDTO responseDTO = _mapper.Map<GuildResponseDTO>(newGuild);
+    
                 _response.StatusCode = HttpStatusCode.Created;
                 //_response.Result = responseDTO;
 

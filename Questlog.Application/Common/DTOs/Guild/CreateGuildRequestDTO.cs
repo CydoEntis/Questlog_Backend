@@ -21,7 +21,5 @@ namespace Questlog.Application.Common.DTOs.Guild
         [MinLength(5)]
         [MaxLength(100)]
         public string Description { get; set; }
-
-        public CreatePartyRequestDTO Party { get; set; }
     }
 }
