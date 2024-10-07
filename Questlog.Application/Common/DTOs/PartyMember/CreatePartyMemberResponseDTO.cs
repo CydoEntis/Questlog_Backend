@@ -8,14 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Questlog.Application.Common.DTOs.Party
+namespace Questlog.Application.Common.DTOs.PartyMember
 {
-    public record CreatedPartyMemberResponseDTO
+    public record CreatePartyMemberResponseDTO
     {
         public int Id { get; set; }
         public int GuildId { get; set; }
         public int PartyId { get; set; }
         public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
-        public IdentityRole Role { get; set; }
+        public string Role { get; set; }
     }
 }

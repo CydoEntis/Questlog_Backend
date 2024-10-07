@@ -4,6 +4,7 @@ using Questlog.Application.Common.DTOs.Character;
 using Questlog.Application.Common.DTOs.Guild;
 using Questlog.Application.Common.DTOs.MainQuest;
 using Questlog.Application.Common.DTOs.Party;
+using Questlog.Application.Common.DTOs.PartyMember;
 using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Application.Common.DTOs.QuestBoard;
 using Questlog.Domain.Entities;
@@ -34,26 +35,21 @@ public class MappingConfig : Profile
         CreateMap<Quest, QuestRequestDTO>().ReverseMap();
 
         // Guild mappings
-        CreateMap<Guild, CreateGuildRequestDTO>().ReverseMap();
+        CreateMap<CreateGuildRequestDTO, Guild>().ReverseMap();
+        CreateMap<Guild, CreateGuildResponseDTO>().ReverseMap();
 
-        CreateMap<Guild, GuildResponseDTO>()
-            .ForMember(dest => dest.Parties, opt => opt.MapFrom(src => src.Parties))
-            .ReverseMap();
+        // Guild Member Mappings
+        CreateMap<GuildMember, GuildMemberResponseDTO>().ReverseMap();
 
-        CreateMap<Guild, CreatedGuildResponseDTO>()
-            .ForMember(dest => dest.GuildMembers, opt => opt.Ignore()) // Guild members are added in controller
-            .ReverseMap();
 
-        // GuildMember mappings
-        CreateMap<GuildMember, GuildMemberResponseDTO>()
-            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
-            .ReverseMap();
+        // Party Mappings
+        CreateMap<CreatePartyRequestDTO, Party>().ReverseMap();
+        CreateMap<Party, CreatePartyResponseDTO>().ReverseMap();
 
-        // Party mappings
-        CreateMap<Party, CreatePartyRequestDTO>().ReverseMap();
-        CreateMap<Party, PartyResponseDTO>()
-            .ForMember(dest => dest.PartyMembers, opt => opt.MapFrom(src => src.PartyMembers))
-            .ReverseMap();
+        // Party Member Mappings
+        CreateMap<PartyMember, CreatePartyMemberResponseDTO>().ReverseMap();
+
+
 
         // Character mappings
         CreateMap<Character, CharacterResponseDTO>().ReverseMap();

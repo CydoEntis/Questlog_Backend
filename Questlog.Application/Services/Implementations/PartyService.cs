@@ -25,7 +25,10 @@ namespace Questlog.Application.Services.Implementations
         public async Task<Party> CreateParty(Party party)
         {
             if (party is null)
-                throw new ArgumentNullException(nameof(party), "Party id cannot be null");
+                throw new ArgumentNullException(nameof(party), "Party cannot be null");
+
+            if (party.GuildId <= 0)
+                throw new ArgumentNullException(nameof(party.Guild), "A Guild Id is required");
 
             try
             {

@@ -18,7 +18,7 @@ namespace Questlog.Api.Controllers
     [ApiController]
     [Authorize]
     [ServiceFilter(typeof(TokenValidationFilter))]
-    public class GuildController : ControllerBase
+    public class GuildController : BaseController
     {
 
         protected ApiResponse _response;
@@ -45,50 +45,40 @@ namespace Questlog.Api.Controllers
         {
             if (requestDTO == null)
             {
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.IsSuccess = false;
-                _response.ErrorMessages.Add("BadRequest", new List<string> { "CreateQuestRequestDTO cannot be null." });
-                return BadRequest(_response);
+                return BadRequestResponse("CreateGuildRequestDTO cannot be null.");
             }
 
             string userId = HttpContext.Items["UserId"] as string;
-            Guild guild = _mapper.Map<Guild>(requestDTO);
+
             try
             {
-                Guild createdGuild = await _guildService.CreateGuild(userId, guild);
-                GuildMember newGuildMember = new GuildMember
+                var guild = _mapper.Map<Guild>(requestDTO);
+                var createdGuild = await _guildService.CreateGuild(userId, guild);
+
+                var newGuildMember = new GuildMember
                 {
                     UserId = userId,
                     GuildId = createdGuild.Id,
                     Role = RoleConstants.GuildLeader,
+                    JoinedOn = DateTime.UtcNow 
                 };
 
-                GuildMember addedGuildMember = await _guildMemberService.CreateGuildMember(newGuildMember);
+                var addedGuildMember = await _guildMemberService.CreateGuildMember(newGuildMember);
 
-                CreatedGuildResponseDTO createdGuildResponseDTO = _mapper.Map<CreatedGuildResponseDTO>(createdGuild);
-                GuildMemberResponseDTO guildMemberResponseDTO = _mapper.Map<GuildMemberResponseDTO>(addedGuildMember);
-                createdGuildResponseDTO.GuildMembers = new List<GuildMemberResponseDTO> { guildMemberResponseDTO };
+                var createdGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(createdGuild);
+                //createdGuildResponseDTO.GuildMembers.Add(_mapper.Map<GuildMemberResponseDTO>(addedGuildMember));
 
-                _response.StatusCode = HttpStatusCode.Created;
-                _response.Result = createdGuildResponseDTO;
-
-                return _response;
-
+                return CreatedResponse(createdGuildResponseDTO);
             }
             catch (ArgumentNullException ex)
             {
-                _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ArgumentNull", new List<string> { ex.Message });
-                return BadRequest(_response);
+                return BadRequestResponse(ex.Message);
             }
             catch (Exception ex)
             {
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while creating the Quest." });
-                return StatusCode((int)HttpStatusCode.InternalServerError, _response);
+                return InternalServerErrorResponse("An error occurred while creating the Guild.");
             }
         }
+
     }
 }

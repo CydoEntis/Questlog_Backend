@@ -15,7 +15,7 @@ namespace Questlog.Domain.Entities
 
    
         [ForeignKey("GuildMember")]
-        public int GuildId { get; set; } 
+        public int GuildMemberId { get; set; } 
 
         public GuildMember GuildMember { get; set; }
 
@@ -26,8 +26,7 @@ namespace Questlog.Domain.Entities
 
         public DateTime JoinedAt { get; set; } = DateTime.UtcNow; 
 
-
-        public IdentityRole Role { get; set; } 
+        public string Role { get; set; } 
     }
 
 }

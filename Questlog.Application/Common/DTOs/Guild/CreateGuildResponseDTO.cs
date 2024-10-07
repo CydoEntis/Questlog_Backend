@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.Guild
 {
-    public record CreatedGuildResponseDTO
+    public record CreateGuildResponseDTO
     {
 
         public string Name { get; set; }

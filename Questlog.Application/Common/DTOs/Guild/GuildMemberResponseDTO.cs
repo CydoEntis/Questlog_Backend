@@ -19,7 +19,7 @@ namespace Questlog.Application.Common.DTOs.Guild
         [Required]
         public int GuildId { get; set; }
         [Required]
-        public IdentityRole Role { get; set; }
+        public string Role { get; set; }
         [Required]
         public DateTime JoinedOn { get; set; }
     }

@@ -13,5 +13,7 @@ namespace Questlog.Application.Common.DTOs.Party
         [MinLength(3)]
         [MaxLength(25)]
         public string Name { get; set; }
+        [Required]
+        public int GuildId { get; set; }
     }
 }
