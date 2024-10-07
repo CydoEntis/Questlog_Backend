@@ -1,17 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Interfaces;
+using Questlog.Application.Common.Models;
+using Questlog.Application.Common.Validation; // Add this namespace
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Questlog.Application.Services.Implementations
 {
-    public class GuildMemberService : IGuildMemberService
+    public class GuildMemberService : BaseService, IGuildMemberService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<GuildMemberService> _logger;
@@ -22,56 +22,95 @@ namespace Questlog.Application.Services.Implementations
             _logger = logger;
         }
 
-        public async Task<GuildMember> GetGuildMember(int guildId, string userId)
+        public async Task<ServiceResult<GuildMember>> GetGuildMember(int guildId, string userId)
         {
-            if (guildId <= 0)
-                throw new ArgumentNullException(nameof(guildId), "Guild Id must be provided");
+            var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
+            if (!idValidation.IsSuccess) return ServiceResult<GuildMember>.Failure(idValidation.ErrorMessage);
 
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentNullException(nameof(userId), "User id cannot be null");
+            var userIdValidation = ValidationHelper.ValidateUserId(userId);
+            if (!userIdValidation.IsSuccess) return ServiceResult<GuildMember>.Failure(userIdValidation.ErrorMessage);
 
-            try
+            return await HandleExceptions<GuildMember>(async () =>
             {
                 GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.UserId == userId);
-
-                return foundGuildMember;
-            }
-            catch (DbUpdateException dbEx)
-            {
-                _logger.LogError(dbEx, "Database update error while creating Guild Member.");
-                throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while creating Guild Member.");
-                throw;
-            }
+                return ServiceResult<GuildMember>.Success(foundGuildMember);
+            });
         }
 
-        public async Task<GuildMember> CreateGuildMember(GuildMember guildMember)
+        public async Task<ServiceResult<List<GuildMember>>> GetAllGuildMembers(int guildId)
         {
-            if (guildMember is null)
-                throw new ArgumentNullException(nameof(guildMember), "Guild Member cannot be null");
+            var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
+            if (!idValidation.IsSuccess) return ServiceResult<List<GuildMember>>.Failure(idValidation.ErrorMessage);
 
-            if (string.IsNullOrEmpty(guildMember.UserId))
-                throw new ArgumentNullException(nameof(guildMember.UserId), "User id cannot be null");
+            return await HandleExceptions<List<GuildMember>>(async () =>
+            {
+                List<GuildMember> guildMembers = await _unitOfWork.GuildMember.GetAllAsync(gm => gm.GuildId == guildId);
 
-            try
-            {
-                GuildMember createdGuildMember = await _unitOfWork.GuildMember.CreateAsync(guildMember);
+                if (guildMembers.Count == 0)
+                    return ServiceResult<List<GuildMember>>.Failure("No guild members found for the specified guild.");
 
-                return createdGuildMember;
-            }
-            catch (DbUpdateException dbEx)
+                return ServiceResult<List<GuildMember>>.Success(guildMembers);
+            });
+        }
+
+        public async Task<ServiceResult<GuildMember>> CreateGuildMember(GuildMember guildMember)
+        {
+            var validationResult = ValidateGuildMember(guildMember);
+            if (!validationResult.IsSuccess) return ServiceResult<GuildMember>.Failure(validationResult.ErrorMessage);
+
+            return await HandleExceptions<GuildMember>(async () =>
             {
-                _logger.LogError(dbEx, "Database update error while creating Guild Member.");
-                throw new Exception("An error occurred while saving to the database. Please try again.", dbEx);
-            }
-            catch (Exception ex)
+                var createdGuildMember = await _unitOfWork.GuildMember.CreateAsync(guildMember);
+                return ServiceResult<GuildMember>.Success(createdGuildMember);
+            });
+        }
+
+        public async Task<ServiceResult<GuildMember>> UpdateGuildMember(GuildMember guildMember)
+        {
+            var validationResult = ValidateGuildMember(guildMember);
+            if (!validationResult.IsSuccess) return ServiceResult<GuildMember>.Failure(validationResult.ErrorMessage);
+
+            return await HandleExceptions<GuildMember>(async () =>
             {
-                _logger.LogError(ex, "An error occurred while creating Guild Member.");
-                throw;
-            }
+                GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMember.Id);
+                if (foundGuildMember == null)
+                    return ServiceResult<GuildMember>.Failure("Guild Member not found");
+
+                foundGuildMember.Role = guildMember.Role;
+                foundGuildMember.UpdatedOn = DateTime.UtcNow;
+
+                await _unitOfWork.GuildMember.UpdateAsync(foundGuildMember);
+
+                return ServiceResult<GuildMember>.Success(foundGuildMember);
+            });
+        }
+
+        public async Task<ServiceResult<GuildMember>> RemoveGuildMember(GuildMember guildMember)
+        {
+            var validationResult = ValidateGuildMember(guildMember);
+            if (!validationResult.IsSuccess) return ServiceResult<GuildMember>.Failure(validationResult.ErrorMessage);
+
+            return await HandleExceptions<GuildMember>(async () =>
+            {
+                var foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMember.Id);
+                if (foundGuildMember == null)
+                    return ServiceResult<GuildMember>.Failure("Guild Member not found");
+
+                await _unitOfWork.GuildMember.RemoveAsync(foundGuildMember);
+
+                return ServiceResult<GuildMember>.Success(foundGuildMember);
+            });
+        }
+
+        private ServiceResult ValidateGuildMember(GuildMember guildMember)
+        {
+            if (guildMember == null)
+                return ServiceResult.Failure("Must provide a valid Guild Member");
+
+            var userIdValidation = ValidationHelper.ValidateUserId(guildMember.UserId);
+            if (!userIdValidation.IsSuccess) return userIdValidation;
+
+            return ServiceResult.Success();
         }
     }
 }

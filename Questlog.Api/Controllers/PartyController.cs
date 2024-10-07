@@ -57,7 +57,7 @@ namespace Questlog.Api.Controllers
                 {
                     UserId = userId,
                     PartyId = createdParty.Id,
-                    GuildMemberId = foundGuildMember.Id,
+                    GuildMemberId = foundGuildMember.Data.Id,
                     Role = RoleConstants.PartyLeader,
                     JoinedAt = DateTime.UtcNow
                 };

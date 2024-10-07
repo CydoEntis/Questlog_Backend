@@ -1,4 +1,5 @@
-﻿using Questlog.Domain.Entities;
+﻿using Questlog.Application.Common.Models;
+using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,10 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface IGuildMemberService
     {
-        Task<GuildMember> GetGuildMember(int guildId, string userId);
-        Task<GuildMember> CreateGuildMember(GuildMember guildMember);
+        Task<ServiceResult<GuildMember>> GetGuildMember(int guildId, string userId);
+        Task<ServiceResult<List<GuildMember>>> GetAllGuildMembers(int guildId);
+        Task<ServiceResult<GuildMember>> CreateGuildMember(GuildMember guildMember);
+        Task<ServiceResult<GuildMember>> UpdateGuildMember(GuildMember guildMember);
+        Task<ServiceResult<GuildMember>> RemoveGuildMember(GuildMember guildMember);
     }
 }
