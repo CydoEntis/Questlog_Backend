@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Models;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,13 @@ namespace Questlog.Application.Services.Implementations
 {
     public class BaseService
     {
+        protected readonly ILogger<BaseService> _logger;
+
+        public BaseService(ILogger<BaseService> logger)
+        {
+            _logger = logger;
+        }
+
         protected async Task<ServiceResult<T>> HandleExceptions<T>(Func<Task<ServiceResult<T>>> action)
         {
             try
@@ -18,12 +26,12 @@ namespace Questlog.Application.Services.Implementations
             }
             catch (DbUpdateException dbEx)
             {
-                // Log the error
+                _logger.LogError(dbEx, "An error occurred while interacting with the database.");
                 return ServiceResult<T>.Failure("An error occurred while interacting with the database. Please try again.");
             }
             catch (Exception ex)
             {
-                // Log the error
+                _logger.LogError(ex, "An unexpected error occurred.");
                 return ServiceResult<T>.Failure("An unexpected error occurred. Please try again.");
             }
         }

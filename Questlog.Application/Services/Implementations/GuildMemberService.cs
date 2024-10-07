@@ -1,5 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Questlog.Application.Common.Constants;
+using Questlog.Application.Common.DTOs.Guild;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Common.Validation; // Add this namespace
@@ -14,103 +18,115 @@ namespace Questlog.Application.Services.Implementations
     public class GuildMemberService : BaseService, IGuildMemberService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<GuildMemberService> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMapper _mapper;
 
-        public GuildMemberService(IUnitOfWork unitOfWork, ILogger<GuildMemberService> logger)
+        public GuildMemberService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, ILogger<GuildMemberService> logger, IMapper mapper) : base(logger)
         {
             _unitOfWork = unitOfWork;
-            _logger = logger;
+            _userManager = userManager;
+            _mapper = mapper;
         }
 
-        public async Task<ServiceResult<GuildMember>> GetGuildMember(int guildId, string userId)
+        //public async Task<ServiceResult<GuildMember>> GetGuildMember(int guildId, string userId)
+        //{
+        //    var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
+        //    if (!idValidation.IsSuccess) return ServiceResult<GuildMember>.Failure(idValidation.ErrorMessage);
+
+        //    var userIdValidation = ValidationHelper.ValidateUserIdAsync(userId, _userManager);
+        //    if (!userIdValidation.IsSuccess) return ServiceResult<GuildMember>.Failure(userIdValidation.ErrorMessage);
+
+        //    return await HandleExceptions<GuildMember>(async () =>
+        //    {
+        //        GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.UserId == userId);
+        //        return ServiceResult<GuildMember>.Success(foundGuildMember);
+        //    });
+        //}
+
+        //public async Task<ServiceResult<List<GuildMember>>> GetAllGuildMembers(int guildId)
+        //{
+        //    var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
+        //    if (!idValidation.IsSuccess) return ServiceResult<List<GuildMember>>.Failure(idValidation.ErrorMessage);
+
+        //    return await HandleExceptions<List<GuildMember>>(async () =>
+        //    {
+        //        List<GuildMember> guildMembers = await _unitOfWork.GuildMember.GetAllAsync(gm => gm.GuildId == guildId);
+
+        //        if (guildMembers.Count == 0)
+        //            return ServiceResult<List<GuildMember>>.Failure("No guild members found for the specified guild.");
+
+        //        return ServiceResult<List<GuildMember>>.Success(guildMembers);
+        //    });
+        //}
+
+        public async Task<ServiceResult<CreateGuildMemberResponseDTO>> CreateGuildMember(CreateGuildMemberRequestDTO requestDTO)
         {
-            var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
-            if (!idValidation.IsSuccess) return ServiceResult<GuildMember>.Failure(idValidation.ErrorMessage);
+            if (requestDTO == null) ServiceResult<CreateGuildMemberResponseDTO>.Failure("Must provide a valid Guild Member");
 
-            var userIdValidation = ValidationHelper.ValidateUserId(userId);
-            if (!userIdValidation.IsSuccess) return ServiceResult<GuildMember>.Failure(userIdValidation.ErrorMessage);
+            var userValidationResult = await ValidationHelper.ValidateUserIdAsync(requestDTO.UserId, _userManager);
+            if (!userValidationResult.IsSuccess) return ServiceResult<CreateGuildMemberResponseDTO>.Failure(userValidationResult.ErrorMessage);
 
-            return await HandleExceptions<GuildMember>(async () =>
+            return await HandleExceptions<CreateGuildMemberResponseDTO>(async () =>
             {
-                GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.UserId == userId);
-                return ServiceResult<GuildMember>.Success(foundGuildMember);
-            });
-        }
+                var guildMember = _mapper.Map<GuildMember>(requestDTO);
 
-        public async Task<ServiceResult<List<GuildMember>>> GetAllGuildMembers(int guildId)
-        {
-            var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
-            if (!idValidation.IsSuccess) return ServiceResult<List<GuildMember>>.Failure(idValidation.ErrorMessage);
+                guildMember.Role = RoleConstants.GuildLeader;
 
-            return await HandleExceptions<List<GuildMember>>(async () =>
-            {
-                List<GuildMember> guildMembers = await _unitOfWork.GuildMember.GetAllAsync(gm => gm.GuildId == guildId);
-
-                if (guildMembers.Count == 0)
-                    return ServiceResult<List<GuildMember>>.Failure("No guild members found for the specified guild.");
-
-                return ServiceResult<List<GuildMember>>.Success(guildMembers);
-            });
-        }
-
-        public async Task<ServiceResult<GuildMember>> CreateGuildMember(GuildMember guildMember)
-        {
-            var validationResult = ValidateGuildMember(guildMember);
-            if (!validationResult.IsSuccess) return ServiceResult<GuildMember>.Failure(validationResult.ErrorMessage);
-
-            return await HandleExceptions<GuildMember>(async () =>
-            {
                 var createdGuildMember = await _unitOfWork.GuildMember.CreateAsync(guildMember);
-                return ServiceResult<GuildMember>.Success(createdGuildMember);
+
+                var responseDTO = _mapper.Map<CreateGuildMemberResponseDTO>(createdGuildMember);
+
+                return ServiceResult<CreateGuildMemberResponseDTO>.Success(responseDTO);
             });
         }
 
-        public async Task<ServiceResult<GuildMember>> UpdateGuildMember(GuildMember guildMember)
-        {
-            var validationResult = ValidateGuildMember(guildMember);
-            if (!validationResult.IsSuccess) return ServiceResult<GuildMember>.Failure(validationResult.ErrorMessage);
 
-            return await HandleExceptions<GuildMember>(async () =>
-            {
-                GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMember.Id);
-                if (foundGuildMember == null)
-                    return ServiceResult<GuildMember>.Failure("Guild Member not found");
+        //public async Task<ServiceResult<GuildMember>> UpdateGuildMember(GuildMember guildMember)
+        //{
+        //    var validationResult = ValidateGuildMember(guildMember);
+        //    if (!validationResult.IsSuccess) return ServiceResult<GuildMember>.Failure(validationResult.ErrorMessage);
 
-                foundGuildMember.Role = guildMember.Role;
-                foundGuildMember.UpdatedOn = DateTime.UtcNow;
+        //    return await HandleExceptions<GuildMember>(async () =>
+        //    {
+        //        GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMember.Id);
+        //        if (foundGuildMember == null)
+        //            return ServiceResult<GuildMember>.Failure("Guild Member not found");
 
-                await _unitOfWork.GuildMember.UpdateAsync(foundGuildMember);
+        //        foundGuildMember.Role = guildMember.Role;
+        //        foundGuildMember.UpdatedOn = DateTime.UtcNow;
 
-                return ServiceResult<GuildMember>.Success(foundGuildMember);
-            });
-        }
+        //        await _unitOfWork.GuildMember.UpdateAsync(foundGuildMember);
 
-        public async Task<ServiceResult<GuildMember>> RemoveGuildMember(GuildMember guildMember)
-        {
-            var validationResult = ValidateGuildMember(guildMember);
-            if (!validationResult.IsSuccess) return ServiceResult<GuildMember>.Failure(validationResult.ErrorMessage);
+        //        return ServiceResult<GuildMember>.Success(foundGuildMember);
+        //    });
+        //}
 
-            return await HandleExceptions<GuildMember>(async () =>
-            {
-                var foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMember.Id);
-                if (foundGuildMember == null)
-                    return ServiceResult<GuildMember>.Failure("Guild Member not found");
+        //public async Task<ServiceResult<GuildMember>> RemoveGuildMember(GuildMember guildMember)
+        //{
+        //    var validationResult = ValidateGuildMember(guildMember);
+        //    if (!validationResult.IsSuccess) return ServiceResult<GuildMember>.Failure(validationResult.ErrorMessage);
 
-                await _unitOfWork.GuildMember.RemoveAsync(foundGuildMember);
+        //    return await HandleExceptions<GuildMember>(async () =>
+        //    {
+        //        var foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMember.Id);
+        //        if (foundGuildMember == null)
+        //            return ServiceResult<GuildMember>.Failure("Guild Member not found");
 
-                return ServiceResult<GuildMember>.Success(foundGuildMember);
-            });
-        }
+        //        await _unitOfWork.GuildMember.RemoveAsync(foundGuildMember);
 
-        private ServiceResult ValidateGuildMember(GuildMember guildMember)
-        {
-            if (guildMember == null)
-                return ServiceResult.Failure("Must provide a valid Guild Member");
+        //        return ServiceResult<GuildMember>.Success(foundGuildMember);
+        //    });
+        //}
 
-            var userIdValidation = ValidationHelper.ValidateUserId(guildMember.UserId);
-            if (!userIdValidation.IsSuccess) return userIdValidation;
+        //private ServiceResult ValidateGuildMember(CreateGuildMemberResponseDTO guildMember)
+        //{
+        //    if (guildMember == null)
+        //        return ServiceResult.Failure("Must provide a valid Guild Member");
 
-            return ServiceResult.Success();
-        }
+        //    var userIdValidation = ValidationHelper.ValidateUserId(guildMember.UserId);
+        //    if (!userIdValidation.IsSuccess) return userIdValidation;
+
+        //    return ServiceResult.Success();
+        //}
     }
 }

@@ -1,4 +1,6 @@
-﻿using Questlog.Application.Common.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Questlog.Application.Common.Models;
+using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +11,13 @@ namespace Questlog.Application.Common.Validation
 {
     public static class ValidationHelper
     {
-        public static ServiceResult ValidateUserId(string userId)
+        public static async Task<ServiceResult> ValidateUserIdAsync(string userId, UserManager<ApplicationUser> userManager)
         {
-            if (string.IsNullOrEmpty(userId))
-                return ServiceResult.Failure($"Must provide a valid User Id.");
-
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return ServiceResult.Failure("User does not exist.");
+            }
             return ServiceResult.Success();
         }
 

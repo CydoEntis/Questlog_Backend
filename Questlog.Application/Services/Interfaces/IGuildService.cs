@@ -1,4 +1,6 @@
-﻿using Questlog.Domain.Entities;
+﻿using Questlog.Application.Common.DTOs.Guild;
+using Questlog.Application.Common.Models;
+using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,6 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface IGuildService
     {
-        Task<Guild> CreateGuild(string userId, Guild guild);
+        Task<ServiceResult<CreateGuildResponseDTO>> CreateGuild(string userId, CreateGuildRequestDTO requestDTO);
     }
 }

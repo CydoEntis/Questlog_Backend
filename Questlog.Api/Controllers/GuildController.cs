@@ -52,22 +52,7 @@ namespace Questlog.Api.Controllers
 
             try
             {
-                var guild = _mapper.Map<Guild>(requestDTO);
-                var createdGuild = await _guildService.CreateGuild(userId, guild);
-
-                var newGuildMember = new GuildMember
-                {
-                    UserId = userId,
-                    GuildId = createdGuild.Id,
-                    Role = RoleConstants.GuildLeader,
-                    JoinedOn = DateTime.UtcNow 
-                };
-
-                var addedGuildMember = await _guildMemberService.CreateGuildMember(newGuildMember);
-
-                var createdGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(createdGuild);
-                //createdGuildResponseDTO.GuildMembers.Add(_mapper.Map<GuildMemberResponseDTO>(addedGuildMember));
-
+                var createdGuildResponseDTO = await _guildService.CreateGuild(userId, requestDTO);
                 return CreatedResponse(createdGuildResponseDTO);
             }
             catch (ArgumentNullException ex)
