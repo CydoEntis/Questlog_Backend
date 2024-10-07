@@ -41,6 +41,11 @@ namespace Questlog.Application.Services.Implementations
             {
                 var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
 
+                if (foundGuild == null)
+                {
+                    return ServiceResult<GuildResponseDTO>.Failure("Guild not found.");
+                }
+
                 var guildResponseDTO = _mapper.Map<GuildResponseDTO>(foundGuild);
 
                 return ServiceResult<GuildResponseDTO>.Success(guildResponseDTO);
@@ -59,16 +64,16 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<CreateGuildResponseDTO>> CreateGuild(string userId, CreateGuildRequestDTO requestDTO)
+        public async Task<ServiceResult<GuildResponseDTO>> CreateGuild(string userId, CreateGuildRequestDTO requestDTO)
         {
             var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
-            if (!userValidationResult.IsSuccess) return ServiceResult<CreateGuildResponseDTO>.Failure(userValidationResult.ErrorMessage);
+            if (!userValidationResult.IsSuccess) return ServiceResult<GuildResponseDTO>.Failure(userValidationResult.ErrorMessage);
 
             var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Guild Request DTO");
-            if (!guildValidationResult.IsSuccess) return ServiceResult<CreateGuildResponseDTO>.Failure(guildValidationResult.ErrorMessage);
+            if (!guildValidationResult.IsSuccess) return ServiceResult<GuildResponseDTO>.Failure(guildValidationResult.ErrorMessage);
 
 
-            return await HandleExceptions<CreateGuildResponseDTO>(async () =>
+            return await HandleExceptions<GuildResponseDTO>(async () =>
             {
                 var guild = _mapper.Map<Guild>(requestDTO);
                 var newGuild = new Guild
@@ -90,9 +95,9 @@ namespace Questlog.Application.Services.Implementations
 
                 await _unitOfWork.GuildMember.CreateAsync(guildMember);
 
-                var createdGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(createdGuild);
+                var createdGuildResponseDTO = _mapper.Map<GuildResponseDTO>(createdGuild);
 
-                return ServiceResult<CreateGuildResponseDTO>.Success(createdGuildResponseDTO);
+                return ServiceResult<GuildResponseDTO>.Success(createdGuildResponseDTO);
             });
         }
 
@@ -146,7 +151,7 @@ namespace Questlog.Application.Services.Implementations
                 // Delete the guild
                 await _unitOfWork.Guild.RemoveAsync(foundGuild);
 
-                return ServiceResult<int>.Success(guildId);
+                return ServiceResult<int>.Success(foundGuild.Id);
             });
         }
     }

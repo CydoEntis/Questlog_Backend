@@ -38,7 +38,7 @@ public class MappingConfig : Profile
         // Guild mappings
         CreateMap<Guild, GuildResponseDTO>().ReverseMap();
         CreateMap<Guild, CreateGuildRequestDTO>().ReverseMap();
-        CreateMap<Guild, CreateGuildResponseDTO>().ReverseMap();
+        CreateMap<Guild, UpdateGuildRequestDTO>().ReverseMap();
 
 
         // Guild Member Mappings
