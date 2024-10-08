@@ -40,6 +40,35 @@ namespace Questlog.Api.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("{guildId}")]
+        public async Task<ActionResult<ApiResponse>> GetGuild(int guildId)
+        {
+            if (guildId <= 0) return BadRequestResponse("Guild Id must be provided.");
+
+            var result = await _guildService.GetGuildById(guildId);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
+
+            return OkResponse(result.Data);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse>> GetAllGuilds()
+        {
+            var result = await _guildService.GetAllGuilds();
+
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
+
+            return OkResponse(result.Data);
+        }
+
+
         [HttpPost]
         public async Task<ActionResult<ApiResponse>> CreateGuild([FromBody] CreateGuildRequestDTO requestDTO)
         {
@@ -50,20 +79,52 @@ namespace Questlog.Api.Controllers
 
             string userId = HttpContext.Items["UserId"] as string;
 
-            try
+            if (string.IsNullOrEmpty(userId))
             {
-                var createdGuildResponseDTO = await _guildService.CreateGuild(userId, requestDTO);
-                return CreatedResponse(createdGuildResponseDTO);
+                return BadRequestResponse("User Id is missing.");
             }
-            catch (ArgumentNullException ex)
+
+            var result = await _guildService.CreateGuild(userId, requestDTO);
+
+            if (!result.IsSuccess)
             {
-                return BadRequestResponse(ex.Message);
+                return BadRequestResponse(result.ErrorMessage);
             }
-            catch (Exception ex)
-            {
-                return InternalServerErrorResponse("An error occurred while creating the Guild.");
-            }
+
+            return CreatedResponse(result.Data);
         }
 
+        [HttpPut]
+        public async Task<ActionResult<ApiResponse>> UpdateGuild([FromBody] UpdateGuildRequestDTO requestDTO)
+        {
+            if (requestDTO == null)
+            {
+                return BadRequestResponse("UpdateGuildRequestDTO cannot be null.");
+            }
+
+            var result = await _guildService.UpdateGuild(requestDTO);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
+
+            return OkResponse(result.Data);
+        }
+
+        [HttpDelete("{guildId}")]
+        public async Task<ActionResult<ApiResponse>> DeleteGuild(int guildId)
+        {
+            if (guildId <= 0) return BadRequestResponse("Guild Id must be provided.");
+
+            var result = await _guildService.DeleteGuild(guildId);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
+
+            return OkResponse(result.Data);
+        }
     }
 }

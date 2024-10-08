@@ -9,6 +9,17 @@ namespace Questlog.Api.Controllers
     [ApiController]
     public class BaseController : ControllerBase
     {
+        protected ActionResult<ApiResponse> OkResponse(object result)
+        {
+            var response = new ApiResponse
+            {
+                StatusCode = HttpStatusCode.OK,
+                IsSuccess = true,
+                Result = result
+            };
+            return Ok(response);
+        }
+
         protected ActionResult<ApiResponse> BadRequestResponse(string message)
         {
             var response = new ApiResponse
