@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Constants;
-using Questlog.Application.Common.DTOs.Party;
 using Questlog.Application.Common.DTOs.Party;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
@@ -33,14 +31,14 @@ namespace Questlog.Application.Services.Implementations
 
         }
 
-        public async Task<ServiceResult<PartyResponseDTO>> GetPartyById(int partyId)
+        public async Task<ServiceResult<PartyResponseDTO>> GetPartyById(int guildId, int partyId)
         {
             var partyIdValidationResult = ValidationHelper.ValidateId(partyId, "Party Id");
             if (!partyIdValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(partyIdValidationResult.ErrorMessage);
 
             return await HandleExceptions<PartyResponseDTO>(async () =>
             {
-                var foundParty = await _unitOfWork.Party.GetAsync(g => g.Id == partyId);
+                var foundParty = await _unitOfWork.Party.GetAsync(p => p.Id == partyId && p.GuildId == guildId);
 
                 if (foundParty == null)
                 {
@@ -53,19 +51,19 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<List<PartyResponseDTO>>> GetAllPartys()
+        public async Task<ServiceResult<List<PartyResponseDTO>>> GetAllParties(int guildId)
         {
             return await HandleExceptions<List<PartyResponseDTO>>(async () =>
             {
-                var partys = await _unitOfWork.Party.GetAllAsync();
+                var parties = await _unitOfWork.Party.GetAllAsync(p => p.GuildId == guildId);
 
-                List<PartyResponseDTO> partyResponseDTOs = _mapper.Map<List<PartyResponseDTO>>(partys);
+                List<PartyResponseDTO> partyResponseDTOs = _mapper.Map<List<PartyResponseDTO>>(parties);
 
                 return ServiceResult<List<PartyResponseDTO>>.Success(partyResponseDTOs);
             });
         }
 
-        public async Task<ServiceResult<PartyResponseDTO>> CreateParty(string userId, CreatePartyRequestDTO requestDTO)
+        public async Task<ServiceResult<PartyResponseDTO>> CreateParty(string userId, CreatePartyRequestDTO requestDTO, int guildId)
         {
             var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
             if (!userValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(userValidationResult.ErrorMessage);
@@ -73,22 +71,17 @@ namespace Questlog.Application.Services.Implementations
             var partyValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Party Request DTO");
             if (!partyValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(partyValidationResult.ErrorMessage);
 
-
             return await HandleExceptions<PartyResponseDTO>(async () =>
             {
-                var guildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == userId);
+                var guildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == userId && gm.GuildId == guildId);
 
                 var guildMemberValidationResult = ValidationHelper.ValidateObject(guildMember, "Guild Member");
                 if (!guildMemberValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(guildMemberValidationResult.ErrorMessage);
 
                 var party = _mapper.Map<Party>(requestDTO);
-                var newParty = new Party
-                {
-                    Name = party.Name,
-                    GuildId = party.GuildId,
-                };
+                party.GuildId = guildId; // Set the guildId here
 
-                Party createdParty = await _unitOfWork.Party.CreateAsync(newParty);
+                Party createdParty = await _unitOfWork.Party.CreateAsync(party);
 
                 var partyMember = new PartyMember
                 {
@@ -107,9 +100,9 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<PartyResponseDTO>> UpdateParty(UpdatePartyRequestDTO requestDTO)
+        public async Task<ServiceResult<PartyResponseDTO>> UpdateParty(int guildId, UpdatePartyRequestDTO requestDTO)
         {
-            var partyValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Party Request DTO");
+            var partyValidationResult = ValidationHelper.ValidateObject(requestDTO, "Update Party Request DTO");
             if (!partyValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(partyValidationResult.ErrorMessage);
 
             var partyIdValidationResult = ValidationHelper.ValidateId(requestDTO.Id, "Party Id");
@@ -117,8 +110,7 @@ namespace Questlog.Application.Services.Implementations
 
             return await HandleExceptions<PartyResponseDTO>(async () =>
             {
-
-                var foundParty = await _unitOfWork.Party.GetAsync(g => g.Id == requestDTO.Id);
+                var foundParty = await _unitOfWork.Party.GetAsync(p => p.Id == requestDTO.Id && p.GuildId == guildId);
 
                 if (foundParty == null)
                 {
@@ -126,11 +118,10 @@ namespace Questlog.Application.Services.Implementations
                 }
 
                 var party = _mapper.Map<Party>(requestDTO);
-
                 foundParty.Name = party.Name;
                 foundParty.UpdatedAt = DateTime.UtcNow;
 
-                await _unitOfWork.Party.UpdateAsync(party);
+                await _unitOfWork.Party.UpdateAsync(foundParty); // Update the existing party
 
                 var responseDTO = _mapper.Map<PartyResponseDTO>(foundParty);
 
@@ -138,14 +129,14 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<int>> DeleteParty(int partyId)
+        public async Task<ServiceResult<int>> DeleteParty(int guildId, int partyId)
         {
             var partyIdValidationResult = ValidationHelper.ValidateId(partyId, "Party Id");
             if (!partyIdValidationResult.IsSuccess) return ServiceResult<int>.Failure(partyIdValidationResult.ErrorMessage);
 
             return await HandleExceptions<int>(async () =>
             {
-                var foundParty = await _unitOfWork.Party.GetAsync(g => g.Id == partyId);
+                var foundParty = await _unitOfWork.Party.GetAsync(p => p.Id == partyId && p.GuildId == guildId);
 
                 if (foundParty == null)
                 {
@@ -158,7 +149,5 @@ namespace Questlog.Application.Services.Implementations
                 return ServiceResult<int>.Success(foundParty.Id);
             });
         }
-
-
     }
 }

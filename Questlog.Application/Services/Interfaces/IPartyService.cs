@@ -11,10 +11,10 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface IPartyService
     {
-        Task<ServiceResult<PartyResponseDTO>> GetPartyById(int partyId);
-        Task<ServiceResult<List<PartyResponseDTO>>> GetAllPartys();
-        Task<ServiceResult<PartyResponseDTO>> CreateParty(string userId, CreatePartyRequestDTO requestDTO);
-        Task<ServiceResult<PartyResponseDTO>> UpdateParty(UpdatePartyRequestDTO requestDTO);
-        Task<ServiceResult<int>> DeleteParty(int partyId);
+        Task<ServiceResult<PartyResponseDTO>> GetPartyById(int guildId, int partyId);
+        Task<ServiceResult<List<PartyResponseDTO>>> GetAllParties(int guildId);
+        Task<ServiceResult<PartyResponseDTO>> CreateParty(string userId, CreatePartyRequestDTO requestDTO, int guildId);
+        Task<ServiceResult<PartyResponseDTO>> UpdateParty(int guildId, UpdatePartyRequestDTO requestDTO);
+        Task<ServiceResult<int>> DeleteParty(int guildId, int partyId);
     }
 }

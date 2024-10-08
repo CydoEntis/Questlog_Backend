@@ -1,83 +1,94 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
 using Questlog.Api.Models;
-using Questlog.Application.Common.Constants;
-using Questlog.Application.Common.DTOs.Guild;
 using Questlog.Application.Common.DTOs.Party;
-using Questlog.Application.Common.DTOs.PartyMember;
 using Questlog.Application.Services.Interfaces;
-using Questlog.Domain.Entities;
-using System.Net;
 
 namespace Questlog.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/guilds/{guildId}/parties")]
+    [Authorize]
+    [ServiceFilter(typeof(TokenValidationFilter))]
     [ApiController]
     public class PartyController : BaseController
     {
         protected ApiResponse _response;
         private readonly IPartyService _partyService;
-        private readonly IPartyMemberService _partyMemberService;
-        private readonly IGuildMemberService _guildMemberService;
-        private readonly IMapper _mapper;
 
-        public PartyController(IPartyService partyService, IPartyMemberService partyMemberService, IGuildMemberService guildMemberService, IMapper mapper)
+        public PartyController(IPartyService partyService, IMapper mapper)
         {
             _response = new ApiResponse();
             _partyService = partyService;
-            _partyMemberService = partyMemberService;
-            _guildMemberService = guildMemberService;
-            _mapper = mapper;
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<ApiResponse>> CreateParty([FromBody] CreatePartyRequestDTO requestDTO)
-        //{
-        //    if (requestDTO == null)
-        //    {
-        //        return BadRequestResponse("CreatePartyRequestDTO cannot be null.");
-        //    }
+        [HttpGet("{partyId}")]
+        public async Task<ActionResult<ApiResponse>> GetPartyById(int guildId, int partyId)
+        {
+            var result = await _partyService.GetPartyById(partyId);
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
 
-        //    string userId = HttpContext.Items["UserId"] as string;
+            return OkResponse(result.Data);
+        }
 
-        //    try
-        //    {
-        //        var party = _mapper.Map<Party>(requestDTO);
-        //        Party createdParty = await _partyService.CreateParty(party);
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse>> GetAllParties(int guildId)
+        {
+            var result = await _partyService.GetAllPartys();
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
 
-        //        var foundGuildMember = await _guildMemberService.GetGuildMember(party.GuildId, userId);
+            return OkResponse(result.Data);
+        }
 
-        //        if(foundGuildMember is null)
-        //        {
-        //            return BadRequestResponse("No guild member found");
-        //        }
+        [HttpPost]
+        public async Task<ActionResult<ApiResponse>> CreateParty(int guildId, [FromBody] CreatePartyRequestDTO requestDTO)
+        {
+            string userId = HttpContext.Items["UserId"] as string;
 
-        //        PartyMember newPartyMember = new PartyMember
-        //        {
-        //            UserId = userId,
-        //            PartyId = createdParty.Id,
-        //            GuildMemberId = foundGuildMember.Data.Id,
-        //            Role = RoleConstants.PartyLeader,
-        //            JoinedAt = DateTime.UtcNow
-        //        };
+            requestDTO.GuildId = guildId; 
 
-        //        PartyMember addedPartyMember = await _partyMemberService.CreatePartyMember(newPartyMember);
+            var result = await _partyService.CreateParty(userId, requestDTO);
 
-        //        var createPartyResponseDTO = _mapper.Map<CreatePartyResponseDTO>(createdParty);
-        //        //createPartyResponseDTO.PartyMembers.Add(_mapper.Map<CreatePartyMemberResponseDTO>(addedPartyMember));
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
 
-        //        return CreatedResponse(createPartyResponseDTO);
-        //    }
-        //    catch (ArgumentNullException ex)
-        //    {
-        //        return BadRequestResponse(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return InternalServerErrorResponse("An error occurred while creating the party.");
-        //    }
-        //}
+            return CreatedAtAction(nameof(GetPartyById), new { guildId, partyId = result.Data.Id }, result.Data);
+        }
 
+        [HttpPut("{partyId}")]
+        public async Task<ActionResult<ApiResponse>> UpdateParty(int guildId, int partyId, [FromBody] UpdatePartyRequestDTO requestDTO)
+        {
+            var result = await _partyService.UpdateParty(requestDTO);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
+
+            return OkResponse(result.Data);
+        }
+
+        [HttpDelete("{partyId}")]
+        public async Task<ActionResult<ApiResponse>> DeleteParty(int guildId, int partyId)
+        {
+            var result = await _partyService.DeleteParty(partyId);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
+
+            return OkResponse(result.Data);
+        }
     }
 }
