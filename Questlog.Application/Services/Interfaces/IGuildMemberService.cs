@@ -11,10 +11,10 @@ namespace Questlog.Application.Services.Interfaces
 {
     public interface IGuildMemberService
     {
-        Task<ServiceResult<GuildMemberResponseDTO>> GetGuildMember(int guildId, string userId);
+        Task<ServiceResult<GuildMemberResponseDTO>> GetGuildMember(int guildId, int guildMemberId);
         Task<ServiceResult<List<GuildMemberResponseDTO>>> GetAllGuildMembers(int guildId);
         Task<ServiceResult<GuildMemberResponseDTO>> CreateGuildMember(CreateGuildMemberRequestDTO requestDTO);
         Task<ServiceResult<GuildMemberResponseDTO>> UpdateGuildMember(UpdateGuildMemberRequestDTO requestDTO);
-        Task<ServiceResult<int>> RemoveGuildMember(int guildId);
+        Task<ServiceResult<int>> RemoveGuildMember(int guildId, int guildMemberId);
     }
 }

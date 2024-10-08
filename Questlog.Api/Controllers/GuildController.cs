@@ -20,7 +20,6 @@ namespace Questlog.Api.Controllers
     [ServiceFilter(typeof(TokenValidationFilter))]
     public class GuildController : BaseController
     {
-
         protected ApiResponse _response;
         private readonly IGuildService _guildService;
 

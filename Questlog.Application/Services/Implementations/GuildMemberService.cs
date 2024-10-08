@@ -28,17 +28,17 @@ namespace Questlog.Application.Services.Implementations
             _mapper = mapper;
         }
 
-        public async Task<ServiceResult<GuildMemberResponseDTO>> GetGuildMember(int guildId, string userId)
+        public async Task<ServiceResult<GuildMemberResponseDTO>> GetGuildMember(int guildId, int guildMemberId)
         {
             var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
             if (!idValidation.IsSuccess) return ServiceResult<GuildMemberResponseDTO>.Failure(idValidation.ErrorMessage);
 
-            var userIdValidation = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
-            if (!userIdValidation.IsSuccess) return ServiceResult<GuildMemberResponseDTO>.Failure(userIdValidation.ErrorMessage);
+            var memberIdValidation = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
+            if (!memberIdValidation.IsSuccess) return ServiceResult<GuildMemberResponseDTO>.Failure(memberIdValidation.ErrorMessage);
 
             return await HandleExceptions<GuildMemberResponseDTO>(async () =>
             {
-                GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.UserId == userId);
+                GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.Id == guildMemberId);
 
                 if (foundGuildMember == null)
                 {
@@ -50,6 +50,7 @@ namespace Questlog.Application.Services.Implementations
                 return ServiceResult<GuildMemberResponseDTO>.Success(guildMemberResponseDTO);
             });
         }
+
 
         public async Task<ServiceResult<List<GuildMemberResponseDTO>>> GetAllGuildMembers(int guildId)
         {
@@ -114,14 +115,17 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<int>> RemoveGuildMember(int guildId)
+        public async Task<ServiceResult<int>> RemoveGuildMember(int guildId, int guildMemberId)
         {
-            var guildIdValidationResult = ValidationHelper.ValidateId(guildId, "Guild Id");
+            var guildIdValidationResult = ValidationHelper.ValidateId(guildId, nameof(guildId));
             if (!guildIdValidationResult.IsSuccess) return ServiceResult<int>.Failure(guildIdValidationResult.ErrorMessage);
+
+            var memberIdValidationResult = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
+            if (!memberIdValidationResult.IsSuccess) return ServiceResult<int>.Failure(memberIdValidationResult.ErrorMessage);
 
             return await HandleExceptions<int>(async () =>
             {
-                var foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildId);
+                var foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMemberId && gm.GuildId == guildId);
                 if (foundGuildMember == null)
                     return ServiceResult<int>.Failure("Guild Member not found");
 
@@ -130,6 +134,7 @@ namespace Questlog.Application.Services.Implementations
                 return ServiceResult<int>.Success(foundGuildMember.Id);
             });
         }
+
 
     }
 }
