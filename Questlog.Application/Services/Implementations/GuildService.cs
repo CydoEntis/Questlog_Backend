@@ -56,7 +56,7 @@ namespace Questlog.Application.Services.Implementations
         {
             return await HandleExceptions<List<GuildResponseDTO>>(async () =>
             {
-                var guilds = await _unitOfWork.Guild.GetAllAsync();
+                var guilds = await _unitOfWork.Guild.GetAllAsync(includeProperties: "GuildMembers,GuildMembers.Character");
 
                 List<GuildResponseDTO> guildResponseDTOs = _mapper.Map<List<GuildResponseDTO>>(guilds);
 
@@ -75,6 +75,11 @@ namespace Questlog.Application.Services.Implementations
 
             return await HandleExceptions<GuildResponseDTO>(async () =>
             {
+                var foundCharacter = await _unitOfWork.Character.GetAsync(c => c.UserId == userId);
+
+                var characterValidationResult = ValidationHelper.ValidateObject(foundCharacter, "Character");
+                if (!characterValidationResult.IsSuccess) return ServiceResult<GuildResponseDTO>.Failure(characterValidationResult.ErrorMessage);
+
                 var guild = _mapper.Map<Guild>(requestDTO);
                 var newGuild = new Guild
                 {
@@ -91,19 +96,25 @@ namespace Questlog.Application.Services.Implementations
                     GuildId = createdGuild.Id,
                     Role = RoleConstants.GuildLeader,
                     JoinedOn = DateTime.UtcNow,
+                    CharacterId = foundCharacter.Id
                 };
 
                 await _unitOfWork.GuildMember.CreateAsync(guildMember);
 
-                var createdGuildResponseDTO = _mapper.Map<GuildResponseDTO>(createdGuild);
+                var createdGuildWithMembers = await _unitOfWork.Guild.GetAsync(
+                    g => g.Id == createdGuild.Id,
+                    includeProperties: "GuildMembers,GuildMembers.Character"
+                );
+
+                var createdGuildResponseDTO = _mapper.Map<GuildResponseDTO>(createdGuildWithMembers);
 
                 return ServiceResult<GuildResponseDTO>.Success(createdGuildResponseDTO);
             });
         }
 
-        public async Task<ServiceResult<GuildResponseDTO>> UpdateGuild(UpdateGuildRequestDTO requestDTO)
+        public async Task<ServiceResult<GuildResponseDTO>> UpdateGuild(UpdateGuildRequestDTO requestDTO, string userId)
         {
-            var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Guild Request DTO");
+            var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Update Guild Request DTO");
             if (!guildValidationResult.IsSuccess) return ServiceResult<GuildResponseDTO>.Failure(guildValidationResult.ErrorMessage);
 
             var guildIdValidationResult = ValidationHelper.ValidateId(requestDTO.Id, "Guild Id");
@@ -111,28 +122,25 @@ namespace Questlog.Application.Services.Implementations
 
             return await HandleExceptions<GuildResponseDTO>(async () =>
             {
-
-                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == requestDTO.Id);
+                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == requestDTO.Id && g.GuildLeaderId == userId);
 
                 if (foundGuild == null)
                 {
                     return ServiceResult<GuildResponseDTO>.Failure("Guild not found.");
                 }
 
-                var guild = _mapper.Map<Guild>(requestDTO);
-
-                foundGuild.Name = guild.Name;
-                foundGuild.Description = guild.Description;
+                foundGuild.Name = requestDTO.Name; 
+                foundGuild.Description = requestDTO.Description;
                 foundGuild.UpdatedAt = DateTime.UtcNow;
-                foundGuild.GuildLeaderId = guild.GuildLeaderId;
 
-                await _unitOfWork.Guild.UpdateAsync(guild);
+                await _unitOfWork.Guild.UpdateAsync(foundGuild); 
 
                 var responseDTO = _mapper.Map<GuildResponseDTO>(foundGuild);
 
                 return ServiceResult<GuildResponseDTO>.Success(responseDTO);
             });
         }
+
 
         public async Task<ServiceResult<int>> DeleteGuild(int guildId)
         {

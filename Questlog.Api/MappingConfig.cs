@@ -1,5 +1,4 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Application.Common.DTOs.Character;
 using Questlog.Application.Common.DTOs.Guild;
@@ -40,14 +39,12 @@ public class MappingConfig : Profile
         CreateMap<Guild, CreateGuildRequestDTO>().ReverseMap();
         CreateMap<Guild, UpdateGuildRequestDTO>().ReverseMap();
 
-
         // Guild Member Mappings
-        CreateMap<GuildMember, GuildMemberResponseDTO>().ReverseMap();
+        CreateMap<GuildMember, GuildMemberResponseDTO>()
+            .ForMember(dest => dest.Character, opt => opt.MapFrom(src => src.Character))
+            .ReverseMap();
         CreateMap<GuildMember, CreateGuildMemberRequestDTO>().ReverseMap();
         CreateMap<GuildMember, CreateGuildMemberResponseDTO>().ReverseMap();
-
-
-
 
         // Party Mappings
         CreateMap<CreatePartyRequestDTO, Party>().ReverseMap();
@@ -55,8 +52,6 @@ public class MappingConfig : Profile
 
         // Party Member Mappings
         CreateMap<PartyMember, CreatePartyMemberResponseDTO>().ReverseMap();
-
-
 
         // Character mappings
         CreateMap<Character, CharacterResponseDTO>().ReverseMap();

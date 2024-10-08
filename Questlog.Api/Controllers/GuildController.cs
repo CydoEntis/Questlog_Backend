@@ -1,20 +1,14 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
-using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.DTOs.Guild;
-using Questlog.Application.Common.DTOs.Quest;
-using Questlog.Application.Services.Implementations;
 using Questlog.Application.Services.Interfaces;
-using Questlog.Domain.Entities;
 using System.Net;
 
 namespace Questlog.Api.Controllers
 {
-    [Route("api/guild")]
+    [Route("api/guilds")]
     [ApiController]
     [Authorize]
     [ServiceFilter(typeof(TokenValidationFilter))]
@@ -57,7 +51,6 @@ namespace Questlog.Api.Controllers
             return OkResponse(result.Data);
         }
 
-
         [HttpPost]
         public async Task<ActionResult<ApiResponse>> CreateGuild([FromBody] CreateGuildRequestDTO requestDTO)
         {
@@ -80,18 +73,28 @@ namespace Questlog.Api.Controllers
                 return BadRequestResponse(result.ErrorMessage);
             }
 
-            return CreatedResponse(result.Data);
+            var createdGuildId = result.Data.Id; // Assuming Id is a property of GuildResponseDTO
+            var locationUri = Url.Action("GetGuild", "Guild", new { guildId = createdGuildId }, HttpContext.Request.Scheme);
+
+            return CreatedResponse(new { Id = createdGuildId, Location = locationUri });
         }
 
-        [HttpPut]
-        public async Task<ActionResult<ApiResponse>> UpdateGuild([FromBody] UpdateGuildRequestDTO requestDTO)
+        [HttpPut("{guildId}")]
+        public async Task<ActionResult<ApiResponse>> UpdateGuild(int guildId, [FromBody] UpdateGuildRequestDTO requestDTO)
         {
             if (requestDTO == null)
             {
                 return BadRequestResponse("UpdateGuildRequestDTO cannot be null.");
             }
 
-            var result = await _guildService.UpdateGuild(requestDTO);
+            string userId = HttpContext.Items["UserId"] as string;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequestResponse("User Id is missing.");
+            }
+
+            var result = await _guildService.UpdateGuild(requestDTO, userId);
 
             if (!result.IsSuccess)
             {

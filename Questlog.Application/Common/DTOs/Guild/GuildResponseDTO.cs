@@ -14,6 +14,6 @@ namespace Questlog.Application.Common.DTOs.Guild
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public List<CreateGuildMemberResponseDTO> GuildMembers { get; set; }
+        public List<GuildMemberResponseDTO> GuildMembers { get; set; }
     }
 }

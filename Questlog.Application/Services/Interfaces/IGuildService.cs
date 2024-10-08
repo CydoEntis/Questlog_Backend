@@ -14,7 +14,7 @@ namespace Questlog.Application.Services.Interfaces
         Task<ServiceResult<GuildResponseDTO>> GetGuildById(int guildId);
         Task<ServiceResult<List<GuildResponseDTO>>> GetAllGuilds();
         Task<ServiceResult<GuildResponseDTO>> CreateGuild(string userId, CreateGuildRequestDTO requestDTO);
-        Task<ServiceResult<GuildResponseDTO>> UpdateGuild(UpdateGuildRequestDTO requestDTO);
+        Task<ServiceResult<GuildResponseDTO>> UpdateGuild(UpdateGuildRequestDTO requestDTO, string userId);
         Task<ServiceResult<int>> DeleteGuild(int guildId);
     }
 }

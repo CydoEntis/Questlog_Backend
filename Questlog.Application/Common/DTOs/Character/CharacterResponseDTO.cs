@@ -10,17 +10,12 @@ namespace Questlog.Application.Common.DTOs.Character
 {
     public record CharacterResponseDTO
     {
-        [Required]
+        public int Id { get; set; }
         public string DisplayName { get; set; }
-        [Required]
         public Archetype  Archetype { get; set; }
-        [Required]
         public int CurrentLevel { get; set; }
-        [Required]
         public int CurrentExp { get; set; }
-        [Required]
         public int ExpToNextLevel { get; set; }
-        [Required]
         public List<Unlockable>? Inventory { get; set; }
     }
 }

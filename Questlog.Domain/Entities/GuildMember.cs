@@ -28,5 +28,11 @@ namespace Questlog.Domain.Entities
 
         public DateTime JoinedOn { get; set; } = DateTime.Now;
         public DateTime UpdatedOn { get; set; }
+
+
+        [ForeignKey("Character")]
+        public int? CharacterId { get; set; }
+
+        public virtual Character Character { get; set; }
     }
 }

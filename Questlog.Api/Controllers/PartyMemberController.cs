@@ -18,7 +18,7 @@ namespace Questlog.Api.Controllers
         protected ApiResponse _response;
         private readonly IPartyMemberService _partyMemberService;
 
-        public PartyMemberController(IPartyMemberService partyMemberService
+        public PartyMemberController(IPartyMemberService partyMemberService)
         {
             _response = new ApiResponse();
             _partyMemberService = partyMemberService;
