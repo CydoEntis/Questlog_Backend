@@ -24,7 +24,8 @@ namespace Questlog.Domain.Entities
 
         public Party Party { get; set; } 
 
-        public DateTime JoinedAt { get; set; } = DateTime.UtcNow; 
+        public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public string Role { get; set; } 
     }

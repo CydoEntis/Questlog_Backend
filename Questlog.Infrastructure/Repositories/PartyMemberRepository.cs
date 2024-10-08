@@ -19,7 +19,13 @@ namespace Questlog.Infrastructure.Repositories
             _db = db;
         }
 
-
+        public async Task<PartyMember> UpdateAsync(PartyMember entity)
+        {
+            entity.UpdatedAt = DateTime.Now;
+            _db.PartyMembers.Update(entity);
+            await _db.SaveChangesAsync();
+            return entity;
+        }
 
 
     }
