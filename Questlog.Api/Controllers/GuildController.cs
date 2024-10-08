@@ -23,21 +23,11 @@ namespace Questlog.Api.Controllers
 
         protected ApiResponse _response;
         private readonly IGuildService _guildService;
-        private readonly IGuildMemberService _guildMemberService;
-        private readonly IPartyService _partyService;
-        private readonly IPartyMemberService _partyMemberService;
-        private readonly ICharacterService _characterService;
-        private readonly IMapper _mapper;
 
-        public GuildController(IGuildService guildService, IGuildMemberService guildMemberService, IPartyService partyService, IPartyMemberService partyMemberService, ICharacterService characterService, IMapper mapper)
+        public GuildController(IGuildService guildService)
         {
             _response = new ApiResponse();
             _guildService = guildService;
-            _guildMemberService = guildMemberService;
-            _partyService = partyService;
-            _partyMemberService = partyMemberService;
-            _characterService = characterService;
-            _mapper = mapper;
         }
 
         [HttpGet("{guildId}")]
