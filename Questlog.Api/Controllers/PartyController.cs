@@ -18,7 +18,7 @@ namespace Questlog.Api.Controllers
         protected ApiResponse _response;
         private readonly IPartyService _partyService;
 
-        public PartyController(IPartyService partyService, IMapper mapper)
+        public PartyController(IPartyService partyService)
         {
             _response = new ApiResponse();
             _partyService = partyService;
@@ -27,7 +27,7 @@ namespace Questlog.Api.Controllers
         [HttpGet("{partyId}")]
         public async Task<ActionResult<ApiResponse>> GetPartyById(int guildId, int partyId)
         {
-            var result = await _partyService.GetPartyById(partyId);
+            var result = await _partyService.GetPartyById(guildId, partyId);
             if (!result.IsSuccess)
             {
                 return BadRequestResponse(result.ErrorMessage);
@@ -39,7 +39,7 @@ namespace Questlog.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<ApiResponse>> GetAllParties(int guildId)
         {
-            var result = await _partyService.GetAllPartys();
+            var result = await _partyService.GetAllParties(guildId);
             if (!result.IsSuccess)
             {
                 return BadRequestResponse(result.ErrorMessage);
@@ -53,9 +53,9 @@ namespace Questlog.Api.Controllers
         {
             string userId = HttpContext.Items["UserId"] as string;
 
-            requestDTO.GuildId = guildId; 
+            requestDTO.GuildId = guildId;
 
-            var result = await _partyService.CreateParty(userId, requestDTO);
+            var result = await _partyService.CreateParty(userId, requestDTO, guildId);
 
             if (!result.IsSuccess)
             {
@@ -68,7 +68,7 @@ namespace Questlog.Api.Controllers
         [HttpPut("{partyId}")]
         public async Task<ActionResult<ApiResponse>> UpdateParty(int guildId, int partyId, [FromBody] UpdatePartyRequestDTO requestDTO)
         {
-            var result = await _partyService.UpdateParty(requestDTO);
+            var result = await _partyService.UpdateParty(guildId, requestDTO);
 
             if (!result.IsSuccess)
             {
@@ -81,7 +81,7 @@ namespace Questlog.Api.Controllers
         [HttpDelete("{partyId}")]
         public async Task<ActionResult<ApiResponse>> DeleteParty(int guildId, int partyId)
         {
-            var result = await _partyService.DeleteParty(partyId);
+            var result = await _partyService.DeleteParty(guildId, partyId);
 
             if (!result.IsSuccess)
             {
