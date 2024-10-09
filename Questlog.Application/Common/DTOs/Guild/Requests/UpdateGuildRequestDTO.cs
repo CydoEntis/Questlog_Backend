@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Questlog.Application.Common.DTOs.Guild
+namespace Questlog.Application.Common.DTOs.Guild.Requests
 {
     public record UpdateGuildRequestDTO
     {

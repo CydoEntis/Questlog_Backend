@@ -1,4 +1,5 @@
-﻿using Questlog.Application.Common.DTOs.Guild;
+﻿using Questlog.Application.Common.DTOs.Guild.Requests;
+using Questlog.Application.Common.DTOs.Guild.Responses;
 using Questlog.Application.Common.Models;
 using Questlog.Domain.Entities;
 using System;

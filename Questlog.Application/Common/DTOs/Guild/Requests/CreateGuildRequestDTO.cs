@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Questlog.Application.Common.DTOs.Party;
 
-namespace Questlog.Application.Common.DTOs.Guild
+namespace Questlog.Application.Common.DTOs.Guild.Requests
 {
     public record CreateGuildRequestDTO
     {

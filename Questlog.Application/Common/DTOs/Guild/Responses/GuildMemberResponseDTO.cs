@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Questlog.Application.Common.DTOs.Character;
 
-namespace Questlog.Application.Common.DTOs.Guild
+namespace Questlog.Application.Common.DTOs.Guild.Responses
 {
     public record GuildMemberResponseDTO
     {

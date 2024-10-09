@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using Questlog.Api;
+using Questlog.Api.Mappings;
 using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Services.Implementations;
@@ -52,9 +53,6 @@ builder.Services.AddScoped<IGuildService, GuildService>();
 builder.Services.AddScoped<IGuildMemberService, GuildMemberService>();
 builder.Services.AddScoped<IPartyService, PartyService>();
 builder.Services.AddScoped<IPartyMemberService, PartyMemberService>();
-
-
-
 
 
 

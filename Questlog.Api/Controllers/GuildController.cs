@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
-using Questlog.Application.Common.DTOs.Guild;
+using Questlog.Application.Common.DTOs.Guild.Requests;
 using Questlog.Application.Services.Interfaces;
 using System.Net;
 
@@ -76,7 +76,7 @@ namespace Questlog.Api.Controllers
             var createdGuildId = result.Data.Id; // Assuming Id is a property of GuildResponseDTO
             var locationUri = Url.Action("GetGuild", "Guild", new { guildId = createdGuildId }, HttpContext.Request.Scheme);
 
-            return CreatedResponse(new { Id = createdGuildId, Location = locationUri });
+            return CreatedResponse(new { Id = createdGuildId, Location = locationUri, Message = "Guild created successfully" });
         }
 
         [HttpPut("{guildId}")]
