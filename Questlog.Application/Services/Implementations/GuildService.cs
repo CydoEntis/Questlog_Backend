@@ -57,7 +57,7 @@ namespace Questlog.Application.Services.Implementations
         {
             return await HandleExceptions<List<GetAllGuildsResponseDTO>>(async () =>
             {
-                var guilds = await _unitOfWork.Guild.GetAllAsync();
+                var guilds = await _unitOfWork.Guild.GetAllAsync(orderBy: q => q.OrderBy(g => g.CreatedAt), ascending: false);
 
                 List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
 

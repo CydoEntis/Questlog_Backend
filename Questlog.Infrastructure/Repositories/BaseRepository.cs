@@ -29,7 +29,11 @@ namespace Questlog.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        public async Task<List<T>> GetAllAsync(
+            Expression<Func<T, bool>>? filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            bool ascending = true, 
+            string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
 
@@ -45,8 +49,15 @@ namespace Questlog.Infrastructure.Repositories
                     query = query.Include(property);
                 }
             }
+
+            if (orderBy != null)
+            {
+                query = ascending ? orderBy(query) : orderBy(query).Reverse();  // Apply ordering with direction
+            }
+
             return await query.ToListAsync();
         }
+
 
         public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeProperties = null)
         {
