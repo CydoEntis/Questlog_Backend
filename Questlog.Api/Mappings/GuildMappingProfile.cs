@@ -14,6 +14,7 @@ namespace Questlog.Api.Mappings
 
             CreateMap<Guild, GuildResponseDTO>().ReverseMap();
             CreateMap<Guild, GetGuildResponseDTO>().ReverseMap();
+            CreateMap<Guild, GetAllGuildsResponseDTO>().ReverseMap();
             CreateMap<Guild, CreateGuildResponseDTO>().ReverseMap();
             CreateMap<Guild, UpdateGuildResponseDTO>().ReverseMap();
         }

@@ -53,15 +53,15 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<List<GetGuildResponseDTO>>> GetAllGuilds()
+        public async Task<ServiceResult<List<GetAllGuildsResponseDTO>>> GetAllGuilds()
         {
-            return await HandleExceptions<List<GetGuildResponseDTO>>(async () =>
+            return await HandleExceptions<List<GetAllGuildsResponseDTO>>(async () =>
             {
                 var guilds = await _unitOfWork.Guild.GetAllAsync(includeProperties: "GuildMembers,GuildMembers.Character");
 
-                List<GetGuildResponseDTO> guildResponseDTOs = _mapper.Map<List<GetGuildResponseDTO>>(guilds);
+                List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
 
-                return ServiceResult<List<GetGuildResponseDTO>>.Success(guildResponseDTOs);
+                return ServiceResult<List<GetAllGuildsResponseDTO>>.Success(guildResponseDTOs);
             });
         }
 
