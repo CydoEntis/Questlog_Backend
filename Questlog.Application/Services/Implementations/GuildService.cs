@@ -40,7 +40,7 @@ namespace Questlog.Application.Services.Implementations
 
             return await HandleExceptions<GetGuildResponseDTO>(async () =>
             {
-                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
+                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId, includeProperties: "GuildMembers,Parties");
 
                 if (foundGuild == null)
                 {
@@ -57,7 +57,7 @@ namespace Questlog.Application.Services.Implementations
         {
             return await HandleExceptions<List<GetAllGuildsResponseDTO>>(async () =>
             {
-                var guilds = await _unitOfWork.Guild.GetAllAsync(includeProperties: "GuildMembers,GuildMembers.Character");
+                var guilds = await _unitOfWork.Guild.GetAllAsync();
 
                 List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
 
