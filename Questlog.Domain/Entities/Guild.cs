@@ -22,6 +22,8 @@ namespace Questlog.Domain.Entities
         [MaxLength(100)]
         public string Description { get; set; }
 
+        public string Color { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         

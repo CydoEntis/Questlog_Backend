@@ -86,7 +86,8 @@ namespace Questlog.Application.Services.Implementations
                 {
                     Name = guild.Name,
                     Description = guild.Description,
-                    GuildLeaderId = userId
+                    GuildLeaderId = userId,
+                    Color = guild.Color
                 };
 
                 Guild createdGuild = await _unitOfWork.Guild.CreateAsync(newGuild);
@@ -130,11 +131,11 @@ namespace Questlog.Application.Services.Implementations
                     return ServiceResult<UpdateGuildResponseDTO>.Failure("Guild not found.");
                 }
 
-                foundGuild.Name = requestDTO.Name; 
+                foundGuild.Name = requestDTO.Name;
                 foundGuild.Description = requestDTO.Description;
                 foundGuild.UpdatedAt = DateTime.UtcNow;
 
-                await _unitOfWork.Guild.UpdateAsync(foundGuild); 
+                await _unitOfWork.Guild.UpdateAsync(foundGuild);
 
                 var responseDTO = _mapper.Map<UpdateGuildResponseDTO>(foundGuild);
 

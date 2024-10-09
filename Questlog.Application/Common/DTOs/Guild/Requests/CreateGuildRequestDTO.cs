@@ -21,5 +21,8 @@ namespace Questlog.Application.Common.DTOs.Guild.Requests
         [MinLength(5)]
         [MaxLength(100)]
         public string Description { get; set; }
+
+        [Required]
+        public string Color { get; set; }
     }
 }
