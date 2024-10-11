@@ -79,8 +79,8 @@ namespace Questlog.Api.Controllers
             return CreatedResponse(new { Id = createdGuildId, Location = locationUri, Message = "Guild created successfully" });
         }
 
-        [HttpPut("{guildId}")]
-        public async Task<ActionResult<ApiResponse>> UpdateGuild(int guildId, [FromBody] UpdateGuildRequestDTO requestDTO)
+        [HttpPut("{guildId}/details")]
+        public async Task<ActionResult<ApiResponse>> UpdateGuildDetails(int guildId, [FromBody] UpdateGuildDetailsRequestDTO requestDTO)
         {
             if (requestDTO == null)
             {
@@ -94,7 +94,32 @@ namespace Questlog.Api.Controllers
                 return BadRequestResponse("User Id is missing.");
             }
 
-            var result = await _guildService.UpdateGuild(requestDTO, userId);
+            var result = await _guildService.UpdateGuildDetails(requestDTO, userId);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequestResponse(result.ErrorMessage);
+            }
+
+            return OkResponse(result.Data);
+        }
+
+        [HttpPut("{guildId}/leader")]
+        public async Task<ActionResult<ApiResponse>> UpdateGuildLeader(int guildId, [FromBody] UpdateGuildLeaderRequestDTO requestDTO)
+        {
+            if (requestDTO == null)
+            {
+                return BadRequestResponse("UpdateGuildRequestDTO cannot be null.");
+            }
+
+            string userId = HttpContext.Items["UserId"] as string;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequestResponse("User Id is missing.");
+            }
+
+            var result = await _guildService.UpdateGuildLeader(requestDTO, userId);
 
             if (!result.IsSuccess)
             {

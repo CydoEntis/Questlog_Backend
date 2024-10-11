@@ -7,19 +7,21 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.DTOs.Guild.Requests
 {
-    public record UpdateGuildRequestDTO
+    public record UpdateGuildDetailsRequestDTO
     {
         [Required]
         public int Id { get; set; }
-
+        [Required]
         [MinLength(3)]
-        [MaxLength(25)]
+        [MaxLength(20)]
         public string? Name { get; set; }
-
         [MinLength(5)]
         [MaxLength(100)]
+        [Required]
         public string? Description { get; set; }
-
+        [Required]
+        public string GuildLeaderId { get; set; }
+        [Required]
         public string Color { get; set; }
     }
 }

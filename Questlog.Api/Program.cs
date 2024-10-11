@@ -14,6 +14,7 @@ using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
 using Questlog.Infrastructure.Repositories;
 using System.Text;
+using System.Text.Json;
 
 
 
@@ -59,7 +60,10 @@ builder.Services.AddScoped<IPartyMemberService, PartyMemberService>();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<TokenValidationFilter>();
-});
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+}); ;
 
 var jwtKey = builder.Configuration["JwtSecret"];
 var jwtIssuer = builder.Configuration["JwtIssuer"];
