@@ -13,7 +13,5 @@ namespace Questlog.Application.Common.DTOs.Guild.Requests
         public string UserId { get; set; }
         [Required]
         public int GuildId { get; set; }
-        [Required]
-        public DateTime JoinedOn { get; set; }
     }
 }

@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Questlog.Domain\Questlog.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Common\DTOs\GuildMember\Request\" />
+  </ItemGroup>
+
 </Project>

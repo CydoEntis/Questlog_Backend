@@ -9,8 +9,8 @@ namespace Questlog.Application.Common.Enums
     public enum Archetype
     {
         Barbarian = 1,
-        Knight = 2,
-        Mage = 3,
+        Mage = 2,
+        Knight = 3,
         Archer = 4
     }
 }

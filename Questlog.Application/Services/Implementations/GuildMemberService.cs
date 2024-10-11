@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.DTOs.Guild.Requests;
 using Questlog.Application.Common.DTOs.Guild.Responses;
+using Questlog.Application.Common.DTOs.GuildMember.Response;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Common.Validation;
@@ -29,42 +30,42 @@ namespace Questlog.Application.Services.Implementations
             _mapper = mapper;
         }
 
-        public async Task<ServiceResult<GuildMemberResponseDTO>> GetGuildMember(int guildId, int guildMemberId)
+        public async Task<ServiceResult<GetGuildMemberResponseDTO>> GetGuildMember(int guildId, int guildMemberId)
         {
             var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
-            if (!idValidation.IsSuccess) return ServiceResult<GuildMemberResponseDTO>.Failure(idValidation.ErrorMessage);
+            if (!idValidation.IsSuccess) return ServiceResult<GetGuildMemberResponseDTO>.Failure(idValidation.ErrorMessage);
 
             var memberIdValidation = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
-            if (!memberIdValidation.IsSuccess) return ServiceResult<GuildMemberResponseDTO>.Failure(memberIdValidation.ErrorMessage);
+            if (!memberIdValidation.IsSuccess) return ServiceResult<GetGuildMemberResponseDTO>.Failure(memberIdValidation.ErrorMessage);
 
-            return await HandleExceptions<GuildMemberResponseDTO>(async () =>
+            return await HandleExceptions<GetGuildMemberResponseDTO>(async () =>
             {
-                GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.Id == guildMemberId);
+                GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.Id == guildMemberId, includeProperties: "Character");
 
                 if (foundGuildMember == null)
                 {
-                    return ServiceResult<GuildMemberResponseDTO>.Failure("Guild member not found.");
+                    return ServiceResult<GetGuildMemberResponseDTO>.Failure("Guild member not found.");
                 }
 
-                var guildMemberResponseDTO = _mapper.Map<GuildMemberResponseDTO>(foundGuildMember);
+                var guildMemberResponseDTO = _mapper.Map<GetGuildMemberResponseDTO>(foundGuildMember);
 
-                return ServiceResult<GuildMemberResponseDTO>.Success(guildMemberResponseDTO);
+                return ServiceResult<GetGuildMemberResponseDTO>.Success(guildMemberResponseDTO);
             });
         }
 
 
-        public async Task<ServiceResult<List<GuildMemberResponseDTO>>> GetAllGuildMembers(int guildId)
+        public async Task<ServiceResult<List<GetGuildMemberResponseDTO>>> GetAllGuildMembers(int guildId)
         {
             var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
-            if (!idValidation.IsSuccess) return ServiceResult<List<GuildMemberResponseDTO>>.Failure(idValidation.ErrorMessage);
+            if (!idValidation.IsSuccess) return ServiceResult<List<GetGuildMemberResponseDTO>>.Failure(idValidation.ErrorMessage);
 
-            return await HandleExceptions<List<GuildMemberResponseDTO>>(async () =>
+            return await HandleExceptions<List<GetGuildMemberResponseDTO>>(async () =>
             {
-                List<GuildMember> guildMembers = await _unitOfWork.GuildMember.GetAllAsync(gm => gm.GuildId == guildId);
+                List<GuildMember> guildMembers = await _unitOfWork.GuildMember.GetAllAsync(gm => gm.GuildId == guildId, includeProperties: "Character");
 
-                List<GuildMemberResponseDTO> guildMemberResponseDTOs = _mapper.Map<List<GuildMemberResponseDTO>>(guildMembers);
+                List<GetGuildMemberResponseDTO> guildMemberResponseDTOs = _mapper.Map<List<GetGuildMemberResponseDTO>>(guildMembers);
 
-                return ServiceResult<List<GuildMemberResponseDTO>>.Success(guildMemberResponseDTOs);
+                return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(guildMemberResponseDTOs);
             });
         }
 

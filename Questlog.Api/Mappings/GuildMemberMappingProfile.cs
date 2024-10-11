@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Questlog.Application.Common.DTOs.Guild.Requests;
 using Questlog.Application.Common.DTOs.Guild.Responses;
+using Questlog.Application.Common.DTOs.GuildMember.Response;
 using Questlog.Domain.Entities;
 
 namespace Questlog.Api.Mappings
@@ -14,6 +15,12 @@ namespace Questlog.Api.Mappings
                 .ReverseMap();
             CreateMap<GuildMember, CreateGuildMemberRequestDTO>().ReverseMap();
             CreateMap<GuildMember, CreateGuildMemberResponseDTO>().ReverseMap();
+
+            CreateMap<GuildMember, GetGuildMemberResponseDTO>()
+            .ForMember(dest => dest.Archetype, opt => opt.MapFrom(src => src.Character.Archetype))
+            .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Character.DisplayName))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Character.UserId))
+            .ForMember(dest => dest.CurrentLevel, opt => opt.MapFrom(src => src.Character.CurrentLevel));
         }
     }
 }
