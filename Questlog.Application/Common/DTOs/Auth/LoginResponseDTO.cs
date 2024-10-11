@@ -9,6 +9,7 @@ namespace Questlog.Application.Common.DTOs.Auth
 {
     public record LoginResponseDTO
     {
+        public string UserId { get; set; }
         public string Email { get; set; }
         public TokenDTO Tokens { get; set; }
         public CharacterResponseDTO Character { get; set; }

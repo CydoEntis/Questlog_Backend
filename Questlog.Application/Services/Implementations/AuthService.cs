@@ -44,7 +44,8 @@ namespace Questlog.Application.Services.Implementations
             if (user is null || !isUserValid)
             {
                 return new LoginResponseDTO()
-                {
+                {  
+                    UserId = "",
                     Email = "",
                     Tokens = new TokenDTO()
                     {
@@ -63,6 +64,7 @@ namespace Questlog.Application.Services.Implementations
 
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
+                UserId = user.Id,
                 Email = user.Email,
                 Tokens = new TokenDTO()
                 {
