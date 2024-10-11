@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
@@ -55,15 +56,20 @@ builder.Services.AddScoped<IGuildMemberService, GuildMemberService>();
 builder.Services.AddScoped<IPartyService, PartyService>();
 builder.Services.AddScoped<IPartyMemberService, PartyMemberService>();
 
-
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true; 
+});
 
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<TokenValidationFilter>();
+    options.Filters.Add<CamelCaseValidationFilter>();
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-}); ;
+});
+
 
 var jwtKey = builder.Configuration["JwtSecret"];
 var jwtIssuer = builder.Configuration["JwtIssuer"];
