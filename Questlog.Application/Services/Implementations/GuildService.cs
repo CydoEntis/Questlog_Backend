@@ -79,9 +79,6 @@ namespace Questlog.Application.Services.Implementations
             {
                 var foundCharacter = await _unitOfWork.Character.GetAsync(c => c.UserId == userId);
 
-                var characterValidationResult = ValidationHelper.ValidateObject(foundCharacter, "Character");
-                if (!characterValidationResult.IsSuccess) return ServiceResult<CreateGuildResponseDTO>.Failure(characterValidationResult.ErrorMessage);
-
                 var guild = _mapper.Map<Guild>(requestDTO);
                 var newGuild = new Guild
                 {
@@ -93,23 +90,23 @@ namespace Questlog.Application.Services.Implementations
 
                 Guild createdGuild = await _unitOfWork.Guild.CreateAsync(newGuild);
 
-                var guildMember = new GuildMember
+                var guildLeader = new GuildMember
                 {
                     UserId = userId,
                     GuildId = createdGuild.Id,
                     Role = RoleConstants.GuildLeader,
                     JoinedOn = DateTime.UtcNow,
-                    CharacterId = foundCharacter.Id
                 };
 
-                await _unitOfWork.GuildMember.CreateAsync(guildMember);
+                var createdGuildLeader = await _unitOfWork.GuildMember.CreateAsync(guildLeader);
 
-                var createdGuildWithMembers = await _unitOfWork.Guild.GetAsync(
-                    g => g.Id == createdGuild.Id,
-                    includeProperties: "GuildMembers,GuildMembers.Character"
-                );
+                var createGuildResponseDTO = new CreateGuildResponseDTO
+                {
 
-                var createdGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(createdGuildWithMembers);
+                } 
+
+
+                //var createdGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(createdGuildWithMembers);
 
                 return ServiceResult<CreateGuildResponseDTO>.Success(createdGuildResponseDTO);
             });

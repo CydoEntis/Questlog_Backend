@@ -95,6 +95,7 @@ namespace Questlog.Application.Services.Implementations
                 NormalizedEmail = registerRequestDTO.Email.ToUpper(),
                 NormalizedUserName = registerRequestDTO.Email.ToUpper(),
                 DisplayName = registerRequestDTO.DisplayName,
+                Avatar = registerRequestDTO.Avatar,
                 CurrentLevel = 1,
                 CurrentExp = 0,
                 ExpToNextLevel = 100,
@@ -107,16 +108,6 @@ namespace Questlog.Application.Services.Implementations
 
                 if (result.Succeeded)
                 {
-                    var newCharacter = new Character
-                    {
-                        DisplayName = registerRequestDTO.DisplayName,
-                        Avatar = registerRequestDTO.Avatar,
-                        ApplicationUser = user, 
-                    };
-
-                    await _characterService.CreateCharacterAsync(user.Id, newCharacter);
-
-      
                     await _userManager.UpdateAsync(user);
 
                     var loginRequestDTO = new LoginRequestDTO

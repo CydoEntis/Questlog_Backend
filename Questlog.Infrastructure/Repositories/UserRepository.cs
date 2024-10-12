@@ -21,7 +21,7 @@ namespace Questlog.Infrastructure.Repositories
 
         public async Task<ApplicationUser> GetByEmail(string email)
         {
-            return await _db.ApplicationUsers.Include("Character").FirstOrDefaultAsync(user => user.Email == email);
+            return await _db.ApplicationUsers.FirstOrDefaultAsync(user => user.Email == email);
         }
 
         public async Task<ApplicationUser> GetUserById(string userId)

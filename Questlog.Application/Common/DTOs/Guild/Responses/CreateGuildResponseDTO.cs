@@ -13,5 +13,6 @@ namespace Questlog.Application.Common.DTOs.Guild.Responses
         public int Id { get; set; }
         public string Name { get; set; }
         public string Color { get; set; }
+        public CreateGuildMemberResponseDTO GuildLeader { get; set; }
     }
 }
