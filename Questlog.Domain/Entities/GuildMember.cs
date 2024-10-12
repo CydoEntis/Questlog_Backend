@@ -14,10 +14,6 @@ namespace Questlog.Domain.Entities
         [Key]
         public int Id { get; set; }
 
-        [ForeignKey("ApplicationUser")]
-        public string UserId { get; set; }
-
-        public ApplicationUser ApplicationUser { get; set; }
 
         [ForeignKey("Guild")]
         public int GuildId { get; set; }
@@ -28,5 +24,10 @@ namespace Questlog.Domain.Entities
 
         public DateTime JoinedOn { get; set; } = DateTime.Now;
         public DateTime UpdatedOn { get; set; }
+
+        [ForeignKey("ApplicationUser")]
+        public string UserId { get; set; }
+
+        public ApplicationUser User { get; set; }
     }
 }

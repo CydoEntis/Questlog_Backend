@@ -73,10 +73,12 @@ namespace Questlog.Api.Controllers
                 return BadRequestResponse(result.ErrorMessage);
             }
 
-            var createdGuildId = result.Data.Id; // Assuming Id is a property of GuildResponseDTO
-            var locationUri = Url.Action("GetGuild", "Guild", new { guildId = createdGuildId }, HttpContext.Request.Scheme);
+            return CreatedResponse(result);
 
-            return CreatedResponse(new { Id = createdGuildId, Location = locationUri, Message = "Guild created successfully" });
+            //var createdGuildId = result.Data.Id; // Assuming Id is a property of GuildResponseDTO
+            //var locationUri = Url.Action("GetGuild", "Guild", new { guildId = createdGuildId }, HttpContext.Request.Scheme);
+
+            //return CreatedResponse(new { Id = createdGuildId, Location = locationUri, Message = "Guild created successfully" });
         }
 
         [HttpPut("{guildId}/details")]
@@ -104,30 +106,30 @@ namespace Questlog.Api.Controllers
             return OkResponse(result.Data);
         }
 
-        [HttpPut("{guildId}/leader")]
-        public async Task<ActionResult<ApiResponse>> UpdateGuildLeader(int guildId, [FromBody] UpdateGuildLeaderRequestDTO requestDTO)
-        {
-            if (requestDTO == null)
-            {
-                return BadRequestResponse("UpdateGuildRequestDTO cannot be null.");
-            }
+        //[HttpPut("{guildId}/leader")]
+        //public async Task<ActionResult<ApiResponse>> UpdateGuildLeader(int guildId, [FromBody] UpdateGuildLeaderRequestDTO requestDTO)
+        //{
+        //    if (requestDTO == null)
+        //    {
+        //        return BadRequestResponse("UpdateGuildRequestDTO cannot be null.");
+        //    }
 
-            string userId = HttpContext.Items["UserId"] as string;
+        //    string userId = HttpContext.Items["UserId"] as string;
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                return BadRequestResponse("User Id is missing.");
-            }
+        //    if (string.IsNullOrEmpty(userId))
+        //    {
+        //        return BadRequestResponse("User Id is missing.");
+        //    }
 
-            var result = await _guildService.UpdateGuildLeader(requestDTO, userId);
+        //    var result = await _guildService.UpdateGuildLeader(requestDTO, userId);
 
-            if (!result.IsSuccess)
-            {
-                return BadRequestResponse(result.ErrorMessage);
-            }
+        //    if (!result.IsSuccess)
+        //    {
+        //        return BadRequestResponse(result.ErrorMessage);
+        //    }
 
-            return OkResponse(result.Data);
-        }
+        //    return OkResponse(result.Data);
+        //}
 
         [HttpDelete("{guildId}")]
         public async Task<ActionResult<ApiResponse>> DeleteGuild(int guildId)

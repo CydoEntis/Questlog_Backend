@@ -9,7 +9,7 @@ namespace Questlog.Api.Mappings
     {
         public ApplicationUserMappingProfile()
         {
-            CreateMap<GetApplicationUserResponseDTO, ApplicationUser>().ReverseMap();
+            CreateMap<ApplicationUser, GetApplicationUserResponseDTO>().ReverseMap();
         }
     }
 }

@@ -18,6 +18,7 @@ namespace Questlog.Infrastructure.Repositories
             _db = db;
         }
 
+
         public async Task<GuildMember> UpdateAsync(GuildMember entity)
         {
             entity.UpdatedOn = DateTime.Now;

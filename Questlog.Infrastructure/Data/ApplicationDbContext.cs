@@ -24,7 +24,7 @@ namespace Questlog.Infrastructure.Data
             // User deletion cascades to their character
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(u => u.GuildMembers)
-                .WithOne(gm => gm.ApplicationUser)
+                .WithOne(gm => gm.User)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Prevent deletion of user if they are a guild leader

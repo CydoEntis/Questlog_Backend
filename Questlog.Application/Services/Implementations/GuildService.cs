@@ -76,14 +76,11 @@ namespace Questlog.Application.Services.Implementations
 
             return await HandleExceptions<CreateGuildResponseDTO>(async () =>
             {
-                // Use AutoMapper to map the request DTO to the Guild entity
                 var guild = _mapper.Map<Guild>(requestDTO);
-                guild.GuildLeaderId = userId; // Set additional properties not in the DTO
+                guild.GuildLeaderId = userId;
 
-                // Save the new guild
                 Guild createdGuild = await _unitOfWork.Guild.CreateAsync(guild);
 
-                // Create and save the guild leader
                 var guildLeader = new GuildMember
                 {
                     UserId = userId,
@@ -92,17 +89,17 @@ namespace Questlog.Application.Services.Implementations
                     JoinedOn = DateTime.UtcNow,
                 };
 
-                var createdGuildLeader = await _unitOfWork.GuildMember.CreateAsync(guildLeader);
+                await _unitOfWork.GuildMember.CreateAsync(guildLeader);
 
-                // Set the GuildLeader on the created guild entity (or you can fetch it)
-                createdGuild.GuildLeader = createdGuildLeader;
+                var guildWithLeader = await _unitOfWork.Guild
+                           .GetAsync(g => g.Id == guild.Id, includeProperties: "GuildMembers,GuildMembers.User");
 
-                // Use AutoMapper to map the created guild (including the guild leader) to the response DTO
-                var createGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(createdGuild);
+                var createGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(guildWithLeader);
 
                 return ServiceResult<CreateGuildResponseDTO>.Success(createGuildResponseDTO);
             });
         }
+
 
 
         public async Task<ServiceResult<UpdateGuildDetailsResponseDTO>> UpdateGuildDetails(UpdateGuildDetailsRequestDTO requestDTO, string userId)
@@ -129,8 +126,8 @@ namespace Questlog.Application.Services.Implementations
 
                 foundGuild.Name = requestDTO.Name.Trim();
                 foundGuild.Description = requestDTO.Description.Trim();
-                foundGuild.UpdatedAt = DateTime.UtcNow;
                 foundGuild.Color = requestDTO.Color;
+                foundGuild.UpdatedAt = DateTime.UtcNow;
 
                 await _unitOfWork.Guild.UpdateAsync(foundGuild);
 
@@ -140,13 +137,13 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<UpdateGuildLeaderResponseDTO>> UpdateGuildLeader(UpdateGuildLeaderRequestDTO requestDTO, string userId)
+        public async Task<ServiceResult<UpdateGuildLeaderResponseDTO>> UpdateGuildLeader(int guildId, UpdateGuildLeaderRequestDTO requestDTO, string userId)
         {
             var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Update Guild Request DTO");
             if (!guildValidationResult.IsSuccess)
                 return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure(guildValidationResult.ErrorMessage);
 
-            var guildIdValidationResult = ValidationHelper.ValidateId(requestDTO.Id, "Guild Id");
+            var guildIdValidationResult = ValidationHelper.ValidateId(guildId, "Guild Id");
             if (!guildIdValidationResult.IsSuccess)
                 return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure(guildIdValidationResult.ErrorMessage);
 
@@ -221,7 +218,7 @@ namespace Questlog.Application.Services.Implementations
         private async Task<bool> IsUserGuildLeader(int guildId, string userId)
         {
             var guild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
-            return guild?.GuildLeaderId == userId; 
+            return guild?.GuildLeaderId == userId;
         }
     }
 

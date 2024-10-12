@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Questlog.Application.Common.DTOs.GuildMember.Response;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -13,6 +14,6 @@ namespace Questlog.Application.Common.DTOs.Guild.Responses
         public int Id { get; set; }
         public string Name { get; set; }
         public string Color { get; set; }
-        public CreateGuildMemberResponseDTO GuildLeader { get; set; }
+        public List<GetGuildMemberResponseDTO> GuildMembers { get; set; }
     }
 }
