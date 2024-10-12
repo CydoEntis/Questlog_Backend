@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="Common\DTOs\ApplicationUser\Request\" />
-    <Folder Include="Common\DTOs\GuildMember\Request\" />
   </ItemGroup>
 
 </Project>

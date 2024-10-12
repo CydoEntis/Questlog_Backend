@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Questlog.Application.Common.DTOs.GuildMember.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Questlog.Application.Common.DTOs.Guild.Requests
 {
     public record UpdateGuildLeaderRequestDTO
     {
-        public int Id { get; set; }
-        public string GuildLeaderId { get; set; }
+        public GuildMemberResponseDTO oldGuildLeader { get; set; }
+        public GuildMemberResponseDTO newGuildLeader { get; set; }
     }
 }

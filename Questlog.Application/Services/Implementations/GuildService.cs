@@ -137,55 +137,48 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<UpdateGuildLeaderResponseDTO>> UpdateGuildLeader(int guildId, UpdateGuildLeaderRequestDTO requestDTO, string userId)
+        public async Task<ServiceResult<UpdateGuildLeaderResponseDTO>> UpdateGuildLeader(int guildId, string userId, UpdateGuildLeaderRequestDTO requestDTO)
         {
-            var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Update Guild Request DTO");
-            if (!guildValidationResult.IsSuccess)
-                return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure(guildValidationResult.ErrorMessage);
+            // Validate request DTO and guildId
+            var validationResults = new[]
+            {
+        ValidationHelper.ValidateObject(requestDTO, "Update Guild Request DTO"),
+        ValidationHelper.ValidateId(guildId, "Guild Id")
+    };
 
-            var guildIdValidationResult = ValidationHelper.ValidateId(guildId, "Guild Id");
-            if (!guildIdValidationResult.IsSuccess)
-                return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure(guildIdValidationResult.ErrorMessage);
+            var failedValidation = validationResults.FirstOrDefault(v => !v.IsSuccess);
+            if (failedValidation != null)
+                return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure(failedValidation.ErrorMessage);
 
             return await HandleExceptions<UpdateGuildLeaderResponseDTO>(async () =>
             {
-                if (!await IsUserGuildLeader(requestDTO.Id, userId))
-                {
-                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("User is not authorized to update the guild leader.");
-                }
+                if (!await IsUserGuildLeader(requestDTO.oldGuildLeader.GuildId, userId))
+                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("User is not authorized to update the guild leader");
 
-                // Find the guild
-                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == requestDTO.Id);
+                if (requestDTO.oldGuildLeader.GuildId != guildId || requestDTO.newGuildLeader.GuildId != guildId)
+                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Both guild members must be from the same guild");
+
+                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
                 if (foundGuild == null)
-                {
-                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Guild not found.");
-                }
+                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Guild not found");
 
-                // Find and demote the current guild leader
-                var currentGuildLeader = await _unitOfWork.GuildMember.GetAsync(g => g.UserId == foundGuild.GuildLeaderId);
-                if (currentGuildLeader is null)
-                {
-                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Current guild leader not found.");
-                }
-                currentGuildLeader.Role = RoleConstants.GuildMember;
+                var oldGuildLeader = _mapper.Map<GuildMember>(requestDTO.oldGuildLeader);
+                oldGuildLeader.Role = RoleConstants.GuildMember;
+                await _unitOfWork.GuildMember.UpdateAsync(oldGuildLeader);
 
-                // Promote the new guild leader
-                var guildMemberToBecomeGuildLeader = await _unitOfWork.GuildMember.GetAsync(g => g.UserId == requestDTO.GuildLeaderId);
-                if (guildMemberToBecomeGuildLeader is null)
-                {
-                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Future guild leader not found.");
-                }
-                guildMemberToBecomeGuildLeader.Role = RoleConstants.GuildLeader;
 
-                // Update the guild leader in the guild entity
-                foundGuild.GuildLeaderId = requestDTO.GuildLeaderId;
+                var newGuildLeader = _mapper.Map<GuildMember>(requestDTO.newGuildLeader);
+                newGuildLeader.Role = RoleConstants.GuildLeader;
+                await _unitOfWork.GuildMember.UpdateAsync(newGuildLeader);
+
+
+                foundGuild.GuildLeaderId = newGuildLeader.UserId;
                 await _unitOfWork.Guild.UpdateAsync(foundGuild);
 
-                // Create the response DTO with both leaders
                 var responseDTO = new UpdateGuildLeaderResponseDTO
                 {
-                    PreviousGuildLeader = _mapper.Map<GuildMemberResponseDTO>(currentGuildLeader),
-                    NewGuildLeader = _mapper.Map<GuildMemberResponseDTO>(guildMemberToBecomeGuildLeader),
+                    OldGuildLeader = _mapper.Map<GetGuildMemberResponseDTO>(oldGuildLeader),
+                    NewGuildLeader = _mapper.Map<GetGuildMemberResponseDTO>(newGuildLeader),
                     GuildId = foundGuild.Id
                 };
 
