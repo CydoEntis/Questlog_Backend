@@ -12,9 +12,9 @@ namespace Questlog.Application.Common.DTOs.Auth
         [Required(ErrorMessage = "Display Name is required.")]
         public string DisplayName { get; set; }
 
-        [Required(ErrorMessage = "Archetype is required.")]
-        [ValidArchetype]
-        public Archetype Archetype { get; set; }
+        [Required(ErrorMessage = "Avatar is required.")]
+        [ValidAvatar]
+        public Avatar Avatar { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]

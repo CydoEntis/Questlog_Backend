@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.Enums
 {
-    public enum Archetype
+    public enum Avatar
     {
         Barbarian = 1,
         Mage = 2,

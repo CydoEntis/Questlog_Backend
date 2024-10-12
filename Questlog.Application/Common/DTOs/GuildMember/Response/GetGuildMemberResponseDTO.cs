@@ -13,7 +13,7 @@ namespace Questlog.Application.Common.DTOs.GuildMember.Response
         public int Id { get; set; }
         public int GuildId { get; set; }
         public string Role { get; set; }
-        public Archetype Archetype { get; set; }
+        public Avatar Avatar { get; set; }
         public string DisplayName { get; set; }
         public string UserId { get; set; }
         public int CurrentLevel { get; set; }

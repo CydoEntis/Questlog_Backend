@@ -17,7 +17,7 @@ namespace Questlog.Api.Mappings
             CreateMap<GuildMember, CreateGuildMemberResponseDTO>().ReverseMap();
 
             CreateMap<GuildMember, GetGuildMemberResponseDTO>()
-            .ForMember(dest => dest.Archetype, opt => opt.MapFrom(src => src.Character.Archetype))
+            .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.Character.Avatar))
             .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Character.DisplayName))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Character.UserId))
             .ForMember(dest => dest.CurrentLevel, opt => opt.MapFrom(src => src.Character.CurrentLevel));

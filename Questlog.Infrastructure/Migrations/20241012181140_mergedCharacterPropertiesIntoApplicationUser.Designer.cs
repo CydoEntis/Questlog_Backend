@@ -12,8 +12,8 @@ using Questlog.Infrastructure.Data;
 namespace Questlog.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241008212044_addedCharacterIdToGuildMember")]
-    partial class addedCharacterIdToGuildMember
+    [Migration("20241012181140_mergedCharacterPropertiesIntoApplicationUser")]
+    partial class mergedCharacterPropertiesIntoApplicationUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -205,6 +205,9 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("Avatar")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -212,12 +215,26 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CurrentExp")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CurrentLevel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<int>("ExpToNextLevel")
+                        .HasColumnType("int");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -305,8 +322,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Characters");
                 });
@@ -321,6 +337,10 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -677,8 +697,8 @@ namespace Questlog.Infrastructure.Migrations
             modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
                 {
                     b.HasOne("Questlog.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithOne("Character")
-                        .HasForeignKey("Questlog.Domain.Entities.Character", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -784,9 +804,6 @@ namespace Questlog.Infrastructure.Migrations
 
             modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.Navigation("Character")
-                        .IsRequired();
-
                     b.Navigation("GuildMembers");
 
                     b.Navigation("Guilds");

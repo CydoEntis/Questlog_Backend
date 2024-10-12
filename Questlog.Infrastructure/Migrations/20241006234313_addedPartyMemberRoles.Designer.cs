@@ -276,7 +276,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Archetype")
+                    b.Property<int>("Avatar")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -572,7 +572,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Archetype")
+                    b.Property<int>("Avatar")
                         .HasColumnType("int");
 
                     b.Property<int>("CharacterId")

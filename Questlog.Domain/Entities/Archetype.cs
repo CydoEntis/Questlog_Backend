@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Questlog.Domain.Entities
 {
-    public enum Archetype
+    public enum Avatar
     {
         Barbarian,
         Knight,

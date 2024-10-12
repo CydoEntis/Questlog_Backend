@@ -52,7 +52,6 @@ namespace Questlog.Application.Services.Implementations
                         AccessToken = "",
                         RefreshToken = "",
                     },
-                    Character = new CharacterResponseDTO(),
                 };
             }
 
@@ -60,18 +59,21 @@ namespace Questlog.Application.Services.Implementations
             var accessToken = _tokenService.CreateAccessToken(user, jwtTokenId);
             var refreshToken = await _tokenService.CreateRefreshToken(user.Id, jwtTokenId);
 
-            var characterResponseDTO = _mapper.Map<CharacterResponseDTO>(user.Character);
 
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
                 UserId = user.Id,
                 Email = user.Email,
+                DisplayName = user.DisplayName,
+                Avatar = user.Avatar,
+                CurrentExp = user.CurrentExp,
+                CurrentLevel = user.CurrentLevel,
+                ExpToNextLevel = user.ExpToNextLevel,
                 Tokens = new TokenDTO()
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                 },
-                Character = characterResponseDTO,
             };
 
             return loginResponseDTO;
@@ -92,6 +94,10 @@ namespace Questlog.Application.Services.Implementations
                 Email = registerRequestDTO.Email,
                 NormalizedEmail = registerRequestDTO.Email.ToUpper(),
                 NormalizedUserName = registerRequestDTO.Email.ToUpper(),
+                DisplayName = registerRequestDTO.DisplayName,
+                CurrentLevel = 1,
+                CurrentExp = 0,
+                ExpToNextLevel = 100,
                 CreatedAt = DateTime.Now,
             };
 
@@ -104,7 +110,7 @@ namespace Questlog.Application.Services.Implementations
                     var newCharacter = new Character
                     {
                         DisplayName = registerRequestDTO.DisplayName,
-                        Archetype = registerRequestDTO.Archetype,
+                        Avatar = registerRequestDTO.Avatar,
                         ApplicationUser = user, 
                     };
 

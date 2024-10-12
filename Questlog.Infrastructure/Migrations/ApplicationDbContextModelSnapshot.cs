@@ -202,6 +202,9 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("Avatar")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -209,12 +212,26 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CurrentExp")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CurrentLevel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<int>("ExpToNextLevel")
+                        .HasColumnType("int");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -273,7 +290,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Archetype")
+                    b.Property<int>("Avatar")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -302,8 +319,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Characters");
                 });
@@ -581,7 +597,7 @@ namespace Questlog.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Archetype")
+                    b.Property<int>("Avatar")
                         .HasColumnType("int");
 
                     b.Property<int>("CharacterId")
@@ -678,8 +694,8 @@ namespace Questlog.Infrastructure.Migrations
             modelBuilder.Entity("Questlog.Domain.Entities.Character", b =>
                 {
                     b.HasOne("Questlog.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithOne("Character")
-                        .HasForeignKey("Questlog.Domain.Entities.Character", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -785,9 +801,6 @@ namespace Questlog.Infrastructure.Migrations
 
             modelBuilder.Entity("Questlog.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.Navigation("Character")
-                        .IsRequired();
-
                     b.Navigation("GuildMembers");
 
                     b.Navigation("Guilds");

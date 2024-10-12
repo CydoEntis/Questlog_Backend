@@ -200,7 +200,7 @@ namespace Questlog.Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DisplayName = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: false),
-                    Archetype = table.Column<int>(type: "int", nullable: false),
+                    Avatar = table.Column<int>(type: "int", nullable: false),
                     CurrentLevel = table.Column<int>(type: "int", nullable: false),
                     CurrentExp = table.Column<int>(type: "int", nullable: false),
                     ExpToNextLevel = table.Column<int>(type: "int", nullable: false),
@@ -282,7 +282,7 @@ namespace Questlog.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Cost = table.Column<int>(type: "int", nullable: false),
-                    Archetype = table.Column<int>(type: "int", nullable: false),
+                    Avatar = table.Column<int>(type: "int", nullable: false),
                     CharacterId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)

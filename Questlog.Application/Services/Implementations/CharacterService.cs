@@ -61,7 +61,7 @@ namespace Questlog.Application.Services.Implementations
             {
                 var newCharacter = new Character {
                     DisplayName = character.DisplayName,
-                    Archetype = character.Archetype,
+                    Avatar = character.Avatar,
                 };
 
                 await _unitOfWork.Character.CreateAsync(character);

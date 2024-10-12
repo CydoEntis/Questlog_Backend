@@ -1,4 +1,5 @@
-﻿using Questlog.Application.Common.DTOs.Party;
+﻿using Questlog.Application.Common.DTOs.GuildMember.Response;
+using Questlog.Application.Common.DTOs.Party;
 using Questlog.Application.Common.DTOs.PartyMember;
 using System;
 using System.Collections.Generic;

@@ -12,7 +12,7 @@ namespace Questlog.Application.Common.DTOs.Character
     {
         public int Id { get; set; }
         public string DisplayName { get; set; }
-        public Archetype  Archetype { get; set; }
+        public Avatar  Avatar { get; set; }
         public int CurrentLevel { get; set; }
         public int CurrentExp { get; set; }
         public int ExpToNextLevel { get; set; }

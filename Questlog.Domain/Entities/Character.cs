@@ -21,7 +21,7 @@ namespace Questlog.Domain.Entities
         public string DisplayName { get; set; }
 
         [Required]
-        public Archetype Archetype { get; set; }
+        public Avatar Avatar { get; set; }
 
         [Required]
         public int CurrentLevel { get; set; } = 1;

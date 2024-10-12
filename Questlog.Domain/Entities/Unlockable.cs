@@ -20,7 +20,7 @@ namespace Questlog.Domain.Entities
         [Range(5, 5000, ErrorMessage = "Cost must be at least 5, but no more than 5000")]
         public int Cost { get; set; }
         [Required]
-        public Archetype Archetype { get; set; }
+        public Avatar Avatar { get; set; }
 
         [ForeignKey("Character")]
         public int CharacterId { get; set; }
