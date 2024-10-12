@@ -101,18 +101,16 @@ namespace Questlog.Application.Services.Implementations
 
                 if (result.Succeeded)
                 {
-                    // Create the new character and associate it with the user
                     var newCharacter = new Character
                     {
                         DisplayName = registerRequestDTO.DisplayName,
                         Archetype = registerRequestDTO.Archetype,
-                        ApplicationUser = user, // This sets the User navigation property to the new ApplicationUser
+                        ApplicationUser = user, 
                     };
 
                     await _characterService.CreateCharacterAsync(user.Id, newCharacter);
 
-                    // No need to set user.CharacterId, since it's handled in the Character entity
-                    // Now just ensure to save the user if any other updates are needed.
+      
                     await _userManager.UpdateAsync(user);
 
                     var loginRequestDTO = new LoginRequestDTO

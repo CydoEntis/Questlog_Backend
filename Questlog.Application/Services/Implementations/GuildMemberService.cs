@@ -78,7 +78,11 @@ namespace Questlog.Application.Services.Implementations
 
             return await HandleExceptions<GuildMemberResponseDTO>(async () =>
             {
+                var character = _unitOfWork.Character.GetAsync(c => c.UserId == requestDTO.UserId);
+
                 var guildMember = _mapper.Map<GuildMember>(requestDTO);
+                guildMember.Role = RoleConstants.GuildMember;
+                guildMember.CharacterId = character.Id;
 
                 var createdGuildMember = await _unitOfWork.GuildMember.CreateAsync(guildMember);
 
