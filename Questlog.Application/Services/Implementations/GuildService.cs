@@ -136,8 +136,8 @@ namespace Questlog.Application.Services.Implementations
                     return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure("User is not authorized to update the guild leader.");
                 }
 
-                foundGuild.Name = requestDTO.Name;
-                foundGuild.Description = requestDTO.Description;
+                foundGuild.Name = requestDTO.Name.Trim();
+                foundGuild.Description = requestDTO.Description.Trim();
                 foundGuild.UpdatedAt = DateTime.UtcNow;
                 foundGuild.Color = requestDTO.Color;
 

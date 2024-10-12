@@ -26,7 +26,7 @@ namespace Questlog.Api.Controllers
             {
                 StatusCode = HttpStatusCode.BadRequest,
                 IsSuccess = false,
-                ErrorMessages = new Dictionary<string, List<string>> { { "BadRequest", new List<string> { message } } }
+                Errors = new Dictionary<string, List<string>> { { "badRequest", new List<string> { message } } }
             };
             return BadRequest(response);
         }
@@ -48,7 +48,7 @@ namespace Questlog.Api.Controllers
             {
                 StatusCode = HttpStatusCode.InternalServerError,
                 IsSuccess = false,
-                ErrorMessages = new Dictionary<string, List<string>> { { "ServerError", new List<string> { message } } }
+                Errors = new Dictionary<string, List<string>> { { "serverError", new List<string> { message } } }
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, response);
         }

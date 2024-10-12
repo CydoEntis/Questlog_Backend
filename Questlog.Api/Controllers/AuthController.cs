@@ -31,7 +31,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages = ModelState
+                _response.Errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
                     .ToDictionary(
                         x => x.Key,
@@ -46,7 +46,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Email", new List<string> { "Username is already taken" });
+                _response.Errors.Add("email", new List<string> { "Email is already in use" });
                 return BadRequest(_response);
             }
 
@@ -58,7 +58,7 @@ namespace Questlog.Api.Controllers
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     _response.IsSuccess = false;
-                    _response.ErrorMessages.Add("Registration", new List<string> { "Something went wrong while registering." });
+                    _response.Errors.Add("registration", new List<string> { "Something went wrong while registering." });
                     return BadRequest(_response);
                 }
 
@@ -71,14 +71,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages = ex.Errors;
+                _response.Errors = ex.Errors;
                 return BadRequest(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Unexpected", new List<string> { ex.Message });
+                _response.Errors.Add("unexpected", new List<string> { ex.Message });
                 return BadRequest(_response);
             }
 
@@ -92,7 +92,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Email", new List<string> { "Email or password is incorrect" });
+                _response.Errors.Add("email", new List<string> { "Email or password is incorrect" });
                 return BadRequest(_response);
             }
 
@@ -110,7 +110,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Input", new List<string> { "Invalid input" });
+                _response.Errors.Add("input", new List<string> { "Invalid input" });
                 return BadRequest(_response);
             }
 
@@ -119,7 +119,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Token", new List<string> { "Invalid token" });
+                _response.Errors.Add("token", new List<string> { "Invalid token" });
                 return BadRequest(_response);
             }
 
@@ -136,7 +136,7 @@ namespace Questlog.Api.Controllers
             if (!ModelState.IsValid)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Input", new List<string> { "Invalid Input" });
+                _response.Errors.Add("input", new List<string> { "Invalid Input" });
                 return BadRequest(_response);
             }
 

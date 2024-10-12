@@ -47,7 +47,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the MainQuests." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while retrieving the MainQuests." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -59,7 +59,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("InvalidId", new List<string> { "ID must be greater than zero." });
+                _response.Errors.Add("InvalidId", new List<string> { "ID must be greater than zero." });
                 return BadRequest(_response);
             }
 
@@ -76,14 +76,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                _response.Errors.Add("NotFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the MainQuest." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while retrieving the MainQuest." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -95,7 +95,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("BadRequest", new List<string> { "CreateMainQuestRequestDTO cannot be null." });
+                _response.Errors.Add("BadRequest", new List<string> { "CreateMainQuestRequestDTO cannot be null." });
                 return BadRequest(_response);
             }
 
@@ -117,14 +117,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ArgumentNull", new List<string> { ex.Message });
+                _response.Errors.Add("ArgumentNull", new List<string> { ex.Message });
                 return BadRequest(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while creating the MainQuest." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while creating the MainQuest." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -136,7 +136,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("BadRequest", new List<string> { "UpdateMainQuestRequestDTO cannot be null." });
+                _response.Errors.Add("BadRequest", new List<string> { "UpdateMainQuestRequestDTO cannot be null." });
                 return BadRequest(_response);
             }
 
@@ -154,14 +154,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                _response.Errors.Add("NotFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the MainQuest." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while updating the MainQuest." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -186,14 +186,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                _response.Errors.Add("NotFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the MainQuest." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while updating the MainQuest." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }

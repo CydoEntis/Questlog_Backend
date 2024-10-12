@@ -47,7 +47,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the Quest Boards." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while retrieving the Quest Boards." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -60,7 +60,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("InvalidId", new List<string> { "ID must be greater than zero." });
+                _response.Errors.Add("InvalidId", new List<string> { "ID must be greater than zero." });
                 return BadRequest(_response);
             }
 
@@ -77,14 +77,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                _response.Errors.Add("NotFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the Quest Board." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while retrieving the Quest Board." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -96,7 +96,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("BadRequest", new List<string> { "CreateQuestBoardRequestDTO cannot be null." });
+                _response.Errors.Add("BadRequest", new List<string> { "CreateQuestBoardRequestDTO cannot be null." });
                 return BadRequest(_response);
             }
 
@@ -118,14 +118,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ArgumentNull", new List<string> { ex.Message });
+                _response.Errors.Add("ArgumentNull", new List<string> { ex.Message });
                 return BadRequest(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while creating the Quest Board." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while creating the Quest Board." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -137,7 +137,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("BadRequest", new List<string> { "UpdateQuestBoardRequestDTO cannot be null." });
+                _response.Errors.Add("BadRequest", new List<string> { "UpdateQuestBoardRequestDTO cannot be null." });
                 return BadRequest(_response);
             }
 
@@ -155,14 +155,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                _response.Errors.Add("NotFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the Quest Board." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while updating the Quest Board." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -175,7 +175,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("BadRequest", new List<string> { "QuestBoard order data is invalid." });
+                _response.Errors.Add("BadRequest", new List<string> { "QuestBoard order data is invalid." });
                 return BadRequest(_response);
             }
 
@@ -192,14 +192,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                _response.Errors.Add("NotFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while reordering the Quest Boards." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while reordering the Quest Boards." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -225,14 +225,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                _response.Errors.Add("NotFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while updating the Quest Board." });
+                _response.Errors.Add("ServerError", new List<string> { "An error occurred while updating the Quest Board." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }

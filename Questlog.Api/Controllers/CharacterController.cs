@@ -38,7 +38,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("InvalidId", new List<string> { "User Id cannot be null" });
+                _response.Errors.Add("invalidId", new List<string> { "User Id cannot be null" });
                 return BadRequest(_response);
             }
 
@@ -54,14 +54,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("NotFound", new List<string> { ex.Message });
+                _response.Errors.Add("notFound", new List<string> { ex.Message });
                 return NotFound(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while retrieving the Quest Board." });
+                _response.Errors.Add("serverError", new List<string> { "An error occurred while retrieving the Quest Board." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
         }
@@ -75,7 +75,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("BadRequest", new List<string> { "User Id cannot be null." });
+                _response.Errors.Add("badRequest", new List<string> { "User Id cannot be null." });
                 return BadRequest(_response);
             }
 
@@ -92,14 +92,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ArgumentNull", new List<string> { ex.Message });
+                _response.Errors.Add("argumentNull", new List<string> { ex.Message });
                 return BadRequest(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while adding exp." });
+                _response.Errors.Add("serverError", new List<string> { "An error occurred while adding exp." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
 
@@ -114,7 +114,7 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("BadRequest", new List<string> { "User Id cannot be null." });
+                _response.Errors.Add("badRequest", new List<string> { "User Id cannot be null." });
                 return BadRequest(_response);
             }
 
@@ -132,14 +132,14 @@ namespace Questlog.Api.Controllers
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ArgumentNull", new List<string> { ex.Message });
+                _response.Errors.Add("argumentNull", new List<string> { ex.Message });
                 return BadRequest(_response);
             }
             catch (Exception ex)
             {
                 _response.StatusCode = HttpStatusCode.InternalServerError;
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("ServerError", new List<string> { "An error occurred while removing exp." });
+                _response.Errors.Add("serverError", new List<string> { "An error occurred while removing exp." });
                 return StatusCode((int)HttpStatusCode.InternalServerError, _response);
             }
 
