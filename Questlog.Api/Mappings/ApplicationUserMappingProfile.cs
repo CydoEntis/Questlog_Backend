@@ -5,11 +5,10 @@ using Questlog.Domain.Entities;
 
 namespace Questlog.Api.Mappings
 {
-    public class UserMappingProfile : Profile
+    public class ApplicationUserMappingProfile : Profile
     {
-        public UserMappingProfile()
+        public ApplicationUserMappingProfile()
         {
-            CreateMap<UserDTO, ApplicationUser>().ReverseMap();
             CreateMap<GetApplicationUserResponseDTO, ApplicationUser>().ReverseMap();
         }
     }

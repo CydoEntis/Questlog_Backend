@@ -46,10 +46,7 @@ builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IMainQuestService, MainQuestService>();
-builder.Services.AddScoped<IQuestBoardService, QuestBoardService>();
-builder.Services.AddScoped<IQuestService, QuestService>();
-builder.Services.AddScoped<ICharacterService, CharacterService>();
+
 
 builder.Services.AddScoped<IGuildService, GuildService>();
 builder.Services.AddScoped<IGuildMemberService, GuildMemberService>();
@@ -105,7 +102,6 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await CreateRoles(services);
 }
 
 // Configure the HTTP request pipeline.
@@ -128,26 +124,4 @@ app.MapControllers();
 
 app.Run();
 
-async Task CreateRoles(IServiceProvider serviceProvider)
-{
-    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    var roles = new List<string> {
-        RoleConstants.GuildLeader,
-        RoleConstants.GuildOfficer,
-        RoleConstants.GuildMember,
-        RoleConstants.PartyLeader,
-        RoleConstants.PartyCaptain,
-        RoleConstants.PartyStrategist,
-        RoleConstants.PartyMember
-    };
-
-    foreach (var role in roles)
-    {
-        var roleExists = await roleManager.RoleExistsAsync(role);
-        if (!roleExists)
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
-    }
-}

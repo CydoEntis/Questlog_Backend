@@ -1,5 +1,4 @@
-﻿using Questlog.Application.Common.DTOs.Character;
-using Questlog.Domain.Entities;
+﻿using Questlog.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

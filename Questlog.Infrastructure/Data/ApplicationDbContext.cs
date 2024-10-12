@@ -7,12 +7,7 @@ namespace Questlog.Infrastructure.Data
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<MainQuest> MainQuests { get; set; }
-        public DbSet<QuestBoard> QuestBoards { get; set; }
-        public DbSet<Quest> Quests { get; set; }
-        public DbSet<Unlockable> Unlockables { get; set; } 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-        public DbSet<Character> Characters { get; set; }
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<GuildMember> GuildMembers { get; set; }
         public DbSet<Party> Parties { get; set; }

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Questlog.Application.Common.DTOs.Character;
 
 namespace Questlog.Application.Common.DTOs.GuildMember.Response
 {
@@ -19,6 +18,5 @@ namespace Questlog.Application.Common.DTOs.GuildMember.Response
         public string Role { get; set; }
         public DateTime JoinedOn { get; set; }
 
-        public CharacterResponseDTO Character { get; set; }
     }
 }

@@ -30,7 +30,7 @@ namespace Questlog.Domain.Entities
         [ForeignKey("GuildLeader")]
         public string GuildLeaderId { get; set; }
 
-        public ApplicationUser GuildLeader { get; set; }
+        public GuildMember GuildLeader { get; set; }
 
         public virtual ICollection<GuildMember> GuildMembers { get; set; } = new List<GuildMember>();
 

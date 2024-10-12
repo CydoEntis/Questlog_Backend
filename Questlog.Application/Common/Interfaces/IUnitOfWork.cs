@@ -10,12 +10,6 @@ namespace Questlog.Application.Common.Interfaces
     {
         IUserRepository User { get; }
         ITokenRepository Token { get; }
-        IMainQuestRepository MainQuest { get; }
-        IQuestBoardRepository QuestBoard { get; }
-        IQuestRepository Quest { get; }
-
-        ICharacterRepository Character { get; }
-        IUnlockableRepository Unlockable { get; }
 
         IGuildRepository Guild { get; }
         IGuildMemberRepository GuildMember { get; }

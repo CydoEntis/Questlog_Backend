@@ -74,22 +74,16 @@ namespace Questlog.Application.Services.Implementations
             var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Guild Request DTO");
             if (!guildValidationResult.IsSuccess) return ServiceResult<CreateGuildResponseDTO>.Failure(guildValidationResult.ErrorMessage);
 
-
             return await HandleExceptions<CreateGuildResponseDTO>(async () =>
             {
-                var foundCharacter = await _unitOfWork.Character.GetAsync(c => c.UserId == userId);
-
+                // Use AutoMapper to map the request DTO to the Guild entity
                 var guild = _mapper.Map<Guild>(requestDTO);
-                var newGuild = new Guild
-                {
-                    Name = guild.Name,
-                    Description = guild.Description,
-                    GuildLeaderId = userId,
-                    Color = guild.Color
-                };
+                guild.GuildLeaderId = userId; // Set additional properties not in the DTO
 
-                Guild createdGuild = await _unitOfWork.Guild.CreateAsync(newGuild);
+                // Save the new guild
+                Guild createdGuild = await _unitOfWork.Guild.CreateAsync(guild);
 
+                // Create and save the guild leader
                 var guildLeader = new GuildMember
                 {
                     UserId = userId,
@@ -100,17 +94,16 @@ namespace Questlog.Application.Services.Implementations
 
                 var createdGuildLeader = await _unitOfWork.GuildMember.CreateAsync(guildLeader);
 
-                var createGuildResponseDTO = new CreateGuildResponseDTO
-                {
+                // Set the GuildLeader on the created guild entity (or you can fetch it)
+                createdGuild.GuildLeader = createdGuildLeader;
 
-                } 
+                // Use AutoMapper to map the created guild (including the guild leader) to the response DTO
+                var createGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(createdGuild);
 
-
-                //var createdGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(createdGuildWithMembers);
-
-                return ServiceResult<CreateGuildResponseDTO>.Success(createdGuildResponseDTO);
+                return ServiceResult<CreateGuildResponseDTO>.Success(createGuildResponseDTO);
             });
         }
+
 
         public async Task<ServiceResult<UpdateGuildDetailsResponseDTO>> UpdateGuildDetails(UpdateGuildDetailsRequestDTO requestDTO, string userId)
         {
