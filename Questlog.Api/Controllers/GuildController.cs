@@ -73,7 +73,7 @@ namespace Questlog.Api.Controllers
                 return BadRequestResponse(result.ErrorMessage);
             }
 
-            return CreatedResponse(result);
+            return CreatedResponse(result.Data);
 
             //var createdGuildId = result.Data.Id; // Assuming Id is a property of GuildResponseDTO
             //var locationUri = Url.Action("GetGuild", "Guild", new { guildId = createdGuildId }, HttpContext.Request.Scheme);

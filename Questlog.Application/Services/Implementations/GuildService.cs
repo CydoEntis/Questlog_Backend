@@ -41,7 +41,7 @@ namespace Questlog.Application.Services.Implementations
 
             return await HandleExceptions<GetGuildResponseDTO>(async () =>
             {
-                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId, includeProperties: "GuildMembers,Parties");
+                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId, includeProperties: "GuildMembers,GuildMembers.User,Parties");
 
                 if (foundGuild == null)
                 {
@@ -58,7 +58,7 @@ namespace Questlog.Application.Services.Implementations
         {
             return await HandleExceptions<List<GetAllGuildsResponseDTO>>(async () =>
             {
-                var guilds = await _unitOfWork.Guild.GetAllAsync(orderBy: q => q.OrderBy(g => g.CreatedAt), ascending: false);
+                var guilds = await _unitOfWork.Guild.GetAllAsync(orderBy: q => q.OrderBy(g => g.CreatedAt), ascending: false, includeProperties: "GuildMembers,GuildMembers.User");
 
                 List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
 
@@ -159,7 +159,7 @@ namespace Questlog.Application.Services.Implementations
 
             return await HandleExceptions<UpdateGuildLeaderResponseDTO>(async () =>
             {
-                var newGuildLeader = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == requestDTO.GuildLeaderId);
+                var newGuildLeader = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == requestDTO.GuildLeaderId, includeProperties: "User");
                 if (newGuildLeader is null)
                     return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("New guild leader does not exist");
 
@@ -167,7 +167,7 @@ namespace Questlog.Application.Services.Implementations
                 if (foundGuild is null)
                     return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Guild not found");
 
-                var oldGuildLeader = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == foundGuild.GuildLeaderId);
+                var oldGuildLeader = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == foundGuild.GuildLeaderId, includeProperties: "User");
                 if (oldGuildLeader is null)
                     return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Old guild leader not found");
 

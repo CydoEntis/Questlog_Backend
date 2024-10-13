@@ -13,16 +13,13 @@ namespace Questlog.Api.Mappings
         public GuildMappingProfile()
         {
             CreateMap<Guild, CreateGuildResponseDTO>().ReverseMap();
-
-            
-
+            CreateMap<Guild, GetGuildResponseDTO>().ReverseMap();
 
             // OLD
             CreateMap<Guild, CreateGuildRequestDTO>().ReverseMap();
             CreateMap<Guild, UpdateGuildRequestDTO>().ReverseMap();
 
             CreateMap<Guild, GuildResponseDTO>().ReverseMap();
-            CreateMap<Guild, GetGuildResponseDTO>().ReverseMap();
             CreateMap<Guild, GetAllGuildsResponseDTO>().ReverseMap();
             CreateMap<Guild, UpdateGuildDetailsResponseDTO>().ReverseMap();
             CreateMap<Guild, UpdateGuildLeaderResponseDTO>().ReverseMap();

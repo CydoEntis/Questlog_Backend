@@ -15,7 +15,7 @@ namespace Questlog.Application.Common.DTOs.Guild.Responses
         public string Description { get; set; }
         public string Color { get; set; }
         public string GuildLeaderId { get; set; }
-        public List<GuildMemberResponseDTO> GuildMembers { get; set; }
+        public List<GetGuildMemberResponseDTO> GuildMembers { get; set; }
         public List<PartyResponseDTO> Parties { get; set; }
     }
 }
