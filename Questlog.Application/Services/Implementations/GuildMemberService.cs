@@ -79,7 +79,7 @@ namespace Questlog.Application.Services.Implementations
             {
 
                 var guildMember = _mapper.Map<GuildMember>(requestDTO);
-                guildMember.Role = RoleConstants.GuildMember;
+                guildMember.Role = RoleConstants.Member;
 
                 var createdGuildMember = await _unitOfWork.GuildMember.CreateAsync(guildMember);
 

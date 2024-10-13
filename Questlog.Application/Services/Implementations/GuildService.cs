@@ -85,7 +85,7 @@ namespace Questlog.Application.Services.Implementations
                 {
                     UserId = userId,
                     GuildId = createdGuild.Id,
-                    Role = RoleConstants.GuildLeader,
+                    Role = RoleConstants.Leader,
                     JoinedOn = DateTime.UtcNow,
                 };
 
@@ -139,55 +139,37 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<UpdateGuildLeaderResponseDTO>> UpdateGuildLeader(int guildId, string userId, UpdateGuildLeaderRequestDTO requestDTO)
+        public async Task<ServiceResult<GetGuildResponseDTO>> UpdateGuildLeader(int guildId, string userId, UpdateGuildLeaderRequestDTO requestDTO)
         {
             var validations = new[]
             {
                 ValidationHelper.ValidateId(guildId, "Guild Id"),
-                ValidationHelper.ValidateId(requestDTO.GuildLeaderId, "Guild leader id")
+                ValidationHelper.ValidateId(requestDTO.UserId, "Userid")
             };
 
             var failedValidation = validations.FirstOrDefault(v => !v.IsSuccess);
             if (failedValidation != null)
-                return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure(failedValidation.ErrorMessage);
+                return ServiceResult<GetGuildResponseDTO>.Failure(failedValidation.ErrorMessage);
 
             if (guildId != requestDTO.GuildId)
-                return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Guild member must be from same guild");
+                return ServiceResult<GetGuildResponseDTO>.Failure("Guild member must be from same guild");
 
             if (!await IsUserGuildLeader(guildId, userId))
-                return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("User is not authorized to update the guild leader.");
+                return ServiceResult<GetGuildResponseDTO>.Failure("User is not authorized to update the guild leader.");
 
-            return await HandleExceptions<UpdateGuildLeaderResponseDTO>(async () =>
+            return await HandleExceptions<GetGuildResponseDTO>(async () =>
             {
-                var newGuildLeader = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == requestDTO.GuildLeaderId, includeProperties: "User");
-                if (newGuildLeader is null)
-                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("New guild leader does not exist");
-
                 var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
                 if (foundGuild is null)
-                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Guild not found");
+                    return ServiceResult<GetGuildResponseDTO>.Failure("Guild not found");
 
-                var oldGuildLeader = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == foundGuild.GuildLeaderId, includeProperties: "User");
-                if (oldGuildLeader is null)
-                    return ServiceResult<UpdateGuildLeaderResponseDTO>.Failure("Old guild leader not found");
 
-                oldGuildLeader.Role = RoleConstants.GuildMember;
-                newGuildLeader.Role = RoleConstants.GuildLeader;
-
-                await _unitOfWork.GuildMember.UpdateAsync(oldGuildLeader);
-                await _unitOfWork.GuildMember.UpdateAsync(newGuildLeader);
-
-                foundGuild.GuildLeaderId = newGuildLeader.UserId;
+                foundGuild.GuildLeaderId = requestDTO.UserId;
                 await _unitOfWork.Guild.UpdateAsync(foundGuild);
 
-                var responseDTO = new UpdateGuildLeaderResponseDTO
-                {
-                    OldGuildLeader = _mapper.Map<GetGuildMemberResponseDTO>(oldGuildLeader),
-                    NewGuildLeader = _mapper.Map<GetGuildMemberResponseDTO>(newGuildLeader),
-                    GuildId = foundGuild.Id
-                };
+                var responseDTO = _mapper.Map<GetGuildResponseDTO>(foundGuild);
 
-                return ServiceResult<UpdateGuildLeaderResponseDTO>.Success(responseDTO);
+                return ServiceResult<GetGuildResponseDTO>.Success(responseDTO);
             });
         }
 

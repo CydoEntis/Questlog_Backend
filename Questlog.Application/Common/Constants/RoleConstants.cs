@@ -4,14 +4,10 @@ namespace Questlog.Application.Common.Constants
 {
     public static class RoleConstants
     {
-        public const string GuildLeader = "GuildLeader"; // Can Do anything with in the guild 
-        public const string GuildOfficer = "GuildOfficer"; // Can Invite and Remove Members and Create parties
-        public const string GuildMember = "GuildMember"; // Can view the Guild
-
-        public const string PartyLeader = "PartyLeader"; // Can do everything in the party including disband the party
-        public const string PartyCaptain = "PartyCaptain"; // Can Add/Remove Members From the Party and do everything else in the party
-        public const string PartyStrategist = "PartyStrategist"; // Can Assign/Remove quests from party members
-        public const string PartyMember = "PartyMember"; // Can view quests and complete quests assigned to them.
+        public const string Leader = "Leader"; // Can Do anything with in the guild or Party
+        public const string Captain = "Captain"; // Can Add/Remove Members From the Party/Guild and do everything else in the party
+        public const string Strategist = "Strategist"; // Can Assign/Remove quests from party members
+        public const string Member = "Member"; // Can view the Guild or Party
 
 
 

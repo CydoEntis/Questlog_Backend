@@ -87,7 +87,7 @@ namespace Questlog.Application.Services.Implementations
                 {
                     UserId = userId,
                     PartyId = createdParty.Id,
-                    Role = RoleConstants.PartyLeader,
+                    Role = RoleConstants.Leader,
                     JoinedAt = DateTime.UtcNow,
                     GuildMemberId = guildMember.Id,
                 };
