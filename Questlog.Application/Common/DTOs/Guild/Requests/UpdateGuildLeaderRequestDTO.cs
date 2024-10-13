@@ -9,7 +9,7 @@ namespace Questlog.Application.Common.DTOs.Guild.Requests
 {
     public record UpdateGuildLeaderRequestDTO
     {
-        public GuildMemberResponseDTO oldGuildLeader { get; set; }
-        public GuildMemberResponseDTO newGuildLeader { get; set; }
+        public int GuildId { get; set; }
+        public string GuildLeaderId { get; set; }
     }
 }

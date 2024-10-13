@@ -29,6 +29,14 @@ namespace Questlog.Application.Common.Validation
             return ServiceResult.Success();
         }
 
+        public static ServiceResult ValidateId(string id, string paramName)
+        {
+            if (string.IsNullOrEmpty(id))
+                return ServiceResult.Failure($"Must provide a valid {paramName}.");
+
+            return ServiceResult.Success();
+        }
+
         public static ServiceResult ValidateObject<T>(T obj, string paramName) where T : class
         {
             if (obj == null)
