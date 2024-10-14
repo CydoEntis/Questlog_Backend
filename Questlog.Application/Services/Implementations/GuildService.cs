@@ -101,7 +101,6 @@ namespace Questlog.Application.Services.Implementations
         }
 
 
-
         public async Task<ServiceResult<UpdateGuildDetailsResponseDTO>> UpdateGuildDetails(UpdateGuildDetailsRequestDTO requestDTO, string userId)
         {
             var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Update Guild Request DTO");

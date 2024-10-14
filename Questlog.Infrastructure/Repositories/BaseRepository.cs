@@ -32,8 +32,10 @@ namespace Questlog.Infrastructure.Repositories
         public async Task<List<T>> GetAllAsync(
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            bool ascending = true, 
-            string? includeProperties = null)
+            bool ascending = true,
+            string? includeProperties = null,
+            int pageNumber = 1,
+            int pageSize = 10)
         {
             IQueryable<T> query = dbSet;
 
@@ -52,11 +54,15 @@ namespace Questlog.Infrastructure.Repositories
 
             if (orderBy != null)
             {
-                query = ascending ? orderBy(query) : orderBy(query).Reverse();  // Apply ordering with direction
+                query = ascending ? orderBy(query) : orderBy(query).Reverse();
             }
+
+            // Apply pagination
+            query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
             return await query.ToListAsync();
         }
+
 
 
         public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeProperties = null)
