@@ -50,7 +50,7 @@ public class GuildService : BaseService, IGuildService
         });
     }
 
-    public async Task<ServiceResult<List<GetGuildResponseDTO>>> GetAllGuilds(GuildQueryParamsDTO queryParams)
+    public async Task<ServiceResult<List<GetGuildResponseDTO>>> GetAllGuilds(string userId, GuildQueryParamsDTO queryParams)
     {
         return await HandleExceptions<List<GetGuildResponseDTO>>(async () =>
         {
@@ -63,7 +63,8 @@ public class GuildService : BaseService, IGuildService
                 FromDate = queryParams.CreatedDateFrom,
                 ToDate = queryParams.CreatedDateTo,
                 IncludeProperties = "GuildMembers,GuildMembers.User,Parties",
-                DatePropertyName = "CreatedAt"
+                DatePropertyName = "CreatedAt",
+                Filter = g => g.GuildMembers.Any(m => m.UserId == userId)
             };
 
             options.OrderBy = queryParams.SortBy switch

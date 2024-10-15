@@ -39,7 +39,15 @@ public class GuildController : BaseController
     [HttpGet]
     public async Task<ActionResult<ApiResponse>> GetAllGuilds([FromQuery] GuildQueryParamsDTO queryParams)
     {
-        var result = await _guildService.GetAllGuilds(queryParams);
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequestResponse("User Id is missing.");
+        }
+        
+        
+        var result = await _guildService.GetAllGuilds(userId, queryParams);
 
         if (!result.IsSuccess)
         {
