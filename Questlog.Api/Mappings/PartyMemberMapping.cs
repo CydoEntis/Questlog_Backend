@@ -2,13 +2,12 @@
 using Questlog.Application.Common.DTOs.PartyMember;
 using Questlog.Domain.Entities;
 
-namespace Questlog.Api.Mappings
+namespace Questlog.Api.Mappings;
+
+public class PartyMemberMappingProfile : Profile
 {
-    public class PartyMemberMappingProfile : Profile
+    public PartyMemberMappingProfile()
     {
-        public PartyMemberMappingProfile()
-        {
-            CreateMap<PartyMember, CreatePartyMemberResponseDTO>().ReverseMap();
-        }
+        CreateMap<PartyMember, CreatePartyMemberResponseDTO>().ReverseMap();
     }
 }

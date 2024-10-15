@@ -1,5 +1,4 @@
 ﻿using Questlog.Domain.Entities;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 public class ValidAvatarAttribute : ValidationAttribute

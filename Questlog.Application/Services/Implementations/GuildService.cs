@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.DTOs.Guild.Requests;
 using Questlog.Application.Common.DTOs.Guild.Responses;
-using Questlog.Application.Common.DTOs.GuildMember.Request;
-using Questlog.Application.Common.DTOs.GuildMember.Response;
 using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
@@ -14,214 +11,209 @@ using Questlog.Application.Common.Validation;
 using Questlog.Application.Queries;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Questlog.Application.Services.Implementations
+
+namespace Questlog.Application.Services.Implementations;
+
+public class GuildService : BaseService, IGuildService
 {
-    public class GuildService : BaseService, IGuildService
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IMapper _mapper;
+
+
+    public GuildService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, ILogger<GuildService> logger, IMapper mapper) : base(logger)
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IMapper _mapper;
+        _unitOfWork = unitOfWork;
+        _userManager = userManager;
+        _mapper = mapper;
 
+    }
 
-        public GuildService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, ILogger<GuildService> logger, IMapper mapper) : base(logger)
+    public async Task<ServiceResult<GetGuildResponseDTO>> GetGuildById(int guildId)
+    {
+        var guildIdValidationResult = ValidationHelper.ValidateId(guildId, "Guild Id");
+        if (!guildIdValidationResult.IsSuccess) return ServiceResult<GetGuildResponseDTO>.Failure(guildIdValidationResult.ErrorMessage);
+
+        return await HandleExceptions<GetGuildResponseDTO>(async () =>
         {
-            _unitOfWork = unitOfWork;
-            _userManager = userManager;
-            _mapper = mapper;
+            var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId, includeProperties: "GuildMembers,GuildMembers.User,Parties");
 
-        }
-
-        public async Task<ServiceResult<GetGuildResponseDTO>> GetGuildById(int guildId)
-        {
-            var guildIdValidationResult = ValidationHelper.ValidateId(guildId, "Guild Id");
-            if (!guildIdValidationResult.IsSuccess) return ServiceResult<GetGuildResponseDTO>.Failure(guildIdValidationResult.ErrorMessage);
-
-            return await HandleExceptions<GetGuildResponseDTO>(async () =>
+            if (foundGuild == null)
             {
-                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId, includeProperties: "GuildMembers,GuildMembers.User,Parties");
-
-                if (foundGuild == null)
-                {
-                    return ServiceResult<GetGuildResponseDTO>.Failure("Guild not found.");
-                }
-
-                var guildResponseDTO = _mapper.Map<GetGuildResponseDTO>(foundGuild);
-
-                return ServiceResult<GetGuildResponseDTO>.Success(guildResponseDTO);
-            });
-        }
-
-        public async Task<ServiceResult<List<GetAllGuildsResponseDTO>>> GetAllGuilds(GuildQueryParamsDTO queryParams)
-        {
-            return await HandleExceptions<List<GetAllGuildsResponseDTO>>(async () =>
-            {
-
-                var options = new QueryOptions<Guild>
-                {
-                    PageNumber = queryParams.PageNumber,
-                    PageSize = queryParams.PageSize,
-                    Ascending = queryParams.OrderBy == OrderByOptions.Asc.ToString(),
-                    FromDate = queryParams.CreatedDateFrom,
-                    ToDate = queryParams.CreatedDateTo,
-                    IncludeProperties = "GuildMembers,GuildMembers.User",
-                    DatePropertyName = "CreatedAt"
-                };
-
-                options.OrderBy = queryParams.SortBy switch
-                {
-                    "CreateAt" => query => query.OrderBy(g => g.CreatedAt),
-                    _ => query => query.OrderBy(g => g.Id)
-                };
-
-                var guilds = await _unitOfWork.Guild.GetAllAsync(options);
-
-                List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
-
-                return ServiceResult<List<GetAllGuildsResponseDTO>>.Success(guildResponseDTOs);
-            });
-        }
-
-        public async Task<ServiceResult<CreateGuildResponseDTO>> CreateGuild(string userId, CreateGuildRequestDTO requestDTO)
-        {
-            var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
-            if (!userValidationResult.IsSuccess) return ServiceResult<CreateGuildResponseDTO>.Failure(userValidationResult.ErrorMessage);
-
-            var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Guild Request DTO");
-            if (!guildValidationResult.IsSuccess) return ServiceResult<CreateGuildResponseDTO>.Failure(guildValidationResult.ErrorMessage);
-
-            return await HandleExceptions<CreateGuildResponseDTO>(async () =>
-            {
-                var guild = _mapper.Map<Guild>(requestDTO);
-                guild.GuildLeaderId = userId;
-
-                Guild createdGuild = await _unitOfWork.Guild.CreateAsync(guild);
-
-                var guildLeader = new GuildMember
-                {
-                    UserId = userId,
-                    GuildId = createdGuild.Id,
-                    Role = RoleConstants.Leader,
-                    JoinedOn = DateTime.UtcNow,
-                };
-
-                await _unitOfWork.GuildMember.CreateAsync(guildLeader);
-
-                var guildWithLeader = await _unitOfWork.Guild
-                           .GetAsync(g => g.Id == guild.Id, includeProperties: "GuildMembers,GuildMembers.User");
-
-                var createGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(guildWithLeader);
-
-                return ServiceResult<CreateGuildResponseDTO>.Success(createGuildResponseDTO);
-            });
-        }
-
-
-        public async Task<ServiceResult<UpdateGuildDetailsResponseDTO>> UpdateGuildDetails(UpdateGuildDetailsRequestDTO requestDTO, string userId)
-        {
-            var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Update Guild Request DTO");
-            if (!guildValidationResult.IsSuccess) return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure(guildValidationResult.ErrorMessage);
-
-            var guildIdValidationResult = ValidationHelper.ValidateId(requestDTO.Id, "Guild Id");
-            if (!guildIdValidationResult.IsSuccess) return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure(guildIdValidationResult.ErrorMessage);
-
-            if (!await IsUserGuildLeader(requestDTO.Id, userId))
-            {
-                return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure("User is not authorized to update the guild leader.");
+                return ServiceResult<GetGuildResponseDTO>.Failure("Guild not found.");
             }
 
-            return await HandleExceptions<UpdateGuildDetailsResponseDTO>(async () =>
+            var guildResponseDTO = _mapper.Map<GetGuildResponseDTO>(foundGuild);
+
+            return ServiceResult<GetGuildResponseDTO>.Success(guildResponseDTO);
+        });
+    }
+
+    public async Task<ServiceResult<List<GetAllGuildsResponseDTO>>> GetAllGuilds(GuildQueryParamsDTO queryParams)
+    {
+        return await HandleExceptions<List<GetAllGuildsResponseDTO>>(async () =>
+        {
+
+            var options = new QueryOptions<Guild>
             {
-                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == requestDTO.Id && g.GuildLeaderId == userId);
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize,
+                IsAscending = queryParams.OrderBy == OrderByOptions.Asc.ToString(),
+                FromDate = queryParams.CreatedDateFrom,
+                ToDate = queryParams.CreatedDateTo,
+                IncludeProperties = "GuildMembers,GuildMembers.User",
+                DatePropertyName = "CreatedAt"
+            };
 
-                if (foundGuild == null)
-                {
-                    return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure("Guild not found.");
-                }
+            options.OrderBy = queryParams.SortBy switch
+            {
+                "CreateAt" => query => query.OrderBy(g => g.CreatedAt),
+                _ => query => query.OrderBy(g => g.Id)
+            };
+
+            var guilds = await _unitOfWork.Guild.GetAllAsync(options);
+
+            List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
+
+            return ServiceResult<List<GetAllGuildsResponseDTO>>.Success(guildResponseDTOs);
+        });
+    }
+
+    public async Task<ServiceResult<CreateGuildResponseDTO>> CreateGuild(string userId, CreateGuildRequestDTO requestDTO)
+    {
+        var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
+        if (!userValidationResult.IsSuccess) return ServiceResult<CreateGuildResponseDTO>.Failure(userValidationResult.ErrorMessage);
+
+        var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Guild Request DTO");
+        if (!guildValidationResult.IsSuccess) return ServiceResult<CreateGuildResponseDTO>.Failure(guildValidationResult.ErrorMessage);
+
+        return await HandleExceptions<CreateGuildResponseDTO>(async () =>
+        {
+            var guild = _mapper.Map<Guild>(requestDTO);
+            guild.GuildLeaderId = userId;
+
+            Guild createdGuild = await _unitOfWork.Guild.CreateAsync(guild);
+
+            var guildLeader = new GuildMember
+            {
+                UserId = userId,
+                GuildId = createdGuild.Id,
+                Role = RoleConstants.Leader,
+                JoinedOn = DateTime.UtcNow,
+            };
+
+            await _unitOfWork.GuildMember.CreateAsync(guildLeader);
+
+            var guildWithLeader = await _unitOfWork.Guild
+                       .GetAsync(g => g.Id == guild.Id, includeProperties: "GuildMembers,GuildMembers.User");
+
+            var createGuildResponseDTO = _mapper.Map<CreateGuildResponseDTO>(guildWithLeader);
+
+            return ServiceResult<CreateGuildResponseDTO>.Success(createGuildResponseDTO);
+        });
+    }
 
 
+    public async Task<ServiceResult<UpdateGuildDetailsResponseDTO>> UpdateGuildDetails(UpdateGuildDetailsRequestDTO requestDTO, string userId)
+    {
+        var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Update Guild Request DTO");
+        if (!guildValidationResult.IsSuccess) return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure(guildValidationResult.ErrorMessage);
 
-                foundGuild.Name = requestDTO.Name.Trim();
-                foundGuild.Description = requestDTO.Description.Trim();
-                foundGuild.Color = requestDTO.Color;
-                foundGuild.UpdatedAt = DateTime.UtcNow;
+        var guildIdValidationResult = ValidationHelper.ValidateId(requestDTO.Id, "Guild Id");
+        if (!guildIdValidationResult.IsSuccess) return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure(guildIdValidationResult.ErrorMessage);
 
-                await _unitOfWork.Guild.UpdateAsync(foundGuild);
-
-                var responseDTO = _mapper.Map<UpdateGuildDetailsResponseDTO>(foundGuild);
-
-                return ServiceResult<UpdateGuildDetailsResponseDTO>.Success(responseDTO);
-            });
+        if (!await IsUserGuildLeader(requestDTO.Id, userId))
+        {
+            return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure("User is not authorized to update the guild leader.");
         }
 
-        public async Task<ServiceResult<GetGuildResponseDTO>> UpdateGuildLeader(int guildId, string userId, UpdateGuildLeaderRequestDTO requestDTO)
+        return await HandleExceptions<UpdateGuildDetailsResponseDTO>(async () =>
         {
-            var validations = new[]
+            var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == requestDTO.Id && g.GuildLeaderId == userId);
+
+            if (foundGuild == null)
             {
+                return ServiceResult<UpdateGuildDetailsResponseDTO>.Failure("Guild not found.");
+            }
+
+
+
+            foundGuild.Name = requestDTO.Name.Trim();
+            foundGuild.Description = requestDTO.Description.Trim();
+            foundGuild.Color = requestDTO.Color;
+            foundGuild.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.Guild.UpdateAsync(foundGuild);
+
+            var responseDTO = _mapper.Map<UpdateGuildDetailsResponseDTO>(foundGuild);
+
+            return ServiceResult<UpdateGuildDetailsResponseDTO>.Success(responseDTO);
+        });
+    }
+
+    public async Task<ServiceResult<GetGuildResponseDTO>> UpdateGuildLeader(int guildId, string userId, UpdateGuildLeaderRequestDTO requestDTO)
+    {
+        var validations = new[]
+        {
                 ValidationHelper.ValidateId(guildId, "Guild Id"),
                 ValidationHelper.ValidateId(requestDTO.UserId, "Userid")
             };
 
-            var failedValidation = validations.FirstOrDefault(v => !v.IsSuccess);
-            if (failedValidation != null)
-                return ServiceResult<GetGuildResponseDTO>.Failure(failedValidation.ErrorMessage);
+        var failedValidation = validations.FirstOrDefault(v => !v.IsSuccess);
+        if (failedValidation != null)
+            return ServiceResult<GetGuildResponseDTO>.Failure(failedValidation.ErrorMessage);
 
-            if (guildId != requestDTO.GuildId)
-                return ServiceResult<GetGuildResponseDTO>.Failure("Guild member must be from same guild");
+        if (guildId != requestDTO.GuildId)
+            return ServiceResult<GetGuildResponseDTO>.Failure("Guild member must be from same guild");
 
-            if (!await IsUserGuildLeader(guildId, userId))
-                return ServiceResult<GetGuildResponseDTO>.Failure("User is not authorized to update the guild leader.");
+        if (!await IsUserGuildLeader(guildId, userId))
+            return ServiceResult<GetGuildResponseDTO>.Failure("User is not authorized to update the guild leader.");
 
-            return await HandleExceptions<GetGuildResponseDTO>(async () =>
-            {
-                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
-                if (foundGuild is null)
-                    return ServiceResult<GetGuildResponseDTO>.Failure("Guild not found");
-
-
-                foundGuild.GuildLeaderId = requestDTO.UserId;
-                await _unitOfWork.Guild.UpdateAsync(foundGuild);
-
-                var responseDTO = _mapper.Map<GetGuildResponseDTO>(foundGuild);
-
-                return ServiceResult<GetGuildResponseDTO>.Success(responseDTO);
-            });
-        }
-
-
-
-        public async Task<ServiceResult<int>> DeleteGuild(int guildId)
+        return await HandleExceptions<GetGuildResponseDTO>(async () =>
         {
-            var guildIdValidationResult = ValidationHelper.ValidateId(guildId, "Guild Id");
-            if (!guildIdValidationResult.IsSuccess) return ServiceResult<int>.Failure(guildIdValidationResult.ErrorMessage);
+            var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
+            if (foundGuild is null)
+                return ServiceResult<GetGuildResponseDTO>.Failure("Guild not found");
 
-            return await HandleExceptions<int>(async () =>
-            {
-                var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
 
-                if (foundGuild == null)
-                {
-                    return ServiceResult<int>.Failure("Guild not found.");
-                }
+            foundGuild.GuildLeaderId = requestDTO.UserId;
+            await _unitOfWork.Guild.UpdateAsync(foundGuild);
 
-                // Delete the guild
-                await _unitOfWork.Guild.RemoveAsync(foundGuild);
+            var responseDTO = _mapper.Map<GetGuildResponseDTO>(foundGuild);
 
-                return ServiceResult<int>.Success(foundGuild.Id);
-            });
-        }
-
-        private async Task<bool> IsUserGuildLeader(int guildId, string userId)
-        {
-            var guild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
-            return guild?.GuildLeaderId == userId;
-        }
+            return ServiceResult<GetGuildResponseDTO>.Success(responseDTO);
+        });
     }
 
 
+
+    public async Task<ServiceResult<int>> DeleteGuild(int guildId)
+    {
+        var guildIdValidationResult = ValidationHelper.ValidateId(guildId, "Guild Id");
+        if (!guildIdValidationResult.IsSuccess) return ServiceResult<int>.Failure(guildIdValidationResult.ErrorMessage);
+
+        return await HandleExceptions<int>(async () =>
+        {
+            var foundGuild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
+
+            if (foundGuild == null)
+            {
+                return ServiceResult<int>.Failure("Guild not found.");
+            }
+
+            // Delete the guild
+            await _unitOfWork.Guild.RemoveAsync(foundGuild);
+
+            return ServiceResult<int>.Success(foundGuild.Id);
+        });
+    }
+
+    private async Task<bool> IsUserGuildLeader(int guildId, string userId)
+    {
+        var guild = await _unitOfWork.Guild.GetAsync(g => g.Id == guildId);
+        return guild?.GuildLeaderId == userId;
+    }
 }
+
+

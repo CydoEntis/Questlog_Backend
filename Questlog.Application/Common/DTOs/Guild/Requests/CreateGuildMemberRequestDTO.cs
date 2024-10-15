@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Questlog.Application.Common.DTOs.Guild.Requests
+namespace Questlog.Application.Common.DTOs.Guild.Requests;
+
+public record CreateGuildMemberRequestDTO
 {
-    public record CreateGuildMemberRequestDTO
-    {
-        [Required]
-        public string UserId { get; set; }
-        [Required]
-        public int GuildId { get; set; }
-    }
+    [Required]
+    public string UserId { get; set; }
+    [Required]
+    public int GuildId { get; set; }
 }

@@ -1,17 +1,11 @@
 ﻿using Questlog.Application.Common.DTOs.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Questlog.Application.Services.IServices
+namespace Questlog.Application.Services.IServices;
+
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        Task<bool> CheckIfUsernameIsUnique(string username);
-        Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
-        // Fix registering
-        Task<LoginResponseDTO> Register(RegisterRequestDTO registerRequestDTO);
-    }
+    Task<bool> CheckIfUsernameIsUnique(string username);
+    Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
+    // Fix registering
+    Task<LoginResponseDTO> Register(RegisterRequestDTO registerRequestDTO);
 }

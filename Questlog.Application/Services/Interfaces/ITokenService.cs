@@ -1,19 +1,13 @@
 ﻿using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Questlog.Application.Services.Interfaces
+namespace Questlog.Application.Services.Interfaces;
+
+public interface ITokenService
 {
-    public interface ITokenService
-    {
-        string CreateAccessToken(ApplicationUser user, string tokeId);
-        Task<TokenDTO> RefreshAccessToken(TokenDTO tokenDTO);
-        Task<string> CreateRefreshToken(string userId, string tokenId);
-        Task InvalidateToken(RefreshToken refreshToken);
-        Task RevokeRefreshToken(TokenDTO tokenDTO);
-    }
+    string CreateAccessToken(ApplicationUser user, string tokeId);
+    Task<TokenDTO> RefreshAccessToken(TokenDTO tokenDTO);
+    Task<string> CreateRefreshToken(string userId, string tokenId);
+    Task InvalidateToken(RefreshToken refreshToken);
+    Task RevokeRefreshToken(TokenDTO tokenDTO);
 }

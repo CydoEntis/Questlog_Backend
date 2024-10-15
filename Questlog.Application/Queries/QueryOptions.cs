@@ -15,7 +15,7 @@ namespace Questlog.Application.Queries
         public DateTime? ToDate { get; set; }
         public string? DatePropertyName { get; set; }
         public Func<IQueryable<T>, IOrderedQueryable<T>>? OrderBy { get; set; }
-        public bool Ascending { get; set; } = true;
+        public bool IsAscending { get; set; } = true;
         public string? IncludeProperties { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
