@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Questlog.Application.Common.Interfaces;
+using Questlog.Application.Queries;
 using Questlog.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -29,39 +31,28 @@ namespace Questlog.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<List<T>> GetAllAsync(
-            Expression<Func<T, bool>>? filter = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            bool ascending = true,
-            string? includeProperties = null,
-            int pageNumber = 1,
-            int pageSize = 10)
+        public async Task<List<T>> GetAllAsync(QueryOptions<T> options)
         {
             IQueryable<T> query = dbSet;
 
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
+            query = ApplyBaseFilter(query, options.Filter);
 
-            if (includeProperties != null)
-            {
-                foreach (var property in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(property);
-                }
-            }
+            if (!string.IsNullOrEmpty(options.Role))
+                query = ApplyRoleFilter(query, options.Role);
 
-            if (orderBy != null)
-            {
-                query = ascending ? orderBy(query) : orderBy(query).Reverse();
-            }
+            if (options.FromDate.HasValue || options.ToDate.HasValue)
+                query = ApplyDateFilter(query, options.DatePropertyName, options.FromDate, options.ToDate);
 
-            // Apply pagination
-            query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            if (!string.IsNullOrEmpty(options.IncludeProperties))
+                query = IncludeProperties(query, options.IncludeProperties);
 
-            return await query.ToListAsync();
+            if (options.OrderBy != null)
+                query = ApplyOrdering(query, options.OrderBy, options.Ascending);
+
+            return await Paginate(query, options.PageNumber, options.PageSize);
         }
+
+
 
 
 
@@ -96,6 +87,67 @@ namespace Questlog.Infrastructure.Repositories
         public async Task SaveAsync()
         {
             await _db.SaveChangesAsync();
+        }
+
+
+        // Apply the base filter
+        private IQueryable<T> ApplyBaseFilter(IQueryable<T> query, Expression<Func<T, bool>>? filter)
+        {
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            return query;
+        }
+
+        private IQueryable<T> ApplyRoleFilter(IQueryable<T> query, string? role)
+        {
+            if (!string.IsNullOrEmpty(role))
+            {
+                query = query.Where(e => EF.Property<string>(e, "Role") == role);
+            }
+            return query;
+        }
+
+        private IQueryable<T> ApplyDateFilter(IQueryable<T> query, string datePropertyName, DateTime? fromDate, DateTime? toDate)
+        {
+            if (fromDate.HasValue)
+            {
+                query = query.Where(e => EF.Property<DateTime>(e, datePropertyName) >= fromDate.Value);
+            }
+
+            if (toDate.HasValue)
+            {
+                query = query.Where(e => EF.Property<DateTime>(e, datePropertyName) <= toDate.Value);
+            }
+
+            return query;
+        }
+
+        private IQueryable<T> IncludeProperties(IQueryable<T> query, string? includeProperties)
+        {
+            if (includeProperties != null)
+            {
+                foreach (var property in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(property);
+                }
+            }
+            return query;
+        }
+
+        private IQueryable<T> ApplyOrdering(IQueryable<T> query, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy, bool ascending)
+        {
+            if (orderBy != null)
+            {
+                query = ascending ? orderBy(query) : orderBy(query).Reverse();
+            }
+            return query;
+        }
+
+        private async Task<List<T>> Paginate(IQueryable<T> query, int pageNumber, int pageSize)
+        {
+            return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
     }
 }

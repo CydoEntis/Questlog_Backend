@@ -51,17 +51,17 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<List<PartyResponseDTO>>> GetAllParties(int guildId)
-        {
-            return await HandleExceptions<List<PartyResponseDTO>>(async () =>
-            {
-                var parties = await _unitOfWork.Party.GetAllAsync(p => p.GuildId == guildId);
+        //public async Task<ServiceResult<List<PartyResponseDTO>>> GetAllParties(int guildId)
+        //{
+        //    return await HandleExceptions<List<PartyResponseDTO>>(async () =>
+        //    {
+        //        var parties = await _unitOfWork.Party.GetAllAsync(p => p.GuildId == guildId);
 
-                List<PartyResponseDTO> partyResponseDTOs = _mapper.Map<List<PartyResponseDTO>>(parties);
+        //        List<PartyResponseDTO> partyResponseDTOs = _mapper.Map<List<PartyResponseDTO>>(parties);
 
-                return ServiceResult<List<PartyResponseDTO>>.Success(partyResponseDTOs);
-            });
-        }
+        //        return ServiceResult<List<PartyResponseDTO>>.Success(partyResponseDTOs);
+        //    });
+        //}
 
         public async Task<ServiceResult<PartyResponseDTO>> CreateParty(string userId, CreatePartyRequestDTO requestDTO, int guildId)
         {

@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace Questlog.Application.Common.Enums
 {
-    public enum SortOrder
+    public enum RoleOptions
     {
-        Asc,
-        Desc
+        Leader,
+        Captain,
+        Strategist,
+        Member
     }
 }

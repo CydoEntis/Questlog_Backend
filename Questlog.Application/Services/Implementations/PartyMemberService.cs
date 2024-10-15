@@ -50,20 +50,20 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<List<PartyMemberResponseDTO>>> GetAllPartyMembers(int partyId)
-        {
-            var idValidation = ValidationHelper.ValidateId(partyId, "Party Id");
-            if (!idValidation.IsSuccess) return ServiceResult<List<PartyMemberResponseDTO>>.Failure(idValidation.ErrorMessage);
+        //public async Task<ServiceResult<List<PartyMemberResponseDTO>>> GetAllPartyMembers(int partyId)
+        //{
+        //    var idValidation = ValidationHelper.ValidateId(partyId, "Party Id");
+        //    if (!idValidation.IsSuccess) return ServiceResult<List<PartyMemberResponseDTO>>.Failure(idValidation.ErrorMessage);
 
-            return await HandleExceptions<List<PartyMemberResponseDTO>>(async () =>
-            {
-                List<PartyMember> partiesPartyMembers = await _unitOfWork.PartyMember.GetAllAsync(pm => pm.PartyId == partyId);
+        //    return await HandleExceptions<List<PartyMemberResponseDTO>>(async () =>
+        //    {
+        //        List<PartyMember> partiesPartyMembers = await _unitOfWork.PartyMember.GetAllAsync(pm => pm.PartyId == partyId);
 
-                List<PartyMemberResponseDTO> partyMemberResponseDTOs = _mapper.Map<List<PartyMemberResponseDTO>>(partiesPartyMembers);
+        //        List<PartyMemberResponseDTO> partyMemberResponseDTOs = _mapper.Map<List<PartyMemberResponseDTO>>(partiesPartyMembers);
 
-                return ServiceResult<List<PartyMemberResponseDTO>>.Success(partyMemberResponseDTOs);
-            });
-        }
+        //        return ServiceResult<List<PartyMemberResponseDTO>>.Success(partyMemberResponseDTOs);
+        //    });
+        //}
 
         public async Task<ServiceResult<PartyMemberResponseDTO>> CreatePartyMember(CreatePartyMemberRequestDTO requestDTO)
         {

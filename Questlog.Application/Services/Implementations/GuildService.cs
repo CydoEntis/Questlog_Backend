@@ -5,10 +5,13 @@ using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.DTOs.Guild.Requests;
 using Questlog.Application.Common.DTOs.Guild.Responses;
+using Questlog.Application.Common.DTOs.GuildMember.Request;
 using Questlog.Application.Common.DTOs.GuildMember.Response;
+using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Common.Validation;
+using Questlog.Application.Queries;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System;
@@ -54,11 +57,29 @@ namespace Questlog.Application.Services.Implementations
             });
         }
 
-        public async Task<ServiceResult<List<GetAllGuildsResponseDTO>>> GetAllGuilds()
+        public async Task<ServiceResult<List<GetAllGuildsResponseDTO>>> GetAllGuilds(GuildQueryParamsDTO queryParams)
         {
             return await HandleExceptions<List<GetAllGuildsResponseDTO>>(async () =>
             {
-                var guilds = await _unitOfWork.Guild.GetAllAsync(orderBy: q => q.OrderBy(g => g.CreatedAt), ascending: false, includeProperties: "GuildMembers,GuildMembers.User");
+
+                var options = new QueryOptions<Guild>
+                {
+                    PageNumber = queryParams.PageNumber,
+                    PageSize = queryParams.PageSize,
+                    Ascending = queryParams.OrderBy == OrderByOptions.Asc.ToString(),
+                    FromDate = queryParams.CreatedDateFrom,
+                    ToDate = queryParams.CreatedDateTo,
+                    IncludeProperties = "GuildMembers,GuildMembers.User",
+                    DatePropertyName = "CreatedAt"
+                };
+
+                options.OrderBy = queryParams.SortBy switch
+                {
+                    "CreateAt" => query => query.OrderBy(g => g.CreatedAt),
+                    _ => query => query.OrderBy(g => g.Id)
+                };
+
+                var guilds = await _unitOfWork.Guild.GetAllAsync(options);
 
                 List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
 

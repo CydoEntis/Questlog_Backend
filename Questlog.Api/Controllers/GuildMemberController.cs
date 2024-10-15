@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs.Guild.Requests;
+using Questlog.Application.Common.DTOs.GuildMember.Request;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers
@@ -38,19 +40,25 @@ namespace Questlog.Api.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAllGuildMembers(int guildId)
+        public async Task<ActionResult<ApiResponse>> GetAllGuildMembers(int guildId, [FromQuery] GuildMembersQueryParamsDTO queryParams)
         {
-            if (guildId <= 0) return BadRequestResponse("Guild Id must be provided.");
+            // Validate the Guild Id
+            if (guildId <= 0)
+                return BadRequestResponse("Guild Id must be provided.");
 
-            var result = await _guildMemberService.GetAllGuildMembers(guildId);
+            // Call the service to get all guild members with the specified query parameters
+            var result = await _guildMemberService.GetAllGuildMembers(guildId, queryParams);
 
+            // Check for success
             if (!result.IsSuccess)
             {
                 return BadRequestResponse(result.ErrorMessage);
             }
 
+            // Return successful response
             return OkResponse(result.Data);
         }
+
 
         [HttpPost]
         public async Task<ActionResult<ApiResponse>> CreateGuildMember([FromBody] CreateGuildMemberRequestDTO requestDTO)

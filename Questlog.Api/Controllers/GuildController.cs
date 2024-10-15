@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs.Guild.Requests;
+using Questlog.Application.Common.DTOs.GuildMember.Request;
 using Questlog.Application.Services.Interfaces;
 using System.Net;
 
@@ -39,9 +40,9 @@ namespace Questlog.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAllGuilds()
+        public async Task<ActionResult<ApiResponse>> GetAllGuilds([FromQuery] GuildQueryParamsDTO queryParams)
         {
-            var result = await _guildService.GetAllGuilds();
+            var result = await _guildService.GetAllGuilds(queryParams);
 
             if (!result.IsSuccess)
             {

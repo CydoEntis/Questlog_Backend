@@ -36,17 +36,17 @@ namespace Questlog.Api.Controllers
             return OkResponse(result.Data);
         }
 
-        [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAllParties(int guildId)
-        {
-            var result = await _partyService.GetAllParties(guildId);
-            if (!result.IsSuccess)
-            {
-                return BadRequestResponse(result.ErrorMessage);
-            }
+        //[HttpGet]
+        //public async Task<ActionResult<ApiResponse>> GetAllParties(int guildId)
+        //{
+        //    var result = await _partyService.GetAllParties(guildId);
+        //    if (!result.IsSuccess)
+        //    {
+        //        return BadRequestResponse(result.ErrorMessage);
+        //    }
 
-            return OkResponse(result.Data);
-        }
+        //    return OkResponse(result.Data);
+        //}
 
         [HttpPost]
         public async Task<ActionResult<ApiResponse>> CreateParty(int guildId, [FromBody] CreatePartyRequestDTO requestDTO)
