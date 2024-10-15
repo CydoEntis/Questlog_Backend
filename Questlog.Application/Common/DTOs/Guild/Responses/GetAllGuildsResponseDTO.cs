@@ -13,6 +13,7 @@ namespace Questlog.Application.Common.DTOs.Guild.Responses
         public string Name { get; set; }
         public string Description { get; set; }
         public string Color { get; set; }
-        public List<GetGuildMemberResponseDTO> GuildMembers { get; set; }
+        public int NumberOfMembers { get; set; }
+        public int NumberOfParties { get; set; }
     }
 }

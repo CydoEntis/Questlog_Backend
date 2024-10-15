@@ -11,6 +11,9 @@ public class GuildMappingProfile : Profile
     {
         CreateMap<Guild, CreateGuildResponseDTO>().ReverseMap();
         CreateMap<Guild, GetGuildResponseDTO>().ReverseMap();
+        CreateMap<Guild, GetAllGuildsResponseDTO>()
+            .ForMember(dest => dest.NumberOfMembers, opt => opt.MapFrom(src => src.GuildMembers.Count))
+            .ForMember(dest => dest.NumberOfParties, opt => opt.MapFrom(src => src.Parties.Count));
 
         // OLD
         CreateMap<Guild, CreateGuildRequestDTO>().ReverseMap();
