@@ -62,7 +62,7 @@ public class GuildService : BaseService, IGuildService
                 IsAscending = queryParams.OrderBy == OrderByOptions.Asc.ToString(),
                 FromDate = queryParams.CreatedDateFrom,
                 ToDate = queryParams.CreatedDateTo,
-                IncludeProperties = "GuildMembers,Parties",
+                IncludeProperties = "GuildMembers,GuildMembers.User,Parties",
                 DatePropertyName = "CreatedAt"
             };
 
