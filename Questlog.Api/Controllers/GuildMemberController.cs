@@ -61,14 +61,14 @@ public class GuildMemberController : BaseController
 
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse>> CreateGuildMember([FromBody] CreateGuildMemberRequestDTO requestDTO)
+    public async Task<ActionResult<ApiResponse>> CreateGuildMember([FromBody] CreateGuildMemberRequestDTO requestDto)
     {
-        if (requestDTO == null)
+        if (requestDto == null)
         {
             return BadRequestResponse("CreateGuildMemberRequestDTO cannot be null.");
         }
 
-        var result = await _guildMemberService.CreateGuildMember(requestDTO);
+        var result = await _guildMemberService.CreateGuildMember(requestDto);
 
         if (!result.IsSuccess)
         {
@@ -79,14 +79,14 @@ public class GuildMemberController : BaseController
     }
 
     [HttpPut("{userId}")]
-    public async Task<ActionResult<ApiResponse>> UpdateGuildMember(int guildId, string userId, [FromBody] UpdateGuildMemberRequestDTO requestDTO)
+    public async Task<ActionResult<ApiResponse>> UpdateGuildMember(int guildId, string userId, [FromBody] UpdateGuildMemberRequestDTO requestDto)
     {
-        if (requestDTO == null)
+        if (requestDto == null)
         {
             return BadRequestResponse("UpdateGuildMemberRequestDTO cannot be null.");
         }
 
-        var result = await _guildMemberService.UpdateGuildMember(requestDTO);
+        var result = await _guildMemberService.UpdateGuildMember(requestDto);
 
         if (!result.IsSuccess)
         {
