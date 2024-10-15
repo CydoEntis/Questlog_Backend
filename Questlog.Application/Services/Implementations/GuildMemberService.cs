@@ -1,5 +1,4 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Constants;
@@ -14,6 +13,7 @@ using Questlog.Application.Queries;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System.Linq.Expressions;
+using Questlog.Application.Common.Extensions;
 
 namespace Questlog.Application.Services.Implementations;
 
@@ -23,7 +23,8 @@ public class GuildMemberService : BaseService, IGuildMemberService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMapper _mapper;
 
-    public GuildMemberService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, ILogger<GuildMemberService> logger, IMapper mapper) : base(logger)
+    public GuildMemberService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager,
+        ILogger<GuildMemberService> logger, IMapper mapper) : base(logger)
     {
         _unitOfWork = unitOfWork;
         _userManager = userManager;
@@ -36,11 +37,13 @@ public class GuildMemberService : BaseService, IGuildMemberService
         if (!idValidation.IsSuccess) return ServiceResult<GetGuildMemberResponseDTO>.Failure(idValidation.ErrorMessage);
 
         var memberIdValidation = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
-        if (!memberIdValidation.IsSuccess) return ServiceResult<GetGuildMemberResponseDTO>.Failure(memberIdValidation.ErrorMessage);
+        if (!memberIdValidation.IsSuccess)
+            return ServiceResult<GetGuildMemberResponseDTO>.Failure(memberIdValidation.ErrorMessage);
 
         return await HandleExceptions<GetGuildMemberResponseDTO>(async () =>
         {
-            GuildMember foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.Id == guildMemberId);
+            GuildMember foundGuildMember =
+                await _unitOfWork.GuildMember.GetAsync(gm => gm.GuildId == guildId && gm.Id == guildMemberId);
 
             if (foundGuildMember == null)
             {
@@ -52,7 +55,6 @@ public class GuildMemberService : BaseService, IGuildMemberService
             return ServiceResult<GetGuildMemberResponseDTO>.Success(guildMemberResponseDTO);
         });
     }
-
 
     public async Task<ServiceResult<List<GetGuildMemberResponseDTO>>> GetAllGuildMembers(int guildId, GuildMembersQueryParamsDTO queryParams)
     {
@@ -67,74 +69,71 @@ public class GuildMemberService : BaseService, IGuildMemberService
             {
                 PageNumber = queryParams.PageNumber,
                 PageSize = queryParams.PageSize,
-                IsAscending = queryParams.OrderBy.ToLower() == OrderByOptions.Asc.ToString().ToLower(),
-                Role = queryParams.Role,
+                IsAscending = queryParams.OrderBy.Equals(OrderByOptions.Asc.ToString(), StringComparison.OrdinalIgnoreCase),
                 FromDate = queryParams.JoinDateFrom,
                 ToDate = queryParams.JoinDateTo,
                 IncludeProperties = "User",
                 DatePropertyName = "JoinedOn"
             };
 
+            // Start with the base filter for GuildId
             options.Filter = gm => gm.GuildId == guildId;
 
-            if (!string.IsNullOrEmpty(queryParams.Role))
+            // Handle additional search filters
+            if (!string.IsNullOrEmpty(queryParams.SearchBy) && !string.IsNullOrEmpty(queryParams.SearchValue))
             {
-                options.Role = queryParams.Role; 
+                options.Filter = options.Filter.And(BuildSearchFilter(queryParams.SearchBy, queryParams.SearchValue));
             }
 
-
-            options.FromDate = queryParams.JoinDateFrom;
-            options.ToDate = queryParams.JoinDateTo;
-
-            options.OrderBy = queryParams.SortBy switch
-            {
-                "JoinOn" => query => query.OrderBy(gm => gm.JoinedOn),
-                _ => query => query.OrderBy(gm => gm.Id)
-            };
+            // Setup ordering
+            options.OrderBy = BuildOrdering(queryParams.SortBy);
 
             var guildMembers = await _unitOfWork.GuildMember.GetAllAsync(options);
-
-            List<GetGuildMemberResponseDTO> guildMemberResponseDTOs = _mapper.Map<List<GetGuildMemberResponseDTO>>(guildMembers);
-
-            return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(guildMemberResponseDTOs);
+        
+            if (guildMembers == null || !guildMembers.Any())
+            {
+                return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(new List<GetGuildMemberResponseDTO>());
+            }
+        
+            var guildMemberResponseDtos = _mapper.Map<List<GetGuildMemberResponseDTO>>(guildMembers);
+            return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(guildMemberResponseDtos);
         });
     }
+    
 
-
-
-
-    private Func<IQueryable<GuildMember>, IOrderedQueryable<GuildMember>> SortAndOrder(SortByOptions sortBy, OrderByOptions orderBy)
-    {
-        var sortExpression = GetSortByExpression(sortBy);
-
-        return orderBy == OrderByOptions.Asc
-            ? (q => q.OrderBy(sortExpression))
-            : (q => q.OrderByDescending(sortExpression));
-    }
-
-    private Expression<Func<GuildMember, object>> GetSortByExpression(SortByOptions sortBy)
-    {
-        return sortBy switch
-        {
-            SortByOptions.Id => gm => gm.Id,
-            SortByOptions.Email => gm => gm.User.Email,
-            SortByOptions.DisplayName => gm => gm.User.DisplayName,
-            SortByOptions.Role => gm => gm.Role,
-            SortByOptions.JoinOn => gm => gm.JoinedOn,
-            _ => gm => gm.Id // Default sorting by Id
-        };
-    }
+    // private Func<IQueryable<GuildMember>, IOrderedQueryable<GuildMember>> SortAndOrder(SortByOptions sortBy,
+    //     OrderByOptions orderBy)
+    // {
+    //     var sortExpression = GetSortByExpression(sortBy);
+    //
+    //     return orderBy == OrderByOptions.Asc
+    //         ? (q => q.OrderBy(sortExpression))
+    //         : (q => q.OrderByDescending(sortExpression));
+    // }
+    //
+    // private Expression<Func<GuildMember, object>> GetSortByExpression(SortByOptions sortBy)
+    // {
+    //     return sortBy switch
+    //     {
+    //         SortByOptions.Id => gm => gm.Id,
+    //         SortByOptions.Email => gm => gm.User.Email,
+    //         SortByOptions.DisplayName => gm => gm.User.DisplayName,
+    //         SortByOptions.Role => gm => gm.Role,
+    //         SortByOptions.JoinOn => gm => gm.JoinedOn,
+    //         _ => gm => gm.Id // Default sorting by Id
+    //     };
+    // }
 
     public async Task<ServiceResult<GuildMemberResponseDTO>> CreateGuildMember(CreateGuildMemberRequestDTO requestDTO)
     {
         if (requestDTO == null) ServiceResult<GuildMemberResponseDTO>.Failure("Must provide a valid Guild Member");
 
         var userValidationResult = await ValidationHelper.ValidateUserIdAsync(requestDTO.UserId, _userManager);
-        if (!userValidationResult.IsSuccess) return ServiceResult<GuildMemberResponseDTO>.Failure(userValidationResult.ErrorMessage);
+        if (!userValidationResult.IsSuccess)
+            return ServiceResult<GuildMemberResponseDTO>.Failure(userValidationResult.ErrorMessage);
 
         return await HandleExceptions<GuildMemberResponseDTO>(async () =>
         {
-
             var guildMember = _mapper.Map<GuildMember>(requestDTO);
             guildMember.Role = RoleConstants.Member;
 
@@ -150,10 +149,12 @@ public class GuildMemberService : BaseService, IGuildMemberService
     public async Task<ServiceResult<GuildMemberResponseDTO>> UpdateGuildMember(UpdateGuildMemberRequestDTO requestDTO)
     {
         var guildValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Guild Request DTO");
-        if (!guildValidationResult.IsSuccess) return ServiceResult<GuildMemberResponseDTO>.Failure(guildValidationResult.ErrorMessage);
+        if (!guildValidationResult.IsSuccess)
+            return ServiceResult<GuildMemberResponseDTO>.Failure(guildValidationResult.ErrorMessage);
 
         var guildIdValidationResult = ValidationHelper.ValidateId(requestDTO.Id, "Guild Id");
-        if (!guildIdValidationResult.IsSuccess) return ServiceResult<GuildMemberResponseDTO>.Failure(guildIdValidationResult.ErrorMessage);
+        if (!guildIdValidationResult.IsSuccess)
+            return ServiceResult<GuildMemberResponseDTO>.Failure(guildIdValidationResult.ErrorMessage);
 
         return await HandleExceptions<GuildMemberResponseDTO>(async () =>
         {
@@ -181,11 +182,13 @@ public class GuildMemberService : BaseService, IGuildMemberService
         if (!guildIdValidationResult.IsSuccess) return ServiceResult<int>.Failure(guildIdValidationResult.ErrorMessage);
 
         var memberIdValidationResult = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
-        if (!memberIdValidationResult.IsSuccess) return ServiceResult<int>.Failure(memberIdValidationResult.ErrorMessage);
+        if (!memberIdValidationResult.IsSuccess)
+            return ServiceResult<int>.Failure(memberIdValidationResult.ErrorMessage);
 
         return await HandleExceptions<int>(async () =>
         {
-            var foundGuildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMemberId && gm.GuildId == guildId);
+            var foundGuildMember =
+                await _unitOfWork.GuildMember.GetAsync(gm => gm.Id == guildMemberId && gm.GuildId == guildId);
             if (foundGuildMember == null)
                 return ServiceResult<int>.Failure("Guild Member not found");
 
@@ -195,5 +198,24 @@ public class GuildMemberService : BaseService, IGuildMemberService
         });
     }
 
+    private Expression<Func<GuildMember, bool>> BuildSearchFilter(string searchBy, string searchValue)
+    {
+        return searchBy.ToLower() switch
+        {
+            "displayname" => gm => gm.User.DisplayName.Contains(searchValue),
+            "email" => gm => gm.User.Email.Contains(searchValue),
+            _ => gm => gm.Id.ToString().Contains(searchValue)
+        };
+    }
 
+    private Func<IQueryable<GuildMember>, IOrderedQueryable<GuildMember>> BuildOrdering(string sortBy)
+    {
+        return sortBy.ToLower() switch
+        {
+            "joinon" => query => query.OrderBy(gm => gm.JoinedOn),
+            "displayname" => query => query.OrderBy(gm => gm.User.DisplayName),
+            "email" => query => query.OrderBy(gm => gm.User.Email),
+            _ => query => query.OrderBy(gm => gm.Id)
+        };
+    }
 }

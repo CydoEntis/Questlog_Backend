@@ -74,6 +74,11 @@ public class GuildService : BaseService, IGuildService
 
             var guilds = await _unitOfWork.Guild.GetAllAsync(options);
 
+            if (guilds == null || !guilds.Any())
+            {
+                return ServiceResult<List<GetAllGuildsResponseDTO>>.Success(new List<GetAllGuildsResponseDTO>());
+            }
+            
             List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
 
             return ServiceResult<List<GetAllGuildsResponseDTO>>.Success(guildResponseDTOs);

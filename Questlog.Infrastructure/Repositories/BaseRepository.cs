@@ -31,9 +31,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 
         query = ApplyBaseFilter(query, options.Filter);
 
-        if (!string.IsNullOrEmpty(options.Role))
-            query = ApplyRoleFilter(query, options.Role);
-
         if (options.FromDate.HasValue || options.ToDate.HasValue)
             query = ApplyDateFilter(query, options.DatePropertyName, options.FromDate, options.ToDate);
 
@@ -45,10 +42,6 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 
         return await Paginate(query, options.PageNumber, options.PageSize);
     }
-
-
-
-
 
     public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeProperties = null)
     {
@@ -138,6 +131,8 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         }
         return query;
     }
+    
+
 
     private async Task<List<T>> Paginate(IQueryable<T> query, int pageNumber, int pageSize)
     {
