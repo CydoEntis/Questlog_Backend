@@ -50,9 +50,9 @@ public class GuildController : BaseController
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse>> CreateGuild([FromBody] CreateGuildRequestDTO requestDTO)
+    public async Task<ActionResult<ApiResponse>> CreateGuild([FromBody] CreateGuildRequestDTO requestDto)
     {
-        if (requestDTO == null)
+        if (requestDto == null)
         {
             return BadRequestResponse("CreateGuildRequestDTO cannot be null.");
         }
@@ -64,7 +64,7 @@ public class GuildController : BaseController
             return BadRequestResponse("User Id is missing.");
         }
 
-        var result = await _guildService.CreateGuild(userId, requestDTO);
+        var result = await _guildService.CreateGuild(userId, requestDto);
 
         if (!result.IsSuccess)
         {
@@ -80,9 +80,9 @@ public class GuildController : BaseController
     }
 
     [HttpPut("{guildId}/details")]
-    public async Task<ActionResult<ApiResponse>> UpdateGuildDetails(int guildId, [FromBody] UpdateGuildDetailsRequestDTO requestDTO)
+    public async Task<ActionResult<ApiResponse>> UpdateGuildDetails(int guildId, [FromBody] UpdateGuildDetailsRequestDTO requestDto)
     {
-        if (requestDTO == null)
+        if (requestDto == null)
         {
             return BadRequestResponse("UpdateGuildRequestDTO cannot be null.");
         }
@@ -94,7 +94,7 @@ public class GuildController : BaseController
             return BadRequestResponse("User Id is missing.");
         }
 
-        var result = await _guildService.UpdateGuildDetails(requestDTO, userId);
+        var result = await _guildService.UpdateGuildDetails(requestDto, userId);
 
         if (!result.IsSuccess)
         {
@@ -105,9 +105,9 @@ public class GuildController : BaseController
     }
 
     [HttpPut("{guildId}/leader")]
-    public async Task<ActionResult<ApiResponse>> UpdateGuildLeader(int guildId, [FromBody] UpdateGuildLeaderRequestDTO requestDTO)
+    public async Task<ActionResult<ApiResponse>> UpdateGuildLeader(int guildId, [FromBody] UpdateGuildLeaderRequestDTO requestDto)
     {
-        if (requestDTO == null)
+        if (requestDto == null)
         {
             return BadRequestResponse("UpdateGuildRequestDTO cannot be null.");
         }
@@ -119,7 +119,7 @@ public class GuildController : BaseController
             return BadRequestResponse("User Id is missing.");
         }
 
-        var result = await _guildService.UpdateGuildLeader(guildId, userId, requestDTO);
+        var result = await _guildService.UpdateGuildLeader(guildId, userId, requestDto);
 
         if (!result.IsSuccess)
         {
