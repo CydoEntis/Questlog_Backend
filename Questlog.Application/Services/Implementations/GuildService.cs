@@ -50,9 +50,9 @@ public class GuildService : BaseService, IGuildService
         });
     }
 
-    public async Task<ServiceResult<List<GetAllGuildsResponseDTO>>> GetAllGuilds(GuildQueryParamsDTO queryParams)
+    public async Task<ServiceResult<List<GetGuildResponseDTO>>> GetAllGuilds(GuildQueryParamsDTO queryParams)
     {
-        return await HandleExceptions<List<GetAllGuildsResponseDTO>>(async () =>
+        return await HandleExceptions<List<GetGuildResponseDTO>>(async () =>
         {
 
             var options = new QueryOptions<Guild>
@@ -76,12 +76,12 @@ public class GuildService : BaseService, IGuildService
 
             if (guilds == null || !guilds.Any())
             {
-                return ServiceResult<List<GetAllGuildsResponseDTO>>.Success(new List<GetAllGuildsResponseDTO>());
+                return ServiceResult<List<GetGuildResponseDTO>>.Success(new List<GetGuildResponseDTO>());
             }
             
-            List<GetAllGuildsResponseDTO> guildResponseDTOs = _mapper.Map<List<GetAllGuildsResponseDTO>>(guilds);
+            List<GetGuildResponseDTO> guildResponseDTOs = _mapper.Map<List<GetGuildResponseDTO>>(guilds);
 
-            return ServiceResult<List<GetAllGuildsResponseDTO>>.Success(guildResponseDTOs);
+            return ServiceResult<List<GetGuildResponseDTO>>.Success(guildResponseDTOs);
         });
     }
 
