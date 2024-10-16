@@ -8,7 +8,7 @@ public class PartyMappingProfile : Profile
 {
     public PartyMappingProfile()
     {
-        CreateMap<CreatePartyRequestDTO, Party>().ReverseMap();
+        CreateMap<CreatePartyRequestDto, Party>().ReverseMap();
         CreateMap<CreatePartyResponseDTO, Party>().ReverseMap();
     }
 }

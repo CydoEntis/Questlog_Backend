@@ -46,7 +46,7 @@ public class PartyMemberController : BaseController
     //}
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse>> CreatePartyMember(int guildId, int partyId, [FromBody] CreatePartyMemberRequestDTO requestDTO)
+    public async Task<ActionResult<ApiResponse>> CreatePartyMember(int guildId, int partyId, [FromBody] CreatePartyMemberRequestDto requestDTO)
     {
         if (requestDTO == null)
         {

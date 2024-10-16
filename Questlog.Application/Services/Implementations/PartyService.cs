@@ -2,10 +2,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Constants;
+using Questlog.Application.Common.DTOs.Guild.Responses;
 using Questlog.Application.Common.DTOs.Party;
+using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Common.Validation;
+using Questlog.Application.Queries;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 
@@ -26,90 +29,120 @@ public class PartyService : BaseService, IPartyService
 
     }
 
-    public async Task<ServiceResult<PartyResponseDTO>> GetPartyById(int guildId, int partyId)
+    public async Task<ServiceResult<GetPartyResponseDto>> GetPartyById(int guildId, int partyId)
     {
         var partyIdValidationResult = ValidationHelper.ValidateId(partyId, "Party Id");
-        if (!partyIdValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(partyIdValidationResult.ErrorMessage);
+        if (!partyIdValidationResult.IsSuccess) return ServiceResult<GetPartyResponseDto>.Failure(partyIdValidationResult.ErrorMessage);
 
-        return await HandleExceptions<PartyResponseDTO>(async () =>
+        return await HandleExceptions<GetPartyResponseDto>(async () =>
         {
             var foundParty = await _unitOfWork.Party.GetAsync(p => p.Id == partyId && p.GuildId == guildId);
 
             if (foundParty == null)
             {
-                return ServiceResult<PartyResponseDTO>.Failure("Party not found.");
+                return ServiceResult<GetPartyResponseDto>.Failure("Party not found.");
             }
 
-            var partyResponseDTO = _mapper.Map<PartyResponseDTO>(foundParty);
+            var partyResponseDTO = _mapper.Map<GetPartyResponseDto>(foundParty);
 
-            return ServiceResult<PartyResponseDTO>.Success(partyResponseDTO);
+            return ServiceResult<GetPartyResponseDto>.Success(partyResponseDTO);
         });
     }
 
-    //public async Task<ServiceResult<List<PartyResponseDTO>>> GetAllParties(int guildId)
-    //{
-    //    return await HandleExceptions<List<PartyResponseDTO>>(async () =>
-    //    {
-    //        var parties = await _unitOfWork.Party.GetAllAsync(p => p.GuildId == guildId);
-
-    //        List<PartyResponseDTO> partyResponseDTOs = _mapper.Map<List<PartyResponseDTO>>(parties);
-
-    //        return ServiceResult<List<PartyResponseDTO>>.Success(partyResponseDTOs);
-    //    });
-    //}
-
-    public async Task<ServiceResult<PartyResponseDTO>> CreateParty(string userId, CreatePartyRequestDTO requestDTO, int guildId)
+    public async Task<ServiceResult<List<GetPartyResponseDto>>> GetAllParties(int guildId, PartyQueryParamsDto queryParams)
     {
-        var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
-        if (!userValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(userValidationResult.ErrorMessage);
-
-        var partyValidationResult = ValidationHelper.ValidateObject(requestDTO, "Create Party Request DTO");
-        if (!partyValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(partyValidationResult.ErrorMessage);
-
-        return await HandleExceptions<PartyResponseDTO>(async () =>
+        return await HandleExceptions<List<GetPartyResponseDto>>(async () =>
         {
-            var guildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == userId && gm.GuildId == guildId);
+            var options = new QueryOptions<Party>
+            {
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize,
+                IsAscending = queryParams.OrderBy == OrderByOptions.Asc.ToString(),
+                IncludeProperties = "",
+                DatePropertyName = "CreatedAt",
+                Filter = p => p.GuildId == guildId
+            };
 
+            options.OrderBy = queryParams.SortBy switch
+            {
+                "CreatedAt" => query => query.OrderBy(g => g.CreatedAt),
+                _ => query => query.OrderBy(g => g.Id)
+            };
+
+            var parties = await _unitOfWork.Party.GetAllAsync(options);
+
+            if (parties == null || !parties.Any())
+            {
+                return ServiceResult<List<GetPartyResponseDto>>.Success(new List<GetPartyResponseDto>());
+            }
+            
+            List<GetPartyResponseDto> guildResponseDTOs = _mapper.Map<List<GetPartyResponseDto>>(parties);
+
+            return ServiceResult<List<GetPartyResponseDto>>.Success(guildResponseDTOs);
+            
+            
+            List<GetPartyResponseDto> partyResponseDTOs = _mapper.Map<List<GetPartyResponseDto>>(parties);
+
+            return ServiceResult<List<GetPartyResponseDto>>.Success(partyResponseDTOs);
+        });
+    }
+
+    public async Task<ServiceResult<CreatePartyResponseDTO>> CreateParty(string userId, CreatePartyRequestDto requestDto, int guildId)
+    {
+        // var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
+        // if (!userValidationResult.IsSuccess) return ServiceResult<GetPartyResponseDto>.Failure(userValidationResult.ErrorMessage);
+
+        var partyValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Party Request DTO");
+        if (!partyValidationResult.IsSuccess) return ServiceResult<CreatePartyResponseDTO>.Failure(partyValidationResult.ErrorMessage);
+
+        return await HandleExceptions<CreatePartyResponseDTO>(async () =>
+        {
+            // Check if guildMember is a guild leader
+            var guildMember = await _unitOfWork.GuildMember.GetAsync(gm => gm.UserId == userId && gm.GuildId == guildId && gm.Role == RoleConstants.Leader);
+            
+            // If the guild member is not a guild leader, then throw error - Must be a guild leader to create a party.
             var guildMemberValidationResult = ValidationHelper.ValidateObject(guildMember, "Guild Member");
-            if (!guildMemberValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(guildMemberValidationResult.ErrorMessage);
-
-            var party = _mapper.Map<Party>(requestDTO);
-            party.GuildId = guildId; // Set the guildId here
-
+            if (!guildMemberValidationResult.IsSuccess) return ServiceResult<CreatePartyResponseDTO>.Failure(guildMemberValidationResult.ErrorMessage);
+            
+            var party = _mapper.Map<Party>(requestDto);
+            party.GuildId = guildId;
+            party.PartyLeaderId = userId;
+            
             Party createdParty = await _unitOfWork.Party.CreateAsync(party);
 
-            var partyMember = new PartyMember
+            var partyLeader = new PartyMember
             {
                 UserId = userId,
                 PartyId = createdParty.Id,
                 Role = RoleConstants.Leader,
                 JoinedAt = DateTime.UtcNow,
                 GuildMemberId = guildMember.Id,
+                GuildId = guildId
             };
+            
+            await _unitOfWork.PartyMember.CreateAsync(partyLeader);
 
-            await _unitOfWork.PartyMember.CreateAsync(partyMember);
+            var createdPartyResponseDTO = _mapper.Map<CreatePartyResponseDTO>(createdParty);
 
-            var createdPartyResponseDTO = _mapper.Map<PartyResponseDTO>(createdParty);
-
-            return ServiceResult<PartyResponseDTO>.Success(createdPartyResponseDTO);
+            return ServiceResult<CreatePartyResponseDTO>.Success(createdPartyResponseDTO);
         });
     }
 
-    public async Task<ServiceResult<PartyResponseDTO>> UpdateParty(int guildId, UpdatePartyRequestDTO requestDTO)
+    public async Task<ServiceResult<GetPartyResponseDto>> UpdateParty(int guildId, UpdatePartyRequestDTO requestDTO)
     {
         var partyValidationResult = ValidationHelper.ValidateObject(requestDTO, "Update Party Request DTO");
-        if (!partyValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(partyValidationResult.ErrorMessage);
+        if (!partyValidationResult.IsSuccess) return ServiceResult<GetPartyResponseDto>.Failure(partyValidationResult.ErrorMessage);
 
         var partyIdValidationResult = ValidationHelper.ValidateId(requestDTO.Id, "Party Id");
-        if (!partyIdValidationResult.IsSuccess) return ServiceResult<PartyResponseDTO>.Failure(partyIdValidationResult.ErrorMessage);
+        if (!partyIdValidationResult.IsSuccess) return ServiceResult<GetPartyResponseDto>.Failure(partyIdValidationResult.ErrorMessage);
 
-        return await HandleExceptions<PartyResponseDTO>(async () =>
+        return await HandleExceptions<GetPartyResponseDto>(async () =>
         {
             var foundParty = await _unitOfWork.Party.GetAsync(p => p.Id == requestDTO.Id && p.GuildId == guildId);
 
             if (foundParty == null)
             {
-                return ServiceResult<PartyResponseDTO>.Failure("Party not found.");
+                return ServiceResult<GetPartyResponseDto>.Failure("Party not found.");
             }
 
             var party = _mapper.Map<Party>(requestDTO);
@@ -118,9 +151,9 @@ public class PartyService : BaseService, IPartyService
 
             await _unitOfWork.Party.UpdateAsync(foundParty); // Update the existing party
 
-            var responseDTO = _mapper.Map<PartyResponseDTO>(foundParty);
+            var responseDTO = _mapper.Map<GetPartyResponseDto>(foundParty);
 
-            return ServiceResult<PartyResponseDTO>.Success(responseDTO);
+            return ServiceResult<GetPartyResponseDto>.Success(responseDTO);
         });
     }
 

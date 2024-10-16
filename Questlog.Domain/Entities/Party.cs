@@ -15,6 +15,10 @@ public class Party
     [MaxLength(25)]
     public string Name { get; set; }
 
+    public string Color { get; set; }
+
+    public string PartyLeaderId { get; set; }
+    
     [ForeignKey("Guild")]
     public int GuildId { get; set; } 
 

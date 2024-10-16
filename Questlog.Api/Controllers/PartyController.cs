@@ -46,7 +46,7 @@ public class PartyController : BaseController
     //}
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse>> CreateParty(int guildId, [FromBody] CreatePartyRequestDTO requestDTO)
+    public async Task<ActionResult<ApiResponse>> CreateParty(int guildId, [FromBody] CreatePartyRequestDto requestDTO)
     {
         string userId = HttpContext.Items["UserId"] as string;
 
@@ -59,7 +59,9 @@ public class PartyController : BaseController
             return BadRequestResponse(result.ErrorMessage);
         }
 
-        return CreatedAtAction(nameof(GetPartyById), new { guildId, partyId = result.Data.Id }, result.Data);
+        // return CreatedAtAction(nameof(GetPartyById), new { guildId, partyId = result.Data.Id }, result.Data);
+        
+        return CreatedResponse(result.Data);
     }
 
     [HttpPut("{partyId}")]

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Questlog.Application.Common.DTOs.Party;
 
-public record PartyResponseDTO
+public record GetPartyResponseDto
 {
     [Required]
     public int Id { get; set; }

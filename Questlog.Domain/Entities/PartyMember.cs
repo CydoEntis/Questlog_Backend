@@ -9,8 +9,9 @@ public class PartyMember
     public int Id { get; set; }
 
     [ForeignKey("ApplicationUser")]
-    public string UserId { get; set; } 
+    public string UserId { get; set; }
 
+    public int GuildId { get; set; }
 
     [ForeignKey("GuildMember")]
     public int GuildMemberId { get; set; } 
@@ -25,5 +26,5 @@ public class PartyMember
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public string Role { get; set; } 
+    public string Role { get; set; } = "Member";
 }

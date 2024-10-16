@@ -59,7 +59,7 @@ public class PartyMemberService : BaseService, IPartyMemberService
     //    });
     //}
 
-    public async Task<ServiceResult<PartyMemberResponseDTO>> CreatePartyMember(CreatePartyMemberRequestDTO requestDTO)
+    public async Task<ServiceResult<PartyMemberResponseDTO>> CreatePartyMember(CreatePartyMemberRequestDto requestDTO)
     {
         if (requestDTO == null) ServiceResult<PartyMemberResponseDTO>.Failure("Must provide a valid Party Member");
 
