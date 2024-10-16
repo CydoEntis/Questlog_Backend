@@ -372,7 +372,7 @@ namespace Questlog.Infrastructure.Migrations
                     b.Property<int>("GuildMemberId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("JoinedAt")
+                    b.Property<DateTime>("JoinedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("PartyId")

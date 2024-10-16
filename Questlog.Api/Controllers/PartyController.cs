@@ -24,7 +24,9 @@ public class PartyController : BaseController
     [HttpGet("{partyId}")]
     public async Task<ActionResult<ApiResponse>> GetPartyById(int guildId, int partyId)
     {
+        
         var result = await _partyService.GetPartyById(guildId, partyId);
+
         if (!result.IsSuccess)
         {
             return BadRequestResponse(result.ErrorMessage);
@@ -33,17 +35,19 @@ public class PartyController : BaseController
         return OkResponse(result.Data);
     }
 
-    //[HttpGet]
-    //public async Task<ActionResult<ApiResponse>> GetAllParties(int guildId)
-    //{
-    //    var result = await _partyService.GetAllParties(guildId);
-    //    if (!result.IsSuccess)
-    //    {
-    //        return BadRequestResponse(result.ErrorMessage);
-    //    }
+    [HttpGet]
+    public async Task<ActionResult<ApiResponse>> GetAllParties(int guildId, [FromQuery] PartyQueryParamsDto queryParams)
+    {
+        
+        var result = await _partyService.GetAllParties(guildId, queryParams);
 
-    //    return OkResponse(result.Data);
-    //}
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+
+        return OkResponse(result.Data);
+    }
 
     [HttpPost]
     public async Task<ActionResult<ApiResponse>> CreateParty(int guildId, [FromBody] CreatePartyRequestDto requestDTO)

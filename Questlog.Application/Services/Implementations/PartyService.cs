@@ -58,7 +58,7 @@ public class PartyService : BaseService, IPartyService
                 PageNumber = queryParams.PageNumber,
                 PageSize = queryParams.PageSize,
                 IsAscending = queryParams.OrderBy == OrderByOptions.Asc.ToString(),
-                IncludeProperties = "",
+                IncludeProperties = "PartyMembers,PartyMembers.GuildMember.User",
                 DatePropertyName = "CreatedAt",
                 Filter = p => p.GuildId == guildId
             };
@@ -115,7 +115,7 @@ public class PartyService : BaseService, IPartyService
                 UserId = userId,
                 PartyId = createdParty.Id,
                 Role = RoleConstants.Leader,
-                JoinedAt = DateTime.UtcNow,
+                JoinedOn = DateTime.UtcNow,
                 GuildMemberId = guildMember.Id,
                 GuildId = guildId
             };

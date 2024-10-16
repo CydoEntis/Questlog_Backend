@@ -5,16 +5,12 @@ namespace Questlog.Application.Common.DTOs.Party;
 
 public record GetPartyResponseDto
 {
-    [Required]
     public int Id { get; set; }
-
-    [Required]
-    [MinLength(3)]
-    [MaxLength(25)]
     public string Name { get; set; }
-
-    [Required]
     public int GuildId { get; set; }
-
-    public virtual List<PartyMemberResponseDTO> PartyMembers { get; set; } = new List<PartyMemberResponseDTO>();
+    public string PartyLeaderId { get; set; }
+    public string PartyLeader { get; set; }
+    public string Color { get; set; }
+    public int NumberOfMembers { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
