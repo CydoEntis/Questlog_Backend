@@ -33,17 +33,17 @@ public class PartyMemberController : BaseController
         return OkResponse(result.Data);
     }
 
-    //[HttpGet]
-    //public async Task<ActionResult<ApiResponse>> GetAllPartyMembers(int guildId, int partyId)
-    //{
-    //    var result = await _partyMemberService.GetAllPartyMembers(partyId);
-    //    if (!result.IsSuccess)
-    //    {
-    //        return BadRequestResponse(result.ErrorMessage);
-    //    }
+    [HttpGet]
+    public async Task<ActionResult<ApiResponse>> GetAllPartyMembers(int guildId, int partyId)
+    {
+        var result = await _partyMemberService.GetAllPartyMembers(partyId);
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
 
-    //    return OkResponse(result.Data);
-    //}
+        return OkResponse(result.Data);
+    }
 
     [HttpPost]
     public async Task<ActionResult<ApiResponse>> CreatePartyMember(int guildId, int partyId, [FromBody] CreatePartyMemberRequestDto requestDTO)

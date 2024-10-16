@@ -56,50 +56,68 @@ public class GuildMemberService : BaseService, IGuildMemberService
         });
     }
 
-    public async Task<ServiceResult<List<GetGuildMemberResponseDTO>>> GetAllGuildMembers(int guildId, GuildMembersQueryParamsDTO queryParams)
+
+public async Task<ServiceResult<List<GetGuildMemberResponseDTO>>> GetAllGuildMembers(int guildId, GuildMembersQueryParamsDTO queryParams)
+{
+    // Validate the guild ID
+    var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
+    if (!idValidation.IsSuccess)
+        return ServiceResult<List<GetGuildMemberResponseDTO>>.Failure(idValidation.ErrorMessage);
+
+    return await HandleExceptions<List<GetGuildMemberResponseDTO>>(async () =>
     {
-        // Validate the guild ID
-        var idValidation = ValidationHelper.ValidateId(guildId, nameof(guildId));
-        if (!idValidation.IsSuccess)
-            return ServiceResult<List<GetGuildMemberResponseDTO>>.Failure(idValidation.ErrorMessage);
-
-        return await HandleExceptions<List<GetGuildMemberResponseDTO>>(async () =>
+        var options = new QueryOptions<GuildMember>
         {
-            var options = new QueryOptions<GuildMember>
-            {
-                PageNumber = queryParams.PageNumber,
-                PageSize = queryParams.PageSize,
-                IsAscending = queryParams.OrderBy.Equals(OrderByOptions.Asc.ToString(), StringComparison.OrdinalIgnoreCase),
-                FromDate = queryParams.JoinDateFrom,
-                ToDate = queryParams.JoinDateTo,
-                IncludeProperties = "User",
-                DatePropertyName = "JoinedOn"
-            };
+            PageNumber = queryParams.PageNumber,
+            PageSize = queryParams.PageSize,
+            IsAscending = queryParams.OrderBy.Equals(OrderByOptions.Asc.ToString(), StringComparison.OrdinalIgnoreCase),
+            FromDate = queryParams.JoinDateFrom,
+            ToDate = queryParams.JoinDateTo,
+            IncludeProperties = "User",
+            DatePropertyName = "JoinedOn"
+        };
 
-            // Start with the base filter for GuildId
-            options.Filter = gm => gm.GuildId == guildId;
+        // Start with the base filter for GuildId
+        options.Filter = gm => gm.GuildId == guildId;
 
-            // Handle additional search filters
-            if (!string.IsNullOrEmpty(queryParams.SearchBy) && !string.IsNullOrEmpty(queryParams.SearchValue))
+        // Handle additional search filters using the generic BuildSearchFilter method from BaseService
+        if (!string.IsNullOrEmpty(queryParams.SearchBy) && !string.IsNullOrEmpty(queryParams.SearchValue))
+        {
+            options.Filter = options.Filter.And(BuildSearchFilter(
+                queryParams.SearchBy, 
+                queryParams.SearchValue, 
+                new Dictionary<string, Func<GuildMember, string>>
+                {
+                    { "displayname", gm => gm.User.DisplayName },
+                    { "email", gm => gm.User.Email }
+                }
+            ));
+        }
+
+        // Setup ordering using the generic BuildOrdering method from BaseService
+        options.OrderBy = BuildOrdering(
+            queryParams.SortBy, 
+            new Dictionary<string, Expression<Func<GuildMember, object>>>
             {
-                options.Filter = options.Filter.And(BuildSearchFilter(queryParams.SearchBy, queryParams.SearchValue));
+                { "joinon", gm => gm.JoinedOn },
+                { "displayname", gm => gm.User.DisplayName },
+                { "email", gm => gm.User.Email }
             }
+        );
 
-            // Setup ordering
-            options.OrderBy = BuildOrdering(queryParams.SortBy);
+        var guildMembers = await _unitOfWork.GuildMember.GetAllAsync(options);
 
-            var guildMembers = await _unitOfWork.GuildMember.GetAllAsync(options);
-        
-            if (guildMembers == null || !guildMembers.Any())
-            {
-                return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(new List<GetGuildMemberResponseDTO>());
-            }
-        
-            var guildMemberResponseDtos = _mapper.Map<List<GetGuildMemberResponseDTO>>(guildMembers);
-            return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(guildMemberResponseDtos);
-        });
-    }
-    
+        if (guildMembers == null || !guildMembers.Any())
+        {
+            return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(new List<GetGuildMemberResponseDTO>());
+        }
+
+        var guildMemberResponseDtos = _mapper.Map<List<GetGuildMemberResponseDTO>>(guildMembers);
+        return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(guildMemberResponseDtos);
+    });
+}
+
+
 
     // private Func<IQueryable<GuildMember>, IOrderedQueryable<GuildMember>> SortAndOrder(SortByOptions sortBy,
     //     OrderByOptions orderBy)

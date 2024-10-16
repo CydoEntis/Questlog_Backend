@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Questlog.Application.Common.DTOs.GuildMember.Response;
 using Questlog.Application.Common.DTOs.PartyMember;
+using Questlog.Application.Common.Enums;
+using Questlog.Application.Common.Extensions;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Common.Validation;
+using Questlog.Application.Queries;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 
@@ -44,20 +48,47 @@ public class PartyMemberService : BaseService, IPartyMemberService
         });
     }
 
-    //public async Task<ServiceResult<List<PartyMemberResponseDTO>>> GetAllPartyMembers(int partyId)
-    //{
-    //    var idValidation = ValidationHelper.ValidateId(partyId, "Party Id");
-    //    if (!idValidation.IsSuccess) return ServiceResult<List<PartyMemberResponseDTO>>.Failure(idValidation.ErrorMessage);
+    public async Task<ServiceResult<List<PartyMemberResponseDTO>>> GetAllPartyMembers(int partyId, PartyMemberQueryParamsDto queryParams)
+    {
+        var idValidation = ValidationHelper.ValidateId(partyId, "Party Id");
+        if (!idValidation.IsSuccess) return ServiceResult<List<PartyMemberResponseDTO>>.Failure(idValidation.ErrorMessage);
 
-    //    return await HandleExceptions<List<PartyMemberResponseDTO>>(async () =>
-    //    {
-    //        List<PartyMember> partiesPartyMembers = await _unitOfWork.PartyMember.GetAllAsync(pm => pm.PartyId == partyId);
+        return await HandleExceptions<List<PartyMemberResponseDTO>>(async () =>
+        {
+            var options = new QueryOptions<PartyMember>
+            {
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize,
+                IsAscending = queryParams.OrderBy.Equals(OrderByOptions.Asc.ToString(), StringComparison.OrdinalIgnoreCase),
+                FromDate = queryParams.JoinDateFrom,
+                ToDate = queryParams.JoinDateTo,
+                IncludeProperties = "User",
+                DatePropertyName = "JoinedOn"
+            };
 
-    //        List<PartyMemberResponseDTO> partyMemberResponseDTOs = _mapper.Map<List<PartyMemberResponseDTO>>(partiesPartyMembers);
+            // Start with the base filter for GuildId
+            options.Filter = pm => pm.PartyId == partyId;
 
-    //        return ServiceResult<List<PartyMemberResponseDTO>>.Success(partyMemberResponseDTOs);
-    //    });
-    //}
+            // Handle additional search filters
+            if (!string.IsNullOrEmpty(queryParams.SearchBy) && !string.IsNullOrEmpty(queryParams.SearchValue))
+            {
+                options.Filter = options.Filter.And(BuildSearchFilter(queryParams.SearchBy, queryParams.SearchValue));
+            }
+
+            // Setup ordering
+            options.OrderBy = BuildOrdering(queryParams.SortBy);
+
+            var guildMembers = await _unitOfWork.GuildMember.GetAllAsync(options);
+        
+            if (guildMembers == null || !guildMembers.Any())
+            {
+                return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(new List<GetGuildMemberResponseDTO>());
+            }
+        
+            var guildMemberResponseDtos = _mapper.Map<List<GetGuildMemberResponseDTO>>(guildMembers);
+            return ServiceResult<List<GetGuildMemberResponseDTO>>.Success(guildMemberResponseDtos);
+        });
+    }
 
     public async Task<ServiceResult<PartyMemberResponseDTO>> CreatePartyMember(CreatePartyMemberRequestDto requestDTO)
     {
