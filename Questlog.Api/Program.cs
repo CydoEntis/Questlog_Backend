@@ -48,10 +48,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 
-builder.Services.AddScoped<IGuildService, GuildService>();
-builder.Services.AddScoped<IGuildMemberService, GuildMemberService>();
-builder.Services.AddScoped<IPartyService, PartyService>();
-builder.Services.AddScoped<IPartyMemberService, PartyMemberService>();
+builder.Services.AddScoped<ICampaignService, CampaignService>();
+builder.Services.AddScoped<IMemberService, MemberService>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {

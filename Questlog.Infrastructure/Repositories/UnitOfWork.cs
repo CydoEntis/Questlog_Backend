@@ -8,10 +8,9 @@ public class UnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext _db;
     public IUserRepository User { get; private set; }
     public ITokenRepository Token { get; private set; }
-    public IGuildRepository Guild { get; private set; }
-    public IGuildMemberRepository GuildMember { get; private set; }
-    public IPartyRepository Party { get; private set; }
-    public IPartyMemberRepository PartyMember { get; private set; }
+    public ICampaignRepository Campaign { get; private set; }
+    public IMemberRepository Member { get; private set; }
+
 
 
 
@@ -23,11 +22,9 @@ public class UnitOfWork : IUnitOfWork
         Token = new TokenRepository(db);
 
 
-        Guild = new GuildRepository(db);
-        GuildMember = new GuildMemberRepository(db);
+        Campaign = new CampaignRepository(db);
+        Member = new MemberRepository(db);
 
-        Party = new PartyRepository(db);
-        PartyMember = new PartyMemberRepository(db);
     }
 
 

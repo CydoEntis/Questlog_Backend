@@ -26,9 +26,7 @@ public class ApplicationUser : IdentityUser
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual ICollection<Guild> Guilds { get; set; } = new List<Guild>();
-
-    public virtual ICollection<GuildMember> GuildMembers { get; set; } = new List<GuildMember>();
+    public virtual ICollection<Member> Members { get; set; } = new List<Member>();
 
 
     public int CalculateExpForLevel()

@@ -9,10 +9,8 @@ public class MappingConfig
         return new MapperConfiguration(cfg =>
         {
             cfg.AddProfile(new ApplicationUserMappingProfile());
-            cfg.AddProfile(new GuildMappingProfile());
-            cfg.AddProfile(new GuildMemberMappingProfile());
-            cfg.AddProfile(new PartyMappingProfile());
-            cfg.AddProfile(new PartyMemberMappingProfile());
+            cfg.AddProfile(new CampaignMappingProfile());
+            cfg.AddProfile(new MemberMappingProfile());
         });
     }
 
