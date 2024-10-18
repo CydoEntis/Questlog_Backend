@@ -23,7 +23,7 @@ public class Campaign
     public string Color { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; } = DateTime.Now;
 
     [ForeignKey("ApplicationUser")]
     public string OwnerId { get; set; } // Foreign key

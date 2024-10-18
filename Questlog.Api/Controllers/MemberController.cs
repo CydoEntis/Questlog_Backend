@@ -11,7 +11,7 @@ using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
 
-[Route("api/guilds/{campaignId}/members")]
+[Route("api/campaigns/{campaignId}/members")]
 [Authorize]
 [ApiController]
 [ServiceFilter(typeof(TokenValidationFilter))]

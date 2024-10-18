@@ -7,6 +7,6 @@ namespace Questlog.Application.Common.DTOs.Guild.Responses
         public int Id { get; set; }
         public string Name { get; set; }
         public string Color { get; set; }
-        public List<GetMemberResponseDto> Members { get; set; }
+        public List<GetMemberAvatarResponseDto> Members { get; set; }
     }
 }
