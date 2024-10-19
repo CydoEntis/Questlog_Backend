@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Constants;
-
 using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
@@ -58,66 +57,67 @@ public class MemberService : BaseService, IMemberService
     }
 
 
-public async Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int campaignId, MembersQueryParamsDto queryParams)
-{
-    // Validate the guild ID
-    var idValidation = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
-    if (!idValidation.IsSuccess)
-        return ServiceResult<List<GetMemberResponseDto>>.Failure(idValidation.ErrorMessage);
-
-    return await HandleExceptions<List<GetMemberResponseDto>>(async () =>
-    {
-        var options = new QueryOptions<Member>
-        {
-            PageNumber = queryParams.PageNumber,
-            PageSize = queryParams.PageSize,
-            IsAscending = queryParams.OrderBy.Equals(OrderByOptions.Asc.ToString(), StringComparison.OrdinalIgnoreCase),
-            FromDate = queryParams.JoinDateFrom,
-            ToDate = queryParams.JoinDateTo,
-            IncludeProperties = "User",
-            DatePropertyName = "JoinedOn"
-        };
-
-        // Start with the base filter for CampaignId
-        options.Filter = gm => gm.CampaignId == campaignId;
-
-        // Handle additional search filters using the generic BuildSearchFilter method from BaseService
-        if (!string.IsNullOrEmpty(queryParams.SearchBy) && !string.IsNullOrEmpty(queryParams.SearchValue))
-        {
-            options.Filter = options.Filter.And(BuildSearchFilter(
-                queryParams.SearchBy, 
-                queryParams.SearchValue, 
-                new Dictionary<string, Func<Member, string>>
-                {
-                    { "displayname", gm => gm.User.DisplayName },
-                    { "email", gm => gm.User.Email }
-                }
-            ));
-        }
-
-        // Setup ordering using the generic BuildOrdering method from BaseService
-        options.OrderBy = BuildOrdering(
-            queryParams.SortBy, 
-            new Dictionary<string, Expression<Func<Member, object>>>
-            {
-                { "joinon", gm => gm.JoinedOn },
-                { "displayname", gm => gm.User.DisplayName },
-                { "email", gm => gm.User.Email }
-            }
-        );
-
-        var guildMembers = await _unitOfWork.Member.GetAllAsync(options);
-
-        if (guildMembers == null || !guildMembers.Any())
-        {
-            return ServiceResult<List<GetMemberResponseDto>>.Success(new List<GetMemberResponseDto>());
-        }
-
-        var guildMemberResponseDtos = _mapper.Map<List<GetMemberResponseDto>>(guildMembers);
-        return ServiceResult<List<GetMemberResponseDto>>.Success(guildMemberResponseDtos);
-    });
-}
-
+    // public async Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int campaignId,
+    //     MembersQueryParamsDto queryParams)
+    // {
+    //     // Validate the guild ID
+    //     var idValidation = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
+    //     if (!idValidation.IsSuccess)
+    //         return ServiceResult<List<GetMemberResponseDto>>.Failure(idValidation.ErrorMessage);
+    //
+    //     return await HandleExceptions<List<GetMemberResponseDto>>(async () =>
+    //     {
+    //         var options = new QueryOptions<Member>
+    //         {
+    //             PageNumber = queryParams.PageNumber,
+    //             PageSize = queryParams.PageSize,
+    //             IsAscending =
+    //                 queryParams.OrderBy.Equals(OrderBy.Asc.ToString(), StringComparison.OrdinalIgnoreCase),
+    //             FromDate = queryParams.JoinDateFrom,
+    //             ToDate = queryParams.JoinDateTo,
+    //             IncludeProperties = "User",
+    //             DatePropertyName = "JoinedOn"
+    //         };
+    //
+    //         // Start with the base filter for CampaignId
+    //         options.Filter = gm => gm.CampaignId == campaignId;
+    //
+    //         // Handle additional search filters using the generic BuildSearchFilter method from BaseService
+    //         if (!string.IsNullOrEmpty(queryParams.SearchBy) && !string.IsNullOrEmpty(queryParams.SearchValue))
+    //         {
+    //             options.Filter = options.Filter.And(BuildSearchFilter(
+    //                 queryParams.SearchBy,
+    //                 queryParams.SearchValue,
+    //                 new Dictionary<string, Func<Member, string>>
+    //                 {
+    //                     { "displayname", gm => gm.User.DisplayName },
+    //                     { "email", gm => gm.User.Email }
+    //                 }
+    //             ));
+    //         }
+    //
+    //         // Setup ordering using the generic BuildOrdering method from BaseService
+    //         options.OrderBy = BuildOrdering(
+    //             queryParams.SortBy,
+    //             new Dictionary<string, Expression<Func<Member, object>>>
+    //             {
+    //                 { "joinon", gm => gm.JoinedOn },
+    //                 { "displayname", gm => gm.User.DisplayName },
+    //                 { "email", gm => gm.User.Email }
+    //             }
+    //         );
+    //
+    //         var guildMembers = await _unitOfWork.Member.GetAllAsync(options);
+    //
+    //         if (guildMembers == null || !guildMembers.Any())
+    //         {
+    //             return ServiceResult<List<GetMemberResponseDto>>.Success(new List<GetMemberResponseDto>());
+    //         }
+    //
+    //         var guildMemberResponseDtos = _mapper.Map<List<GetMemberResponseDto>>(guildMembers);
+    //         return ServiceResult<List<GetMemberResponseDto>>.Success(guildMemberResponseDtos);
+    //     });
+    // }
 
 
     // private Func<IQueryable<Member>, IOrderedQueryable<Member>> SortAndOrder(SortByOptions sortBy,
@@ -165,7 +165,8 @@ public async Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int c
     }
 
 
-    public async Task<ServiceResult<UpdateMemberRoleResponseDto>> UpdateMember(UpdateMemberRoleRequestDto roleRequestDto)
+    public async Task<ServiceResult<UpdateMemberRoleResponseDto>> UpdateMember(
+        UpdateMemberRoleRequestDto roleRequestDto)
     {
         var guildValidationResult = ValidationHelper.ValidateObject(roleRequestDto, "Create  Request DTO");
         if (!guildValidationResult.IsSuccess)
@@ -198,7 +199,8 @@ public async Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int c
     public async Task<ServiceResult<int>> RemoveMember(int campaignId, int guildMemberId)
     {
         var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
-        if (!campaignIdValidationResult.IsSuccess) return ServiceResult<int>.Failure(campaignIdValidationResult.ErrorMessage);
+        if (!campaignIdValidationResult.IsSuccess)
+            return ServiceResult<int>.Failure(campaignIdValidationResult.ErrorMessage);
 
         var memberIdValidationResult = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
         if (!memberIdValidationResult.IsSuccess)

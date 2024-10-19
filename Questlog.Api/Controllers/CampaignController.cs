@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
+using Questlog.Application.Common;
+using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Campaign.Requests;
 using Questlog.Application.Common.DTOs.Guild.Requests;
 using Questlog.Application.Services.Interfaces;
@@ -38,23 +40,23 @@ public class CampaignController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse>> GetAllCampaigns([FromQuery] CampaignQueryParamsDto queryParams)
+    public async Task<ActionResult<ApiResponse>> GetAllCampaigns([FromQuery] QueryParamsDto queryParams)
     {
         string userId = HttpContext.Items["UserId"] as string;
-
+    
         if (string.IsNullOrEmpty(userId))
         {
             return BadRequestResponse("User Id is missing.");
         }
-        
-        
-        var result = await _campaignService.GetAllCampaigns(userId, queryParams);
 
+         
+        var result = await _campaignService.GetAllCampaigns(userId, queryParams);
+    
         if (!result.IsSuccess)
         {
             return BadRequestResponse(result.ErrorMessage);
         }
-
+    
         return OkResponse(result.Data);
     }
 

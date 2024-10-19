@@ -9,43 +9,27 @@ namespace Questlog.Infrastructure.Repositories;
 public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
     private readonly ApplicationDbContext _db;
-    internal DbSet<T> dbSet;
+    protected readonly DbSet<T> _dbSet;
 
     public BaseRepository(ApplicationDbContext db)
     {
         _db = db;
-        this.dbSet = _db.Set<T>();
+        _dbSet = _db.Set<T>();
     }
 
     public async Task<T> CreateAsync(T entity)
     {
-        await dbSet.AddAsync(entity);
+        await _dbSet.AddAsync(entity);
         await SaveAsync();
 
         return entity;
     }
 
-    public async Task<List<T>> GetAllAsync(QueryOptions<T> options)
-    {
-        IQueryable<T> query = dbSet;
 
-        query = ApplyBaseFilter(query, options.Filter);
-
-        if (options.FromDate.HasValue || options.ToDate.HasValue)
-            query = ApplyDateFilter(query, options.DatePropertyName, options.FromDate, options.ToDate);
-
-        if (!string.IsNullOrEmpty(options.IncludeProperties))
-            query = IncludeProperties(query, options.IncludeProperties);
-
-        if (options.OrderBy != null)
-            query = ApplyOrdering(query, options.OrderBy, options.IsAscending);
-
-        return await Paginate(query, options.PageNumber, options.PageSize);
-    }
 
     public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, string? includeProperties = null)
     {
-        IQueryable<T> query = dbSet;
+        IQueryable<T> query = _dbSet;
         if (!tracked)
         {
             query = query.AsNoTracking();
@@ -67,7 +51,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public async Task RemoveAsync(T entity)
     {
-        dbSet.Remove(entity);
+        _dbSet.Remove(entity);
         await SaveAsync();
     }
 
@@ -134,7 +118,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     
 
 
-    private async Task<List<T>> Paginate(IQueryable<T> query, int pageNumber, int pageSize)
+    protected async Task<List<T>> Paginate(IQueryable<T> query, int pageNumber, int pageSize)
     {
         return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
     }

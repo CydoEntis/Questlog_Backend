@@ -1,6 +1,6 @@
 ﻿namespace Questlog.Application.Common.Enums;
 
-public enum OrderByOptions
+public enum OrderBy
 {
     Asc,
     Desc

@@ -1,6 +1,6 @@
 ﻿namespace Questlog.Application.Common.Enums;
 
-public enum SortByOptions
+public enum SortBy
 {
     Id,
     Email,

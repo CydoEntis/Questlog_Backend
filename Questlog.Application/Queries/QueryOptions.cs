@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Questlog.Application.Queries;
 
-namespace Questlog.Application.Queries
+public class QueryOptions<T>
 {
-    public class QueryOptions<T>
-    {
-        public Expression<Func<T, bool>>? Filter { get; set; }
-        public Func<IQueryable<T>, IOrderedQueryable<T>>? SearchBy { get; set; }
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
-        public string? DatePropertyName { get; set; }
-        public Func<IQueryable<T>, IOrderedQueryable<T>>? OrderBy { get; set; }
-        public bool IsAscending { get; set; } = true;
-        public string? IncludeProperties { get; set; }
-        public int PageNumber { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-    }
+    // public int PageNumber { get; set; } = 1;
+    // public int PageSize { get; set; } = 10;
+    // public string SearchValue { get; set; }
+    // public FilterBy? FilterType { get; set; }
+    // public object FilterValue { get; set; }
+    // public OrderProperty? OrderByProperty { get; set; }
+    // public bool Ascending { get; set; } = true;
 }
+
+
+
+// public Expression<Func<T, bool>>? Filter { get; set; }
+// public Func<IQueryable<T>, IOrderedQueryable<T>>? SearchBy { get; set; }
+// public DateTime? FromDate { get; set; }
+// public DateTime? ToDate { get; set; }
+// public string? DatePropertyName { get; set; }
+// public Func<IQueryable<T>, IOrderedQueryable<T>>? OrderBy { get; set; }
+// public bool IsAscending { get; set; } = true;
+// public string? IncludeProperties { get; set; }

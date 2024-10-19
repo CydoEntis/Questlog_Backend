@@ -42,25 +42,25 @@ public class MemberController : BaseController
     }
 
 
-    [HttpGet]
-    public async Task<ActionResult<ApiResponse>> GetAllMembers(int campaignId, [FromQuery] MembersQueryParamsDto queryParams)
-    {
-        // Validate the  Id
-        if (campaignId <= 0)
-            return BadRequestResponse(" Id must be provided.");
-
-        // Call the service to get all guild members with the specified query parameters
-        var result = await _memberService.GetAllMembers(campaignId, queryParams);
-
-        // Check for success
-        if (!result.IsSuccess)
-        {
-            return BadRequestResponse(result.ErrorMessage);
-        }
-
-        // Return successful response
-        return OkResponse(result.Data);
-    }
+    // [HttpGet]
+    // public async Task<ActionResult<ApiResponse>> GetAllMembers(int campaignId, [FromQuery] MembersQueryParamsDto queryParams)
+    // {
+    //     // Validate the  Id
+    //     if (campaignId <= 0)
+    //         return BadRequestResponse(" Id must be provided.");
+    //
+    //     // Call the service to get all guild members with the specified query parameters
+    //     var result = await _memberService.GetAllMembers(campaignId, queryParams);
+    //
+    //     // Check for success
+    //     if (!result.IsSuccess)
+    //     {
+    //         return BadRequestResponse(result.ErrorMessage);
+    //     }
+    //
+    //     // Return successful response
+    //     return OkResponse(result.Data);
+    // }
 
 
     [HttpPost]
