@@ -24,7 +24,7 @@ public class Campaign
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime? UpdatedAt { get; set; } = DateTime.Now;
-    public DateTime DueDate { get; set; }
+    // public DateTime DueDate { get; set; }
 
     [ForeignKey("ApplicationUser")]
     public string OwnerId { get; set; } // Foreign key

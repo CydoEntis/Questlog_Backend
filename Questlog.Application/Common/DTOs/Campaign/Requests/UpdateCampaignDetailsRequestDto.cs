@@ -17,9 +17,6 @@ public record UpdateCampaignDetailsRequestDto
     [MaxLength(50, ErrorMessage = "Campaign description cannot exceed 50 characters")]
     public required string Description { get; set; }
 
-    [Required(ErrorMessage = "Campaign owner id is required")]
-    public required string CampaignOwnerId { get; set; }
-
     [Required(ErrorMessage = "Campaign color is required")]
     public required string Color { get; set; }
 }
