@@ -86,7 +86,7 @@ public class CampaignService : BaseService, ICampaignService
             var campaignResponseDTOs = _mapper.Map<List<GetCampaignResponseDto>>(paginatedResult.Items);
 
             // Create a new PaginatedResult for the DTOs
-            var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems, paginatedResult.CurrentPage, paginatedResult.TotalPages);
+            var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
 
             return ServiceResult<PaginatedResult<GetCampaignResponseDto>>.Success(result);
         });

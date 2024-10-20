@@ -15,6 +15,8 @@ namespace Questlog.Application.Common.DTOs.Campaign.Responses
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public DateTime DueDate { get; set; }
+
 
         // public int Quests { get; set; }
     }

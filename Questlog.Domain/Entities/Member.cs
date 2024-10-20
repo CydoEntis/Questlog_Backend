@@ -17,7 +17,7 @@ public class Member
     public string Role { get; set; }
 
     public DateTime JoinedOn { get; set; } = DateTime.Now;
-    public DateTime UpdatedOn { get; set; }
+    public DateTime UpdatedOn { get; set; } = DateTime.Now;
 
     [ForeignKey("ApplicationUser")]
     public string UserId { get; set; }

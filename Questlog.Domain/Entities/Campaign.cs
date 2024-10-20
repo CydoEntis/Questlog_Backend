@@ -20,16 +20,16 @@ public class Campaign
     [MaxLength(50)]
     public string Description { get; set; }
 
-    public string Color { get; set; }
+    public string Color { get; set; } = "blue";
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime? UpdatedAt { get; set; } = DateTime.Now;
-    // public DateTime DueDate { get; set; }
+    public DateTime DueDate { get; set; }
 
     [ForeignKey("ApplicationUser")]
-    public string OwnerId { get; set; } // Foreign key
+    public string OwnerId { get; set; }
 
-    public ApplicationUser Owner { get; set; } // Navigation property
+    public ApplicationUser Owner { get; set; } 
     public virtual ICollection<Member> Members { get; set; } = new List<Member>();
 }
 

@@ -24,8 +24,8 @@ public class PaginatedResult<T>
     private List<int> GeneratePageRange(int currentPage, int totalPages)
     {
         var range = new List<int>();
-        int start = Math.Max(1, currentPage - 2);
-        int end = Math.Min(totalPages, currentPage + 2);
+        int start = Math.Max(1, currentPage - 1);
+        int end = Math.Min(totalPages, currentPage + 3);
         for (int i = start; i <= end; i++)
         {
             range.Add(i);
