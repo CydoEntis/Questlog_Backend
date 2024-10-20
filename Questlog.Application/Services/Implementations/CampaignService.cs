@@ -60,10 +60,10 @@ public class CampaignService : BaseService, ICampaignService
         });
     }
 
-    public async Task<ServiceResult<List<GetCampaignResponseDto>>> GetAllCampaigns(string userId,
+    public async Task<ServiceResult<PaginatedResult<GetCampaignResponseDto>>> GetAllCampaigns(string userId,
         QueryParamsDto queryParams)
     {
-        return await HandleExceptions<List<GetCampaignResponseDto>>(async () =>
+        return await HandleExceptions<PaginatedResult<GetCampaignResponseDto>>(async () =>
         {
             var options = new CampaignQueryOptions
             {
@@ -74,27 +74,25 @@ public class CampaignService : BaseService, ICampaignService
                 IncludeProperties = "Members,Members.User",
                 Filter = c => c.Members.Any(m => m.UserId == userId) 
             };
-            
-            // Handle search logic here
+
             if (!string.IsNullOrEmpty(queryParams.SearchValue))
             {
                 options.Filter = options.Filter.And(c => c.Name.Contains(queryParams.SearchValue));
             }
 
-            // Retrieve campaigns using the repository
-            var campaigns = await _unitOfWork.Campaign.GetAllAsync(options);
+            var paginatedResult = await _unitOfWork.Campaign.GetAllAsync(options);
 
-            if (!campaigns.Any()) // Check if there are any campaigns returned
-            {
-                return ServiceResult<List<GetCampaignResponseDto>>.Success(new List<GetCampaignResponseDto>());
-            }
+            // Map the items to response DTOs
+            var campaignResponseDTOs = _mapper.Map<List<GetCampaignResponseDto>>(paginatedResult.Items);
 
-            // Map the campaigns to response DTOs
-            var campaignResponseDTOs = _mapper.Map<List<GetCampaignResponseDto>>(campaigns);
+            // Create a new PaginatedResult for the DTOs
+            var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems, paginatedResult.CurrentPage, paginatedResult.TotalPages);
 
-            return ServiceResult<List<GetCampaignResponseDto>>.Success(campaignResponseDTOs);
+            return ServiceResult<PaginatedResult<GetCampaignResponseDto>>.Success(result);
         });
     }
+
+
 
 
     public async Task<ServiceResult<CreateCampaignResponseDto>> CreateCampaign(string userId,

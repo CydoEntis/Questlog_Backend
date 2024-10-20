@@ -12,7 +12,10 @@ public interface ICampaignService
 {
     Task<ServiceResult<GetCampaignResponseDto>> GetCampaignById(int campaignId);
 
-    Task<ServiceResult<List<GetCampaignResponseDto>>> GetAllCampaigns(string userId,
+    // Task<ServiceResult<List<GetCampaignResponseDto>>> GetAllCampaigns(string userId,
+    //     QueryParamsDto queryParams);
+
+    Task<ServiceResult<PaginatedResult<GetCampaignResponseDto>>> GetAllCampaigns(string userId,
         QueryParamsDto queryParams);
     Task<ServiceResult<CreateCampaignResponseDto>> CreateCampaign(string userId, CreateCampaignRequestDto requestDto);
     Task<ServiceResult<UpdateCampaignDetailsResponseDto>> UpdateCampaignDetails(UpdateCampaignDetailsRequestDto requestDto, string userId);

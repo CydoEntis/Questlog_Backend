@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Questlog.Application.Common;
 using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Interfaces;
+using Questlog.Application.Common.Models;
 using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
 
@@ -18,7 +19,7 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
         _db = db;
     }
 
-    public async Task<IEnumerable<Campaign>> GetAllAsync(CampaignQueryOptions options)
+    public async Task<PaginatedResult<Campaign>> GetAllAsync(CampaignQueryOptions options)
     {
         IQueryable<Campaign> query = _dbSet;
 
