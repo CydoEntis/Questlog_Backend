@@ -27,8 +27,7 @@ public class ApplicationUser : IdentityUser
     public DateTime? UpdatedAt { get; set; }
 
     public virtual ICollection<Member> Members { get; set; } = new List<Member>();
-
-
+    
     public int CalculateExpForLevel()
     {
         int baseExp = 100;

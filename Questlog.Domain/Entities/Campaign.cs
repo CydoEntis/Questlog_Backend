@@ -31,5 +31,7 @@ public class Campaign
 
     public ApplicationUser Owner { get; set; } 
     public virtual ICollection<Member> Members { get; set; } = new List<Member>();
+    
+    public virtual ICollection<Quest> Quests { get; set; } = new List<Quest>();
 }
 

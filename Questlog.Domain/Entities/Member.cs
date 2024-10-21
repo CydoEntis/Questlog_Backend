@@ -23,4 +23,6 @@ public class Member
     public string UserId { get; set; }
 
     public ApplicationUser User { get; set; }
+    
+    public virtual ICollection<Quest> AssignedQuests { get; set; } = new List<Quest>();
 }
