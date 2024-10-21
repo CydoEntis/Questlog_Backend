@@ -164,6 +164,8 @@ public class CampaignService : BaseService, ICampaignService
             foundCampaign.Description = requestDto.Description.Trim();
             foundCampaign.Color = requestDto.Color;
             foundCampaign.UpdatedAt = DateTime.UtcNow;
+            foundCampaign.DueDate = requestDto.DueDate;
+
 
             await _unitOfWork.Campaign.UpdateAsync(foundCampaign);
 

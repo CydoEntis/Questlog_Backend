@@ -17,4 +17,6 @@ public record CreateCampaignRequestDto
     [Required(ErrorMessage = "Campaign color is required")]
     public required string Color { get; set; }
 
+    public DateTime DueDate { get; set; }
+
 }
