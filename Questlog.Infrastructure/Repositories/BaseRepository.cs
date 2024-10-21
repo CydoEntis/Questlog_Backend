@@ -26,6 +26,33 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return entity;
     }
 
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,
+        string? includeProperties = null)
+    {
+        if (_dbSet == null)
+        {
+            throw new InvalidOperationException("DbSet is not initialized.");
+        }
+
+        IQueryable<T> query = _dbSet;
+
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+
+        if (!string.IsNullOrEmpty(includeProperties))
+        {
+            foreach (var includeProp in includeProperties.Split(new char[] { ',' },
+                         StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProp.Trim());
+            }
+        }
+
+        return await query.ToListAsync();
+    }
+
 
     public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true,
         string? includeProperties = null)

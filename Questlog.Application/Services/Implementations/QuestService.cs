@@ -96,8 +96,6 @@ public class QuestService : BaseService, IQuestService
     // }
 
 
-
-
     public async Task<ServiceResult<CreateQuestResponseDto>> CreateQuest(string userId,
         CreateQuestRequestDto requestDto)
     {
@@ -113,11 +111,25 @@ public class QuestService : BaseService, IQuestService
         {
             var quest = _mapper.Map<Quest>(requestDto);
 
-            Console.WriteLine(quest);
-            //
-            //
-            // Quest createdQuest = await _unitOfWork.Quest.CreateAsync(quest);
-            //
+            Quest createdQuest = await _unitOfWork.Quest.CreateAsync(quest);
+
+            var existingMembers = await _unitOfWork.Member.GetAllAsync(m => requestDto.MemberIds.Contains(m.Id));
+
+            foreach (var memberId in requestDto.MemberIds)
+            {
+                var existingMember = existingMembers.FirstOrDefault(m => m.Id == memberId);
+                if (existingMember != null)
+                    createdQuest.AssignedMembers.Add(existingMember);
+            }
+
+            await _unitOfWork.SaveAsync();
+
+            var questWithMembers = await _unitOfWork.Quest
+                .GetAsync(q => q.Id == createdQuest.Id, includeProperties: "AssignedMembers,AssignedMembers.User");
+
+            
+                Console.WriteLine(questWithMembers);
+            
             // var questOwner = new Member
             // {
             //     UserId = userId,
@@ -131,8 +143,8 @@ public class QuestService : BaseService, IQuestService
             // var questWithLeader = await _unitOfWork.Quest
             //     .GetAsync(g => g.Id == quest.Id, includeProperties: "Members,Members.User");
             //
+            // var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
             var createQuestResponseDTO = new CreateQuestResponseDto();
-
             return ServiceResult<CreateQuestResponseDto>.Success(createQuestResponseDTO);
         });
     }

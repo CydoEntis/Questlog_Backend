@@ -10,5 +10,6 @@ public record CreateQuestRequestDto()
     public string Difficulty { get; set; }
     public DateTime DueDate { get; set; }
     public int CampaignId { get; set; }
+    public List<int> MemberIds { get; set; }
     public List<CreateSubquestRequestDto> Subquests { get; set; }
 }

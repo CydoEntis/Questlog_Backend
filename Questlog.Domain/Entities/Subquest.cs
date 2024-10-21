@@ -4,7 +4,7 @@ public class Subquest
 {
     public int Id { get; set; }
     public string Description { get; set; }
-    public bool isCompleted { get; set; }
+    public bool IsCompleted { get; set; }
     public int QuestId { get; set; }
     public Quest Quest { get; set; }
 

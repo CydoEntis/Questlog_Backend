@@ -1,4 +1,5 @@
 ﻿using Questlog.Application.Common.DTOs.GuildMember.Response;
+using Questlog.Application.Common.DTOs.Subquest.Response;
 
 namespace Questlog.Application.Common.DTOs.Quest;
 
@@ -14,6 +15,6 @@ public record CreateQuestResponseDto()
     public DateTime DueDate { get; set; } = DateTime.Now;
     public int CampaignId { get; set; }
     public List<GetMemberResponseDto> AssignedMembers { get; set; } = new List<GetMemberResponseDto>();
-    public List<GetMemberResponseDto> Subquests { get; set; } = new List<GetMemberResponseDto>();
+    public List<CreateSubquestResponseDto> Subquests { get; set; } = new List<CreateSubquestResponseDto>();
 
 }

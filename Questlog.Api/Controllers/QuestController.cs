@@ -7,7 +7,7 @@ using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
 
-[Route("api/campaigns")]
+[Route("api/quests")]
 [ApiController]
 [Authorize]
 [ServiceFilter(typeof(TokenValidationFilter))]
