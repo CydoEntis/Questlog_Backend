@@ -112,9 +112,11 @@ public class QuestService : BaseService, IQuestService
         return await HandleExceptions<CreateQuestResponseDto>(async () =>
         {
             var quest = _mapper.Map<Quest>(requestDto);
+
+            Console.WriteLine(quest);
             //
             //
-            Quest createdQuest = await _unitOfWork.Quest.CreateAsync(quest);
+            // Quest createdQuest = await _unitOfWork.Quest.CreateAsync(quest);
             //
             // var questOwner = new Member
             // {
