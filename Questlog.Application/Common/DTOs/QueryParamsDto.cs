@@ -7,4 +7,5 @@ public record QueryParamsDto
     public string? OrderOn { get; set; } = "createdAt";
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 18;
+    
 }

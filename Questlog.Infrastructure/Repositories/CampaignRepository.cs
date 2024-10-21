@@ -76,6 +76,9 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
             "updatedat" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.UpdatedAt)
                 : query.OrderByDescending(c => c.UpdatedAt),
+            "duedate" => orderDirection == OrderBy.Asc
+                ? query.OrderBy(c => c.UpdatedAt)
+                : query.OrderByDescending(c => c.UpdatedAt),
             _ => query
         };
     }

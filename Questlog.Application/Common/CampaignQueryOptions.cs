@@ -13,4 +13,5 @@ public class CampaignQueryOptions
     public int PageSize { get; set; }
     public string? IncludeProperties { get; set; }
     public Expression<Func<Campaign, bool>> Filter { get; set; }
+
 }

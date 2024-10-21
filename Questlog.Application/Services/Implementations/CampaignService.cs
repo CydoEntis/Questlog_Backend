@@ -80,6 +80,7 @@ public class CampaignService : BaseService, ICampaignService
                 options.Filter = options.Filter.And(c => c.Name.Contains(queryParams.SearchValue));
             }
 
+            
             var paginatedResult = await _unitOfWork.Campaign.GetAllAsync(options);
 
             // Map the items to response DTOs
