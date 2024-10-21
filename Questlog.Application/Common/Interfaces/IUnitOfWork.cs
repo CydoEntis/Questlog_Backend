@@ -8,5 +8,10 @@ public interface IUnitOfWork
     ICampaignRepository Campaign { get; }
     IMemberRepository Member { get; }
 
+    IQuestRepository Quest { get; }
+
+    ISubquestRepository Subquest { get; }
+
+    
     Task SaveAsync();
 }

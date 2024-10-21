@@ -11,6 +11,9 @@ public class UnitOfWork : IUnitOfWork
     public ICampaignRepository Campaign { get; private set; }
     public IMemberRepository Member { get; private set; }
 
+    public IQuestRepository Quest { get; private set; }
+
+    public ISubquestRepository Subquest { get; private set; }
 
 
 
@@ -24,7 +27,10 @@ public class UnitOfWork : IUnitOfWork
 
         Campaign = new CampaignRepository(db);
         Member = new MemberRepository(db);
+        Quest = new QuestRepository(db);
+        Subquest = new SubquestRepository(db);
 
+        
     }
 
 

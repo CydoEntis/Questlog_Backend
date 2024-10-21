@@ -68,8 +68,8 @@ public class SubquestRepository : BaseRepository<Subquest>, ISubquestRepository
         return orderOn.ToLower() switch
         {
             "name" => orderDirection == OrderBy.Asc
-                ? query.OrderBy(c => c.Name)
-                : query.OrderByDescending(c => c.Name),
+                ? query.OrderBy(c => c.Description)
+                : query.OrderByDescending(c => c.Description),
             "createdat" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.CreatedAt)
                 : query.OrderByDescending(c => c.CreatedAt),
