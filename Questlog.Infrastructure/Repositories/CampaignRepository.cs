@@ -19,7 +19,7 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
         _db = db;
     }
 
-    public async Task<PaginatedResult<Campaign>> GetAllAsync(CampaignQueryOptions options)
+    public async Task<PaginatedResult<Campaign>> GetAllAsync(QueryOptions<Campaign> options)
     {
         IQueryable<Campaign> query = _dbSet;
 

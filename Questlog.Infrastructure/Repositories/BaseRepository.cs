@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Questlog.Application.Common.Interfaces;
-using Questlog.Application.Queries;
 using Questlog.Infrastructure.Data;
 using System.Linq.Expressions;
 using Questlog.Application.Common.Models;

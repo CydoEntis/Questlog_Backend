@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
-
+using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Quest.Request;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
 
-[Route("api/quests")]
+[Route("api/campaigns/{campaignId}/quests")]
 [ApiController]
 [Authorize]
 [ServiceFilter(typeof(TokenValidationFilter))]
@@ -37,26 +37,26 @@ public class QuestController : BaseController
     //     return OkResponse(result.Data);
     // }
 
-    // [HttpGet]
-    // public async Task<ActionResult<ApiResponse>> GetAllQuests([FromQuery] QueryParamsDto queryParams)
-    // {
-    //     string userId = HttpContext.Items["UserId"] as string;
-    //
-    //     if (string.IsNullOrEmpty(userId))
-    //     {
-    //         return BadRequestResponse("User Id is missing.");
-    //     }
-    //
-    //      
-    //     var result = await _questService.GetAllQuests(userId, queryParams);
-    //
-    //     if (!result.IsSuccess)
-    //     {
-    //         return BadRequestResponse(result.ErrorMessage);
-    //     }
-    //
-    //     return OkResponse(result.Data);
-    // }
+    [HttpGet]
+    public async Task<ActionResult<ApiResponse>> GetAllQuests(int campaignId, [FromQuery] QueryParamsDto queryParams)
+    {
+        string userId = HttpContext.Items["UserId"] as string;
+    
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequestResponse("User Id is missing.");
+        }
+    
+         
+        var result = await _questService.GetAllQuests(campaignId, userId, queryParams);
+    
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+    
+        return OkResponse(result.Data);
+    }
 
     [HttpPost]
     public async Task<ActionResult<ApiResponse>> CreateQuest([FromBody] CreateQuestRequestDto requestDto)

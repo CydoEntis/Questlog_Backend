@@ -16,7 +16,6 @@ using Questlog.Application.Common.Extensions;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Common.Validation;
-using Questlog.Application.Queries;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 
@@ -65,7 +64,7 @@ public class CampaignService : BaseService, ICampaignService
     {
         return await HandleExceptions<PaginatedResult<GetCampaignResponseDto>>(async () =>
         {
-            var options = new CampaignQueryOptions
+            var options = new QueryOptions<Campaign>
             {
                 PageNumber = queryParams.PageNumber,
                 PageSize = queryParams.PageSize,

@@ -4,7 +4,7 @@ using Questlog.Domain.Entities;
 
 namespace Questlog.Application.Common;
 
-public class CampaignQueryOptions
+public class QueryOptions<T>
 {
     public string? SearchValue { get; set; }
     public string? OrderBy { get; set; }
@@ -12,6 +12,6 @@ public class CampaignQueryOptions
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public string? IncludeProperties { get; set; }
-    public Expression<Func<Campaign, bool>> Filter { get; set; }
+    public Expression<Func<T, bool>> Filter { get; set; }
 
 }

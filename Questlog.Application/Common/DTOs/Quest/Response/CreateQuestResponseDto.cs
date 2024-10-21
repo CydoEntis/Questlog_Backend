@@ -10,9 +10,9 @@ public record CreateQuestResponseDto()
     public string Description { get; set; }
     public string Difficulty { get; set; }
     public bool isCompleted { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
-    public DateTime DueDate { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public DateTime DueDate { get; set; }
     public int CampaignId { get; set; }
     public List<GetMemberResponseDto> AssignedMembers { get; set; } = new List<GetMemberResponseDto>();
     public List<CreateSubquestResponseDto> Subquests { get; set; } = new List<CreateSubquestResponseDto>();

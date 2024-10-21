@@ -18,7 +18,6 @@ using Questlog.Application.Common.Extensions;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Common.Validation;
-using Questlog.Application.Queries;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 
@@ -62,38 +61,39 @@ public class QuestService : BaseService, IQuestService
     //     });
     // }
 
-    // public async Task<ServiceResult<PaginatedResult<GetQuestResponseDto>>> GetAllQuests(string userId,
-    //     QueryParamsDto queryParams)
-    // {
-    //     return await HandleExceptions<PaginatedResult<GetQuestResponseDto>>(async () =>
-    //     {
-    //         var options = new QuestQueryOptions
-    //         {
-    //             PageNumber = queryParams.PageNumber,
-    //             PageSize = queryParams.PageSize,
-    //             OrderBy = queryParams.OrderBy,
-    //             OrderOn = queryParams.OrderOn,
-    //             IncludeProperties = "Members,Members.User",
-    //             Filter = c => c.Members.Any(m => m.UserId == userId) 
-    //         };
-    //
-    //         if (!string.IsNullOrEmpty(queryParams.SearchValue))
-    //         {
-    //             options.Filter = options.Filter.And(c => c.Name.Contains(queryParams.SearchValue));
-    //         }
-    //
-    //         
-    //         var paginatedResult = await _unitOfWork.Quest.GetAllAsync(options);
-    //
-    //         // Map the items to response DTOs
-    //         var campaignResponseDTOs = _mapper.Map<List<GetQuestResponseDto>>(paginatedResult.Items);
-    //
-    //         // Create a new PaginatedResult for the DTOs
-    //         var result = new PaginatedResult<GetQuestResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
-    //
-    //         return ServiceResult<PaginatedResult<GetQuestResponseDto>>.Success(result);
-    //     });
-    // }
+    public async Task<ServiceResult<PaginatedResult<GetQuestResponseDto>>> GetAllQuests(int campaignId, string userId,
+        QueryParamsDto queryParams)
+    {
+        return await HandleExceptions<PaginatedResult<GetQuestResponseDto>>(async () =>
+        {
+            var options = new QueryOptions<Quest>
+            {
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize,
+                OrderBy = queryParams.OrderBy,
+                OrderOn = queryParams.OrderOn,
+                IncludeProperties = "Subquests,AssignedMembers,AssignedMembers.User",
+                Filter = c => c.CampaignId == campaignId
+            };
+
+            if (!string.IsNullOrEmpty(queryParams.SearchValue))
+            {
+                options.Filter = options.Filter.And(c => c.Name.Contains(queryParams.SearchValue));
+            }
+
+
+            var paginatedResult = await _unitOfWork.Quest.GetPaginated(options);
+            Console.WriteLine(paginatedResult);
+            // Map the items to response DTOs
+            var campaignResponseDTOs = _mapper.Map<List<GetQuestResponseDto>>(paginatedResult.Items);
+
+            // Create a new PaginatedResult for the DTOs
+            var result = new PaginatedResult<GetQuestResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems,
+                paginatedResult.CurrentPage, queryParams.PageSize);
+
+            return ServiceResult<PaginatedResult<GetQuestResponseDto>>.Success(result);
+        });
+    }
 
 
     public async Task<ServiceResult<CreateQuestResponseDto>> CreateQuest(string userId,
@@ -127,24 +127,11 @@ public class QuestService : BaseService, IQuestService
             var questWithMembers = await _unitOfWork.Quest
                 .GetAsync(q => q.Id == createdQuest.Id, includeProperties: "AssignedMembers,AssignedMembers.User");
 
-            
-                Console.WriteLine(questWithMembers);
-            
-            // var questOwner = new Member
-            // {
-            //     UserId = userId,
-            //     QuestId = createdQuest.Id,
-            //     Role = RoleConstants.Leader,
-            //     JoinedOn = DateTime.UtcNow,
-            // };
-            //
-            // await _unitOfWork.Member.CreateAsync(questOwner);
-            //
-            // var questWithLeader = await _unitOfWork.Quest
-            //     .GetAsync(g => g.Id == quest.Id, includeProperties: "Members,Members.User");
-            //
-            // var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
-            var createQuestResponseDTO = new CreateQuestResponseDto();
+
+            Console.WriteLine(questWithMembers);
+
+
+            var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
             return ServiceResult<CreateQuestResponseDto>.Success(createQuestResponseDTO);
         });
     }

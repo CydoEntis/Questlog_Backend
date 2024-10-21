@@ -19,27 +19,27 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
         _db = db;
     }
 
-    // public async Task<PaginatedResult<Quest>> GetAllAsync(QuestQueryOptions options)
-    // {
-    //     IQueryable<Quest> query = _dbSet;
-    //
-    //     if (options.Filter != null)
-    //     {
-    //         query = query.Where(options.Filter);
-    //     }
-    //
-    //     if (!string.IsNullOrEmpty(options.OrderOn))
-    //     {
-    //         query = ApplyOrdering(query, options.OrderOn, options.OrderBy);
-    //     }
-    //
-    //     if (!string.IsNullOrEmpty(options.IncludeProperties))
-    //     {
-    //         query = ApplyIncludeProperties(query, options.IncludeProperties);
-    //     }
-    //
-    //     return await Paginate(query, options.PageNumber, options.PageSize);
-    // }
+    public async Task<PaginatedResult<Quest>> GetPaginated(QueryOptions<Quest> options)
+    {
+        IQueryable<Quest> query = _dbSet;
+    
+        if (options.Filter != null)
+        {
+            query = query.Where(options.Filter);
+        }
+    
+        if (!string.IsNullOrEmpty(options.OrderOn))
+        {
+            query = ApplyOrdering(query, options.OrderOn, options.OrderBy);
+        }
+    
+        if (!string.IsNullOrEmpty(options.IncludeProperties))
+        {
+            query = ApplyIncludeProperties(query, options.IncludeProperties);
+        }
+    
+        return await Paginate(query, options.PageNumber, options.PageSize);
+    }
 
 
     public async Task<Quest> UpdateAsync(Quest entity)

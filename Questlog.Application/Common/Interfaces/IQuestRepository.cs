@@ -6,6 +6,7 @@ namespace Questlog.Application.Common.Interfaces;
 
 public interface IQuestRepository : IBaseRepository<Quest>
 {
+    Task<PaginatedResult<Quest>> GetPaginated(QueryOptions<Quest> options);
     // Task<PaginatedResult<Quest>> GetAllAsync(QuestQueryOptions options);
     Task<Quest> UpdateAsync(Quest entity);
 }

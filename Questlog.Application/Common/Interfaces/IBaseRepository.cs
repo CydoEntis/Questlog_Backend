@@ -1,5 +1,4 @@
-﻿using Questlog.Application.Queries;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace Questlog.Application.Common.Interfaces;
 
