@@ -3,11 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Guild.Requests;
-using Questlog.Application.Common.DTOs.GuildMember.Request;
-using Questlog.Application.Common.DTOs.GuildMember.Response;
-
-
+using Questlog.Application.Common.DTOs.Member.Request;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;

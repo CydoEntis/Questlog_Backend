@@ -1,7 +1,6 @@
 ﻿using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Guild.Requests;
-using Questlog.Application.Common.DTOs.GuildMember.Request;
-using Questlog.Application.Common.DTOs.GuildMember.Response;
+using Questlog.Application.Common.DTOs.Member.Request;
+using Questlog.Application.Common.DTOs.Member.Response;
 using Questlog.Application.Common.Models;
 
 namespace Questlog.Application.Services.Interfaces;

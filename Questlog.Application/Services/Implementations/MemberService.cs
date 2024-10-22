@@ -2,18 +2,15 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.Constants;
-using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Common.Validation;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
-using System.Linq.Expressions;
 using Questlog.Application.Common;
 using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Guild.Requests;
-using Questlog.Application.Common.DTOs.GuildMember.Request;
-using Questlog.Application.Common.DTOs.GuildMember.Response;
+using Questlog.Application.Common.DTOs.Member.Request;
+using Questlog.Application.Common.DTOs.Member.Response;
 using Questlog.Application.Common.Extensions;
 
 namespace Questlog.Application.Services.Implementations;

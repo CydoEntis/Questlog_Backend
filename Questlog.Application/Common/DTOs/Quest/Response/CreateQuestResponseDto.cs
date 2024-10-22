@@ -1,4 +1,4 @@
-﻿using Questlog.Application.Common.DTOs.GuildMember.Response;
+﻿using Questlog.Application.Common.DTOs.Member.Response;
 using Questlog.Application.Common.DTOs.Subquest.Response;
 
 namespace Questlog.Application.Common.DTOs.Quest;
