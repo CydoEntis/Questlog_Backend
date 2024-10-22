@@ -9,6 +9,8 @@ using Questlog.Application.Common.Validation;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using System.Linq.Expressions;
+using Questlog.Application.Common;
+using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Guild.Requests;
 using Questlog.Application.Common.DTOs.GuildMember.Request;
 using Questlog.Application.Common.DTOs.GuildMember.Response;
@@ -56,67 +58,35 @@ public class MemberService : BaseService, IMemberService
     }
 
 
-    // public async Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int campaignId,
-    //     MembersQueryParamsDto queryParams)
-    // {
-    //     // Validate the guild ID
-    //     var idValidation = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
-    //     if (!idValidation.IsSuccess)
-    //         return ServiceResult<List<GetMemberResponseDto>>.Failure(idValidation.ErrorMessage);
-    //
-    //     return await HandleExceptions<List<GetMemberResponseDto>>(async () =>
-    //     {
-    //         var options = new QueryOptions<Member>
-    //         {
-    //             PageNumber = queryParams.PageNumber,
-    //             PageSize = queryParams.PageSize,
-    //             IsAscending =
-    //                 queryParams.OrderBy.Equals(OrderBy.Asc.ToString(), StringComparison.OrdinalIgnoreCase),
-    //             FromDate = queryParams.JoinDateFrom,
-    //             ToDate = queryParams.JoinDateTo,
-    //             IncludeProperties = "User",
-    //             DatePropertyName = "JoinedOn"
-    //         };
-    //
-    //         // Start with the base filter for CampaignId
-    //         options.Filter = gm => gm.CampaignId == campaignId;
-    //
-    //         // Handle additional search filters using the generic BuildSearchFilter method from BaseService
-    //         if (!string.IsNullOrEmpty(queryParams.SearchBy) && !string.IsNullOrEmpty(queryParams.SearchValue))
-    //         {
-    //             options.Filter = options.Filter.And(BuildSearchFilter(
-    //                 queryParams.SearchBy,
-    //                 queryParams.SearchValue,
-    //                 new Dictionary<string, Func<Member, string>>
-    //                 {
-    //                     { "displayname", gm => gm.User.DisplayName },
-    //                     { "email", gm => gm.User.Email }
-    //                 }
-    //             ));
-    //         }
-    //
-    //         // Setup ordering using the generic BuildOrdering method from BaseService
-    //         options.OrderBy = BuildOrdering(
-    //             queryParams.SortBy,
-    //             new Dictionary<string, Expression<Func<Member, object>>>
-    //             {
-    //                 { "joinon", gm => gm.JoinedOn },
-    //                 { "displayname", gm => gm.User.DisplayName },
-    //                 { "email", gm => gm.User.Email }
-    //             }
-    //         );
-    //
-    //         var guildMembers = await _unitOfWork.Member.GetAllAsync(options);
-    //
-    //         if (guildMembers == null || !guildMembers.Any())
-    //         {
-    //             return ServiceResult<List<GetMemberResponseDto>>.Success(new List<GetMemberResponseDto>());
-    //         }
-    //
-    //         var guildMemberResponseDtos = _mapper.Map<List<GetMemberResponseDto>>(guildMembers);
-    //         return ServiceResult<List<GetMemberResponseDto>>.Success(guildMemberResponseDtos);
-    //     });
-    // }
+    public async Task<ServiceResult<PaginatedResult<GetMemberResponseDto>>> GetAllMembers(int campaignId,
+        QueryParamsDto queryParams)
+    {
+        return await HandleExceptions<PaginatedResult<GetMemberResponseDto>>(async () =>
+        {
+            var options = new QueryOptions<Member>
+            {
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize,
+                OrderBy = queryParams.OrderBy,
+                OrderOn = queryParams.OrderOn,
+                IncludeProperties = "User",
+                Filter = c => c.CampaignId == campaignId
+            };
+    
+            if (!string.IsNullOrEmpty(queryParams.SearchValue))
+            {
+                options.Filter = options.Filter.And(c => c.User.DisplayName.Contains(queryParams.SearchValue));
+            }
+            var paginatedResult = await _unitOfWork.Member.GetPaginated(options);
+    
+            var memberResponseDtos = _mapper.Map<List<GetMemberResponseDto>>(paginatedResult.Items);
+
+            // Create a new PaginatedResult for the DTOs
+            var result = new PaginatedResult<GetMemberResponseDto>(memberResponseDtos, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
+
+            return ServiceResult<PaginatedResult<GetMemberResponseDto>>.Success(result);
+        });
+    }
 
 
     // private Func<IQueryable<Member>, IOrderedQueryable<Member>> SortAndOrder(SortByOptions sortBy,

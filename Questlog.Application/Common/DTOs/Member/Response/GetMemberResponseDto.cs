@@ -11,4 +11,5 @@ public record GetMemberResponseDto
     public int Avatar { get; set; }
     public int CurrentLevel { get; set; }
     public DateTime JoinedOn { get; set; }
+    
 }

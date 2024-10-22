@@ -50,17 +50,6 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
         return entity;
     }
 
-
-    private IQueryable<Quest> ApplyIncludeProperties(IQueryable<Quest> query, string includeProperties)
-    {
-        foreach (var includeProp in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-        {
-            query = query.Include(includeProp);
-        }
-        return query; 
-    }
-
-
     private IQueryable<Quest> ApplyOrdering(IQueryable<Quest> query, string orderOn, string orderBy)
     {
         var orderDirection = Enum.TryParse<OrderBy>(orderBy, true, out var order) ? order : OrderBy.Desc;

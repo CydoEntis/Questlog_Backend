@@ -91,67 +91,14 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     }
 
 
-    // Apply the base filter
-    private IQueryable<T> ApplyBaseFilter(IQueryable<T> query, Expression<Func<T, bool>>? filter)
+    protected IQueryable<T> ApplyIncludeProperties(IQueryable<T> query, string includeProperties)
     {
-        if (filter != null)
+        foreach (var includeProp in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
-            query = query.Where(filter);
+            query = query.Include(includeProp);
         }
-
-        return query;
+        return query; 
     }
-
-    private IQueryable<T> ApplyRoleFilter(IQueryable<T> query, string? role)
-    {
-        if (!string.IsNullOrEmpty(role))
-        {
-            query = query.Where(e => EF.Property<string>(e, "Role") == role);
-        }
-
-        return query;
-    }
-
-    private IQueryable<T> ApplyDateFilter(IQueryable<T> query, string datePropertyName, DateTime? fromDate,
-        DateTime? toDate)
-    {
-        if (fromDate.HasValue)
-        {
-            query = query.Where(e => EF.Property<DateTime>(e, datePropertyName) >= fromDate.Value);
-        }
-
-        if (toDate.HasValue)
-        {
-            query = query.Where(e => EF.Property<DateTime>(e, datePropertyName) <= toDate.Value);
-        }
-
-        return query;
-    }
-
-    private IQueryable<T> IncludeProperties(IQueryable<T> query, string? includeProperties)
-    {
-        if (includeProperties != null)
-        {
-            foreach (var property in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(property);
-            }
-        }
-
-        return query;
-    }
-
-    private IQueryable<T> ApplyOrdering(IQueryable<T> query, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
-        bool ascending)
-    {
-        if (orderBy != null)
-        {
-            query = ascending ? orderBy(query) : orderBy(query).Reverse();
-        }
-
-        return query;
-    }
-
 
     protected async Task<PaginatedResult<T>> Paginate(IQueryable<T> query, int pageNumber, int pageSize)
     {
