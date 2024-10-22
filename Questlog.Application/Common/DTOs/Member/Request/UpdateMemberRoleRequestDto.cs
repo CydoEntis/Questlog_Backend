@@ -1,4 +1,4 @@
-﻿namespace Questlog.Application.Common.DTOs.Guild.Requests;
+﻿namespace Questlog.Application.Common.DTOs.Member.Request;
 
 public record UpdateMemberRoleRequestDto
 {
