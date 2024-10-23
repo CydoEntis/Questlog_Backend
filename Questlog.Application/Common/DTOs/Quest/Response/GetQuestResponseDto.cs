@@ -1,4 +1,5 @@
 ﻿using Questlog.Application.Common.DTOs.Member.Response;
+using Questlog.Application.Common.DTOs.MemberQuest.Response;
 using Questlog.Application.Common.DTOs.Task.Response;
 
 namespace Questlog.Application.Common.DTOs.Quest;

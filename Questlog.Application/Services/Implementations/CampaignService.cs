@@ -82,10 +82,8 @@ public class CampaignService : BaseService, ICampaignService
             
             var paginatedResult = await _unitOfWork.Campaign.GetAllAsync(options);
 
-            // Map the items to response DTOs
             var campaignResponseDTOs = _mapper.Map<List<GetCampaignResponseDto>>(paginatedResult.Items);
 
-            // Create a new PaginatedResult for the DTOs
             var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
 
             return ServiceResult<PaginatedResult<GetCampaignResponseDto>>.Success(result);

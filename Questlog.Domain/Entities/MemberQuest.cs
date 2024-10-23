@@ -7,4 +7,7 @@ public class MemberQuest
 
     public int AssignedQuestId { get; set; }
     public Quest AssignedQuest { get; set; }
+
+    public string UserId { get; set; }
+    public ApplicationUser User { get; set; }
 }

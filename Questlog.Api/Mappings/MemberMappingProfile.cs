@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Questlog.Application.Common.DTOs.Member.Request;
 using Questlog.Application.Common.DTOs.Member.Response;
+using Questlog.Application.Common.DTOs.MemberQuest.Response;
 using Questlog.Domain.Entities;
 
 namespace Questlog.Api.Mappings;
@@ -21,5 +22,7 @@ public class MemberMappingProfile : Profile
 
         CreateMap<Member, CreateMemberRequestDto>().ReverseMap();
         CreateMap<Member, CreateMemberResponseDto>().ReverseMap();
+
+        
     }
 }

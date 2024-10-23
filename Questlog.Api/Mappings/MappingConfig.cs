@@ -13,6 +13,7 @@ public class MappingConfig
             cfg.AddProfile(new MemberMappingProfile());
             cfg.AddProfile(new QuestMappingProfile());
             cfg.AddProfile(new TaskMappingProfile());
+            cfg.AddProfile(new MemberQuestMappingProfile());
         });
     }
 

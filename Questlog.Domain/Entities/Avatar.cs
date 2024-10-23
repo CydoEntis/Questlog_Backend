@@ -2,8 +2,8 @@
 
 public enum Avatar
 {
-    Barbarian,
-    Knight,
-    Mage,
-    Archer
+    Barbarian = 1,
+    Knight = 2,
+    Mage = 3,
+    Archer = 4
 }

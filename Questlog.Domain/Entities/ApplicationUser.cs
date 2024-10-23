@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
-
 namespace Questlog.Domain.Entities;
 
 public class ApplicationUser : IdentityUser
@@ -26,8 +25,6 @@ public class ApplicationUser : IdentityUser
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual ICollection<Member> Members { get; set; } = new List<Member>();
-    
     public int CalculateExpForLevel()
     {
         int baseExp = 100;

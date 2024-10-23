@@ -72,7 +72,7 @@ public class QuestService : BaseService, IQuestService
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
-                IncludeProperties = "Tasks,AssignedMembers,AssignedMembers.User",
+                IncludeProperties = "Tasks,MemberQuests.AssignedMember,MemberQuests.User",
                 Filter = c => c.CampaignId == campaignId
             };
 
@@ -83,7 +83,6 @@ public class QuestService : BaseService, IQuestService
 
 
             var paginatedResult = await _unitOfWork.Quest.GetPaginated(options);
-            Console.WriteLine(paginatedResult);
             // Map the items to response DTOs
             var campaignResponseDTOs = _mapper.Map<List<GetQuestResponseDto>>(paginatedResult.Items);
 
@@ -125,7 +124,7 @@ public class QuestService : BaseService, IQuestService
                         AssignedQuestId = createdQuest.Id,
                         AssignedMemberId = existingMember.Id
                     };
-                    createdQuest.AssignedMembers.Add(memberQuest);
+                    createdQuest.MemberQuests.Add(memberQuest);
                 }
             }
 

@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Member> Members { get; set; }
     public DbSet<Quest> Quests { get; set; }
     public DbSet<Task> Tasks { get; set; }
+    public DbSet<MemberQuest> MemberQuests { get; set; }
 
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -24,37 +25,38 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Campaign>()
-            .HasMany(c => c.Members)
-            .WithOne(m => m.Campaign)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Campaign>()
-            .HasOne(c => c.Owner)
-            .WithMany()
-            .HasForeignKey(c => c.OwnerId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         modelBuilder.Entity<MemberQuest>()
             .HasKey(mq => new { mq.AssignedMemberId, mq.AssignedQuestId });
 
-        modelBuilder.Entity<Quest>()
-            .HasMany(q => q.AssignedMembers)
-            .WithOne(mq => mq.AssignedQuest)
+        modelBuilder.Entity<MemberQuest>()
+            .HasOne(mq => mq.AssignedMember)
+            .WithMany(m => m.MemberQuests)
+            .HasForeignKey(mq => mq.AssignedMemberId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<MemberQuest>()
+            .HasOne(mq => mq.AssignedQuest)
+            .WithMany(q => q.MemberQuests)
             .HasForeignKey(mq => mq.AssignedQuestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MemberQuest>()
+            .HasOne(mq => mq.User)
+            .WithMany()
+            .HasForeignKey(mq => mq.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Member>()
-            .HasMany(m => m.MemberQuests)
-            .WithOne(mq => mq.AssignedMember)
-            .HasForeignKey(mq => mq.AssignedMemberId)
+            .HasOne(m => m.Campaign)
+            .WithMany(c => c.Members)
+            .HasForeignKey(m => m.CampaignId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Quest>()
-            .HasMany(q => q.Tasks)
-            .WithOne(s => s.Quest)
-            .HasForeignKey(s => s.QuestId)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Member>()
+            .HasOne(m => m.User)
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     public void Seed()
@@ -64,10 +66,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             return;
         }
 
-        var user = SeedAdminUser();
-        var campaigns = SeedInitialCampaign(user.Id);
+        var adminUser = SeedAdminUser();
+        var campaigns = SeedInitialCampaign(adminUser.Id);
         SeedRandomUsers();
-        SeedRandomCampaigns(campaigns, user);
+        SeedRandomCampaigns(campaigns, adminUser);
     }
 
     private ApplicationUser SeedAdminUser()
@@ -145,8 +147,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         SaveChanges();
     }
 
-
-    private void SeedRandomCampaigns(Campaign initialCampaign, ApplicationUser user)
+    private void SeedRandomCampaigns(Campaign initialCampaign, ApplicationUser adminUser)
     {
         var random = new Random();
         string[] campaignNames = new string[]
@@ -179,6 +180,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         };
         string[] campaignColors = { "red", "orange", "yellow", "green", "blue", "indigo", "violet" };
 
+        var users = ApplicationUsers.Where(u => u.Id != adminUser.Id).ToList();
+        int campaignCount = 0;
+
         foreach (var (name, description) in campaignNames.Zip(campaignDescriptions, (n, d) => (n, d)))
         {
             var campaign = new Campaign
@@ -188,28 +192,46 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 Color = campaignColors[random.Next(campaignColors.Length)],
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
                 DueDate = DateTime.UtcNow.AddDays(random.Next(1, 30)),
-                OwnerId = user.Id
+                OwnerId = campaignCount < 5
+                    ? users[random.Next(users.Count)].Id
+                    : adminUser.Id
             };
 
             Campaigns.Add(campaign);
             SaveChanges();
 
-            SeedMembers(campaign, user);
+            int numberOfMembers = random.Next(2, 9);
+            var selectedMembers = users.OrderBy(u => random.Next()).Take(numberOfMembers).ToList();
+
+            foreach (var memberUser in selectedMembers)
+            {
+                var role = memberUser.Id == campaign.OwnerId ? "Leader" : "Member";
+                SeedMembers(campaign, memberUser, role);
+            }
+
+            if (campaign.OwnerId == adminUser.Id)
+                SeedMembers(campaign, adminUser, "Leader");
+            else
+                SeedMembers(campaign, adminUser, "Member");
+
             SeedQuests(campaign);
+            campaignCount++;
         }
     }
 
-    private void SeedMembers(Campaign campaign, ApplicationUser user)
+
+    private void SeedMembers(Campaign campaign, ApplicationUser user, string role)
     {
         var member = new Member
         {
             CampaignId = campaign.Id,
             UserId = user.Id,
-            Role = "Leader",
+            Role = role,
             JoinedOn = DateTime.UtcNow,
             UpdatedOn = DateTime.UtcNow
         };
         Members.Add(member);
+        SaveChanges();
     }
 
     private void SeedQuests(Campaign campaign)
@@ -217,6 +239,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         var random = new Random();
         var difficulties = new[] { "Easy", "Medium", "Hard" };
         int questCount = random.Next(3, 21);
+
+        // Get the members of the current campaign
+        var members = Members.Where(m => m.CampaignId == campaign.Id).ToList();
 
         for (int j = 0; j < questCount; j++)
         {
@@ -231,9 +256,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             Quests.Add(quest);
             SaveChanges();
 
+            // Randomly select a number of members between 1 and 4 for the quest
+            int numberOfQuestMembers = random.Next(1, 5); // 1 to 4 members
+            var questMembers = members.OrderBy(u => random.Next()).Take(numberOfQuestMembers).ToList();
+
+            // Add member-quest relationships
+            foreach (var member in questMembers)
+            {
+                var memberQuest = new MemberQuest
+                {
+                    AssignedMemberId = member.Id, // Member's Id
+                    AssignedQuestId = quest.Id,
+                    UserId = member.UserId
+                };
+                MemberQuests.Add(memberQuest);
+            }
+
             SeedTasks(quest);
         }
     }
+
 
     private void SeedTasks(Quest quest)
     {

@@ -1,4 +1,7 @@
-﻿namespace Questlog.Application.Common.DTOs.Member.Response;
+﻿using Questlog.Application.Common.Enums;
+using Questlog.Domain.Entities;
+
+namespace Questlog.Application.Common.DTOs.Member.Response;
 
 public record GetMemberResponseDto
 {
@@ -8,7 +11,7 @@ public record GetMemberResponseDto
     public string UserId { get; set; }
     public string DisplayName { get; set; }
     public string Email { get; set; }
-    public int Avatar { get; set; }
+    public Avatar Avatar { get; set; }
     public int CurrentLevel { get; set; }
     public DateTime JoinedOn { get; set; }
     

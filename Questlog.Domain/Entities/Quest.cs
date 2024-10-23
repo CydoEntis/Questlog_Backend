@@ -16,5 +16,5 @@ public class Quest
 
     public virtual List<Task> Tasks { get; set; } = new List<Task>();
     
-    public ICollection<MemberQuest> AssignedMembers { get; set; } = new List<MemberQuest>();
+    public ICollection<MemberQuest> MemberQuests { get; set; } = new List<MemberQuest>();
 }
