@@ -119,17 +119,20 @@ public class QuestService : BaseService, IQuestService
             {
                 var existingMember = existingMembers.FirstOrDefault(m => m.Id == memberId);
                 if (existingMember != null)
-                    createdQuest.AssignedMembers.Add(existingMember);
+                {
+                    var memberQuest = new MemberQuest
+                    {
+                        AssignedQuestId = createdQuest.Id,
+                        AssignedMemberId = existingMember.Id
+                    };
+                    createdQuest.AssignedMembers.Add(memberQuest);
+                }
             }
 
             await _unitOfWork.SaveAsync();
 
             var questWithMembers = await _unitOfWork.Quest
-                .GetAsync(q => q.Id == createdQuest.Id, includeProperties: "AssignedMembers,AssignedMembers.User");
-
-
-            Console.WriteLine(questWithMembers);
-
+                .GetAsync(q => q.Id == createdQuest.Id, includeProperties: "AssignedMembers.AssignedMember");
 
             var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
             return ServiceResult<CreateQuestResponseDto>.Success(createQuestResponseDTO);

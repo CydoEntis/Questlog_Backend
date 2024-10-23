@@ -25,4 +25,6 @@ public class Member
     public ApplicationUser User { get; set; }
     
     public virtual ICollection<Quest> AssignedQuests { get; set; } = new List<Quest>();
+    
+    public ICollection<MemberQuest> MemberQuests { get; set; } = new List<MemberQuest>();
 }

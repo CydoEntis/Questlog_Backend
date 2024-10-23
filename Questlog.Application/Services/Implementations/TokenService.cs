@@ -8,6 +8,7 @@ using Questlog.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Task = System.Threading.Tasks.Task;
 
 namespace Questlog.Application.Services.Implementations;
 

@@ -1,4 +1,5 @@
 ﻿using Questlog.Domain.Entities;
+using Task = System.Threading.Tasks.Task;
 
 namespace Questlog.Application.Common.Interfaces;
 

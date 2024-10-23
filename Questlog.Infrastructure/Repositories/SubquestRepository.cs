@@ -6,11 +6,12 @@ using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
+using Task = Questlog.Domain.Entities.Task;
 
 
 namespace Questlog.Infrastructure.Repositories;
 
-public class SubquestRepository : BaseRepository<Subquest>, ISubquestRepository
+public class SubquestRepository : BaseRepository<Task>, ISubquestRepository
 {
     private readonly ApplicationDbContext _db;
 
@@ -42,7 +43,7 @@ public class SubquestRepository : BaseRepository<Subquest>, ISubquestRepository
     // }
 
 
-    public async Task<Subquest> UpdateAsync(Subquest entity)
+    public async Task<Task> UpdateAsync(Task entity)
     {
         entity.UpdatedAt = DateTime.Now;
         _db.Subquests.Update(entity);
@@ -51,7 +52,7 @@ public class SubquestRepository : BaseRepository<Subquest>, ISubquestRepository
     }
 
 
-    private IQueryable<Subquest> ApplyIncludeProperties(IQueryable<Subquest> query, string includeProperties)
+    private IQueryable<Task> ApplyIncludeProperties(IQueryable<Task> query, string includeProperties)
     {
         foreach (var includeProp in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
@@ -61,7 +62,7 @@ public class SubquestRepository : BaseRepository<Subquest>, ISubquestRepository
     }
 
 
-    private IQueryable<Subquest> ApplyOrdering(IQueryable<Subquest> query, string orderOn, string orderBy)
+    private IQueryable<Task> ApplyOrdering(IQueryable<Task> query, string orderOn, string orderBy)
     {
         var orderDirection = Enum.TryParse<OrderBy>(orderBy, true, out var order) ? order : OrderBy.Desc;
 

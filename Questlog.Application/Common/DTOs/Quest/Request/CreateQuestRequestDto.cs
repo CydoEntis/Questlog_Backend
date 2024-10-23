@@ -11,5 +11,5 @@ public record CreateQuestRequestDto()
     public DateTime DueDate { get; set; }
     public int CampaignId { get; set; }
     public List<int> MemberIds { get; set; }
-    public List<CreateSubquestRequestDto> Subquests { get; set; }
+    public List<CreateTaskRequestDto> Subquests { get; set; }
 }

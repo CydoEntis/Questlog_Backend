@@ -2,6 +2,7 @@
 using Questlog.Application.Common.Interfaces;
 using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
+using Task = System.Threading.Tasks.Task;
 
 namespace Questlog.Infrastructure.Repositories;
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Questlog.Domain.Entities;
+using Task = Questlog.Domain.Entities.Task;
 
 namespace Questlog.Infrastructure.Data;
 
@@ -12,7 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Campaign> Campaigns { get; set; }
     public DbSet<Member> Members { get; set; }
     public DbSet<Quest> Quests { get; set; }
-    public DbSet<Subquest> Subquests { get; set; }
+    public DbSet<Task> Subquests { get; set; }
 
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -34,30 +35,27 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(c => c.OwnerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Quest>()
-            .HasMany(q => q.AssignedMembers)
-            .WithMany(m => m.AssignedQuests)
-            .UsingEntity<Dictionary<string, object>>(
-                "MemberQuest", // Join table name
-                j => j
-                    .HasOne<Member>()
-                    .WithMany()
-                    .HasForeignKey("AssignedMemberId")
-                    .OnDelete(DeleteBehavior.Restrict),
-                j => j
-                    .HasOne<Quest>()
-                    .WithMany()
-                    .HasForeignKey("AssignedQuestId")
-                    .OnDelete(DeleteBehavior.Restrict) 
-            );
+        modelBuilder.Entity<MemberQuest>()
+            .HasKey(mq => new { mq.AssignedMemberId, mq.AssignedQuestId });
 
         modelBuilder.Entity<Quest>()
-            .HasMany(q => q.Subquests)
+            .HasMany(q => q.AssignedMembers)
+            .WithOne(mq => mq.AssignedQuest)
+            .HasForeignKey(mq => mq.AssignedQuestId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Member>()
+            .HasMany(m => m.MemberQuests)
+            .WithOne(mq => mq.AssignedMember)
+            .HasForeignKey(mq => mq.AssignedMemberId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Quest>()
+            .HasMany(q => q.Tasks)
             .WithOne(s => s.Quest)
             .HasForeignKey(s => s.QuestId)
             .OnDelete(DeleteBehavior.Cascade);
     }
-
 
     public void Seed()
     {

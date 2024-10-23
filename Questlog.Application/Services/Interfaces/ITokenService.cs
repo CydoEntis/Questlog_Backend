@@ -1,5 +1,6 @@
 ﻿using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Domain.Entities;
+using Task = System.Threading.Tasks.Task;
 
 namespace Questlog.Application.Services.Interfaces;
 

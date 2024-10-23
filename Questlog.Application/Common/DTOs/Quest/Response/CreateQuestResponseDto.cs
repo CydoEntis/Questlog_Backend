@@ -15,6 +15,6 @@ public record CreateQuestResponseDto()
     public DateTime DueDate { get; set; }
     public int CampaignId { get; set; }
     public List<GetMemberResponseDto> AssignedMembers { get; set; } = new List<GetMemberResponseDto>();
-    public List<CreateSubquestResponseDto> Subquests { get; set; } = new List<CreateSubquestResponseDto>();
+    public List<CreateTaskResponseDto> Subquests { get; set; } = new List<CreateTaskResponseDto>();
 
 }

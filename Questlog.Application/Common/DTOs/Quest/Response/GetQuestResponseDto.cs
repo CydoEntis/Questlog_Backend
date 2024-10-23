@@ -16,6 +16,7 @@ public record GetQuestResponseDto()
     public int CampaignId { get; set; }
     public List<GetMemberResponseDto> AssignedMembers { get; set; } = new List<GetMemberResponseDto>();
     public int TotalMembers { get; set; }
-    public List<GetSubquestResponseDto> Subquests { get; set; } = new List<GetSubquestResponseDto>();
-    public int TotalSubquests { get; set; }
+    public List<GetTaskResponseDto> Subquests { get; set; } = new List<GetTaskResponseDto>();
+    public int TotalTasks { get; set; }
+    public int CompletedTasks { get; set; }
 }

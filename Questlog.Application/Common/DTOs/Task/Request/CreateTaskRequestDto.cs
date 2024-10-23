@@ -1,6 +1,6 @@
 ﻿namespace Questlog.Application.Common.DTOs.Subquest.Request;
 
-public record CreateSubquestRequestDto()
+public record CreateTaskRequestDto()
 {
     public string Description { get; set; }
 }
