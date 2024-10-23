@@ -64,7 +64,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             return;
         }
 
-        // Seed one admin user
+        var user = SeedAdminUser();
+        var campaigns = SeedInitialCampaign(user.Id);
+        SeedRandomUsers();
+        SeedRandomCampaigns(campaigns, user);
+    }
+
+    private ApplicationUser SeedAdminUser()
+    {
         var user = new ApplicationUser
         {
             UserName = "Test",
@@ -75,191 +82,159 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             CurrentExp = 999999,
             CreatedAt = DateTime.UtcNow
         };
-        var passwordHasher = new PasswordHasher<ApplicationUser>();
-        user.PasswordHash = passwordHasher.HashPassword(user, "Test123*");
+        user.PasswordHash = HashPassword(user, "Test123*");
 
-        this.Users.Add(user);
-        this.SaveChanges();
+        Users.Add(user);
+        SaveChanges();
 
+        return user;
+    }
+
+    private Campaign SeedInitialCampaign(string ownerId)
+    {
         var initialCampaign = new Campaign()
         {
             Name = "My First Campaign",
             Description = "The first campaign ever created",
             CreatedAt = DateTime.UtcNow,
-            OwnerId = user.Id
+            OwnerId = ownerId
         };
-        this.Campaigns.Add(initialCampaign);
-        this.SaveChanges();
+        Campaigns.Add(initialCampaign);
+        SaveChanges();
 
         var initialMember = new Member
         {
             CampaignId = initialCampaign.Id,
+            UserId = ownerId,
+            Role = "Leader",
+            JoinedOn = DateTime.UtcNow,
+            UpdatedOn = DateTime.UtcNow
+        };
+        Members.Add(initialMember);
+        SaveChanges();
+
+        return initialCampaign;
+    }
+
+    private void SeedRandomUsers()
+    {
+        var random = new Random();
+        string[] userDisplayNames =
+            { "Alex", "Jordan", "Taylor", "Casey", "Riley", "Morgan", "Skylar", "Jamie", "Cameron", "Avery" };
+        var usersList = userDisplayNames.Select(name => new ApplicationUser
+        {
+            UserName = name,
+            Email = $"{name.ToLower()}@example.com",
+            DisplayName = name,
+            Avatar = new Avatar(),
+            CurrentLevel = random.Next(1, 21),
+            CurrentExp = random.Next(0, 1000),
+            CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
+            PasswordHash = HashPassword(name, "Test123*")
+        }).ToList();
+
+        Users.AddRange(usersList);
+        SaveChanges();
+    }
+
+    private void SeedRandomCampaigns(Campaign initialCampaign, ApplicationUser user)
+    {
+        var random = new Random();
+        string[] campaignNames = { "Sprint Planning", "Bug Bash", "Code Review Marathon", /* ... */ };
+        string[] campaignDescriptions =
+            { "Organize tasks for the upcoming sprint.", "Fix bugs and improve stability.", /* ... */ };
+        string[] campaignColors = { "red", "orange", "yellow", "green", "blue", "indigo", "violet" };
+
+        foreach (var (name, description) in campaignNames.Zip(campaignDescriptions, (n, d) => (n, d)))
+        {
+            var campaign = new Campaign
+            {
+                Name = name,
+                Description = description,
+                Color = campaignColors[random.Next(campaignColors.Length)],
+                CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
+                DueDate = DateTime.UtcNow.AddDays(random.Next(1, 30)),
+                OwnerId = user.Id
+            };
+
+            Campaigns.Add(campaign);
+            SaveChanges();
+
+            SeedMembers(campaign, user);
+            SeedQuests(campaign);
+        }
+    }
+
+    private void SeedMembers(Campaign campaign, ApplicationUser user)
+    {
+        var member = new Member
+        {
+            CampaignId = campaign.Id,
             UserId = user.Id,
             Role = "Leader",
             JoinedOn = DateTime.UtcNow,
             UpdatedOn = DateTime.UtcNow
         };
-        this.Members.Add(initialMember);
-        this.SaveChanges();
+        Members.Add(member);
+    }
 
+    private void SeedQuests(Campaign campaign)
+    {
         var random = new Random();
-        List<ApplicationUser> usersList = new List<ApplicationUser>();
+        int questCount = random.Next(3, 21);
 
-        string[] userDisplayNames = new string[]
+        for (int j = 0; j < questCount; j++)
         {
-            "Alex", "Jordan", "Taylor", "Casey", "Riley",
-            "Morgan", "Skylar", "Jamie", "Cameron", "Avery"
-        };
-
-        for (int i = 0; i < userDisplayNames.Length; i++)
-        {
-            var newUser = new ApplicationUser
+            var quest = new Quest
             {
-                UserName = userDisplayNames[i],
-                Email = $"user{i + 1}@example.com",
-                DisplayName = userDisplayNames[i],
-                Avatar = new Avatar(),
-                CurrentLevel = random.Next(1, 21),
-                CurrentExp = random.Next(0, 1000),
+                Name = $"Quest {j + 1} for {campaign.Name}",
+                Description = $"Description for quest {j + 1} in {campaign.Name}",
+                CampaignId = campaign.Id,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
             };
-            newUser.PasswordHash = passwordHasher.HashPassword(newUser, "Test123*");
-            usersList.Add(newUser);
+            Quests.Add(quest);
+            SaveChanges();
+
+            SeedTasks(quest);
         }
+    }
 
-        this.Users.AddRange(usersList);
-        this.SaveChanges();
+    private void SeedTasks(Quest quest)
+    {
+        var random = new Random();
+        int taskCount = random.Next(1, 6);
+        bool allTasksCompleted = true;
 
-        string[] campaignNames = new string[]
+        for (int k = 0; k < taskCount; k++)
         {
-            "Sprint Planning", "Bug Bash", "Code Review Marathon",
-            "Feature Launch", "API Integration", "Frontend Overhaul",
-            "Backend Optimization", "Database Migration", "Security Audit",
-            "Performance Testing", "UI/UX Enhancement", "CI/CD Pipeline Setup",
-            "Cloud Deployment", "Microservices Architecture", "Refactoring Sprint",
-            "Agile Retrospective", "User Testing", "Code Freeze",
-            "QA Automation", "Version Control Cleanup", "Team Onboarding",
-            "Technical Debt Repayment", "Data Analytics Setup", "Documentation Week",
-            "Innovation Sprint"
-        };
-
-        string[] campaignDescriptions = new string[]
-        {
-            "Organize tasks for the upcoming sprint.", "Fix bugs and improve stability.",
-            "Perform in-depth code reviews across the team.", "Release new features to production.",
-            "Integrate third-party APIs into the application.", "Revamp the frontend for a fresh look.",
-            "Optimize backend performance and response times.", "Migrate data to a new database structure.",
-            "Conduct a thorough security audit of the system.", "Test performance under load and stress.",
-            "Improve the UI/UX based on user feedback.", "Set up automated CI/CD pipelines.",
-            "Deploy the project to the cloud infrastructure.", "Implement microservices for scalability.",
-            "Refactor code for better maintainability.", "Hold a retrospective on the last sprint.",
-            "Conduct user testing sessions.", "Prepare for the code freeze before release.",
-            "Automate quality assurance tests.", "Clean up and organize version control branches.",
-            "Onboard new team members.", "Address and reduce technical debt.",
-            "Set up data analytics for better insights.", "Dedicate time to writing and updating documentation.",
-            "Explore new technologies in an innovation sprint."
-        };
-
-        string[] campaignColors = new string[]
-        {
-            "red", "orange", "yellow", "green", "blue", "indigo", "violet"
-        };
-
-        List<Campaign> campaignsList = new List<Campaign>();
-        for (int i = 0; i < campaignDescriptions.Length; i++)
-        {
-            var campaignEntity = new Campaign
+            bool isTaskCompleted = random.Next(0, 2) == 1; 
+            if (!isTaskCompleted)
             {
-                Name = campaignNames[i],
-                Description = campaignDescriptions[i],
-                Color = campaignColors[random.Next(0, campaignColors.Length)],
-                CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
-                DueDate = DateTime.UtcNow.AddDays(random.Next(1, 30)),
-                OwnerId = user.Id
-            };
-            campaignsList.Add(campaignEntity);
-            this.Campaigns.Add(campaignEntity);
-            this.SaveChanges();
-
-            var campaignMember = new Member
-            {
-                CampaignId = campaignEntity.Id,
-                UserId = user.Id,
-                Role = "Leader",
-                JoinedOn = DateTime.UtcNow,
-                UpdatedOn = DateTime.UtcNow
-            };
-            this.Members.Add(campaignMember);
-        }
-
-        this.SaveChanges();
-
-        foreach (var campaign in campaignsList)
-        {
-            int membersCount = random.Next(1, 6);
-            var membersToAdd = usersList.OrderBy(u => random.Next()).Take(membersCount).ToList();
-
-            foreach (var member in membersToAdd)
-            {
-                var campaignMember = new Member
-                {
-                    CampaignId = campaign.Id,
-                    UserId = member.Id,
-                    Role = "Member",
-                    JoinedOn = DateTime.UtcNow,
-                    UpdatedOn = DateTime.UtcNow
-                };
-                this.Members.Add(campaignMember);
+                allTasksCompleted = false;
             }
 
-            // Seed Quests for each Campaign
-            int questCount = random.Next(3, 21);
-            for (int j = 0; j < questCount; j++)
+            var task = new Task
             {
-                var quest = new Quest
-                {
-                    Name = $"Quest {j + 1} for {campaign.Name}",
-                    Description = $"Description for quest {j + 1} in {campaign.Name}",
-                    CampaignId = campaign.Id,
-                    CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
-                };
-                this.Quests.Add(quest);
-                this.SaveChanges();
-
-                // Seed Tasks for each Quest
-                int taskCount = random.Next(1, 6);
-                bool allTasksCompleted = true; // Flag to track if all tasks are completed
-
-                for (int k = 0; k < taskCount; k++)
-                {
-                    bool isTaskCompleted = random.Next(0, 2) == 1; // Randomly complete some tasks
-                    if (!isTaskCompleted)
-                    {
-                        allTasksCompleted = false; // If any task is not completed, set the flag to false
-                    }
-
-                    var task = new Task
-                    {
-                        Description = $"Task {k + 1} description for {quest.Name}",
-                        QuestId = quest.Id,
-                        IsCompleted = isTaskCompleted,
-                        CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
-                    };
-                    this.Tasks.Add(task);
-                }
-
-                this.SaveChanges();
-
-                // If all tasks are completed, mark the quest as completed
-                if (allTasksCompleted)
-                {
-                    quest.IsCompleted = true; // Mark quest as completed
-                }
-
-                this.SaveChanges();
-            }
+                Description = $"Task {k + 1} description for {quest.Name}",
+                QuestId = quest.Id,
+                IsCompleted = isTaskCompleted,
+                CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
+            };
+            Tasks.Add(task);
         }
 
-        this.SaveChanges();
+        SaveChanges();
+
+        if (allTasksCompleted)
+        {
+            quest.IsCompleted = true;
+            SaveChanges();
+        }
+    }
+
+    private string HashPassword(ApplicationUser user, string password)
+    {
+        var passwordHasher = new PasswordHasher<ApplicationUser>();
+        return passwordHasher.HashPassword(user, password);
     }
 }
