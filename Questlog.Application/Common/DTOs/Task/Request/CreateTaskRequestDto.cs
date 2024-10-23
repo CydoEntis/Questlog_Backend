@@ -1,4 +1,4 @@
-﻿namespace Questlog.Application.Common.DTOs.Subquest.Request;
+﻿namespace Questlog.Application.Common.DTOs.Task.Request;
 
 public record CreateTaskRequestDto()
 {

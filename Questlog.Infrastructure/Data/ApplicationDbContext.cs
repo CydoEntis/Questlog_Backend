@@ -121,28 +121,62 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         var random = new Random();
         string[] userDisplayNames =
             { "Alex", "Jordan", "Taylor", "Casey", "Riley", "Morgan", "Skylar", "Jamie", "Cameron", "Avery" };
-        var usersList = userDisplayNames.Select(name => new ApplicationUser
+
+        var usersList = userDisplayNames.Select(name =>
         {
-            UserName = name,
-            Email = $"{name.ToLower()}@example.com",
-            DisplayName = name,
-            Avatar = new Avatar(),
-            CurrentLevel = random.Next(1, 21),
-            CurrentExp = random.Next(0, 1000),
-            CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
-            PasswordHash = HashPassword(name, "Test123*")
+            var user = new ApplicationUser
+            {
+                UserName = name,
+                Email = $"{name.ToLower()}@example.com",
+                DisplayName = name,
+                Avatar = new Avatar(),
+                CurrentLevel = random.Next(1, 21),
+                CurrentExp = random.Next(0, 1000),
+                CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
+            };
+
+            // Hash the password for the created user
+            user.PasswordHash = HashPassword(user, "Test123*"); // Pass the user instance instead of name
+
+            return user;
         }).ToList();
 
         Users.AddRange(usersList);
         SaveChanges();
     }
 
+
     private void SeedRandomCampaigns(Campaign initialCampaign, ApplicationUser user)
     {
         var random = new Random();
-        string[] campaignNames = { "Sprint Planning", "Bug Bash", "Code Review Marathon", /* ... */ };
-        string[] campaignDescriptions =
-            { "Organize tasks for the upcoming sprint.", "Fix bugs and improve stability.", /* ... */ };
+        string[] campaignNames = new string[]
+        {
+            "Sprint Planning", "Bug Bash", "Code Review Marathon",
+            "Feature Launch", "API Integration", "Frontend Overhaul",
+            "Backend Optimization", "Database Migration", "Security Audit",
+            "Performance Testing", "UI/UX Enhancement", "CI/CD Pipeline Setup",
+            "Cloud Deployment", "Microservices Architecture", "Refactoring Sprint",
+            "Agile Retrospective", "User Testing", "Code Freeze",
+            "QA Automation", "Version Control Cleanup", "Team Onboarding",
+            "Technical Debt Repayment", "Data Analytics Setup", "Documentation Week",
+            "Innovation Sprint"
+        };
+        string[] campaignDescriptions = new string[]
+        {
+            "Organize tasks for the upcoming sprint.", "Fix bugs and improve stability.",
+            "Perform in-depth code reviews across the team.", "Release new features to production.",
+            "Integrate third-party APIs into the application.", "Revamp the frontend for a fresh look.",
+            "Optimize backend performance and response times.", "Migrate data to a new database structure.",
+            "Conduct a thorough security audit of the system.", "Test performance under load and stress.",
+            "Improve the UI/UX based on user feedback.", "Set up automated CI/CD pipelines.",
+            "Deploy the project to the cloud infrastructure.", "Implement microservices for scalability.",
+            "Refactor code for better maintainability.", "Hold a retrospective on the last sprint.",
+            "Conduct user testing sessions.", "Prepare for the code freeze before release.",
+            "Automate quality assurance tests.", "Clean up and organize version control branches.",
+            "Onboard new team members.", "Address and reduce technical debt.",
+            "Set up data analytics for better insights.", "Dedicate time to writing and updating documentation.",
+            "Explore new technologies in an innovation sprint."
+        };
         string[] campaignColors = { "red", "orange", "yellow", "green", "blue", "indigo", "violet" };
 
         foreach (var (name, description) in campaignNames.Zip(campaignDescriptions, (n, d) => (n, d)))
@@ -181,6 +215,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     private void SeedQuests(Campaign campaign)
     {
         var random = new Random();
+        var difficulties = new[] { "Easy", "Medium", "Hard" };
         int questCount = random.Next(3, 21);
 
         for (int j = 0; j < questCount; j++)
@@ -190,7 +225,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 Name = $"Quest {j + 1} for {campaign.Name}",
                 Description = $"Description for quest {j + 1} in {campaign.Name}",
                 CampaignId = campaign.Id,
-                CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
+                CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
+                Difficulty = difficulties[random.Next(difficulties.Length)]
             };
             Quests.Add(quest);
             SaveChanges();
@@ -207,7 +243,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         for (int k = 0; k < taskCount; k++)
         {
-            bool isTaskCompleted = random.Next(0, 2) == 1; 
+            bool isTaskCompleted = random.Next(0, 2) == 1;
             if (!isTaskCompleted)
             {
                 allTasksCompleted = false;

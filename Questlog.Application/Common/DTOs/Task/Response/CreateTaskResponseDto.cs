@@ -1,4 +1,4 @@
-﻿namespace Questlog.Application.Common.DTOs.Subquest.Response;
+﻿namespace Questlog.Application.Common.DTOs.Task.Response;
 
 public record CreateTaskResponseDto
 {

@@ -1,5 +1,5 @@
 ﻿using Questlog.Application.Common.DTOs.Member.Response;
-using Questlog.Application.Common.DTOs.Subquest.Response;
+using Questlog.Application.Common.DTOs.Task.Response;
 
 namespace Questlog.Application.Common.DTOs.Quest;
 
@@ -15,6 +15,6 @@ public record CreateQuestResponseDto()
     public DateTime DueDate { get; set; }
     public int CampaignId { get; set; }
     public List<GetMemberResponseDto> AssignedMembers { get; set; } = new List<GetMemberResponseDto>();
-    public List<CreateTaskResponseDto> Subquests { get; set; } = new List<CreateTaskResponseDto>();
+    public List<CreateTaskResponseDto> Tasks { get; set; } = new List<CreateTaskResponseDto>();
 
 }

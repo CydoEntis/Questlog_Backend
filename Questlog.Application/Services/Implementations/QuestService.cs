@@ -72,7 +72,7 @@ public class QuestService : BaseService, IQuestService
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
-                IncludeProperties = "Subquests,AssignedMembers,AssignedMembers.User",
+                IncludeProperties = "Tasks,AssignedMembers,AssignedMembers.User",
                 Filter = c => c.CampaignId == campaignId
             };
 
