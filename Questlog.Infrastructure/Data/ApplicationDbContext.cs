@@ -13,7 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Campaign> Campaigns { get; set; }
     public DbSet<Member> Members { get; set; }
     public DbSet<Quest> Quests { get; set; }
-    public DbSet<Task> Subquests { get; set; }
+    public DbSet<Task> Tasks { get; set; }
 
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -107,8 +107,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         string[] userDisplayNames = new string[]
         {
-            "Elowen", "Kael", "Thalia", "Garrick", "Lysandra",
-            "Roran", "Mira", "Zarek", "Selene", "Draven"
+            "Alex", "Jordan", "Taylor", "Casey", "Riley",
+            "Morgan", "Skylar", "Jamie", "Cameron", "Avery"
         };
 
         for (int i = 0; i < userDisplayNames.Length; i++)
@@ -132,38 +132,37 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         string[] campaignNames = new string[]
         {
-            "Guildmaster's Task", "Lost Artifacts Quest", "Merchant's Journey",
-            "Rescue Mission", "Heist of Legends", "Festival of Tasks",
-            "Siege Defense", "Knowledge Quest", "Bounty Ledger",
-            "Herbalist's Task", "Reclamation Efforts", "Arena Tournament",
-            "Construction Chronicles", "Expedition Quest", "Whispering Woods",
-            "Guild Expansion", "Siege Strategy", "Dragon's Deal",
-            "Alchemist's Help", "Elven Council", "Relics of Prophecy",
-            "Clockwork Secrets", "Monster Hunt", "Lost Library",
-            "Peace Initiatives"
+            "Sprint Planning", "Bug Bash", "Code Review Marathon",
+            "Feature Launch", "API Integration", "Frontend Overhaul",
+            "Backend Optimization", "Database Migration", "Security Audit",
+            "Performance Testing", "UI/UX Enhancement", "CI/CD Pipeline Setup",
+            "Cloud Deployment", "Microservices Architecture", "Refactoring Sprint",
+            "Agile Retrospective", "User Testing", "Code Freeze",
+            "QA Automation", "Version Control Cleanup", "Team Onboarding",
+            "Technical Debt Repayment", "Data Analytics Setup", "Documentation Week",
+            "Innovation Sprint"
         };
 
         string[] campaignDescriptions = new string[]
         {
-            "Organize the guild's tasks.", "Locate and recover artifacts.",
-            "Manage a trading caravan.", "Rescue captives from dark forces.",
-            "Infiltrate a fortress for treasure.", "Organize a grand festival.",
-            "Defend a besieged fortress.", "Gather knowledge from libraries.",
-            "Track down dangerous bounties.", "Gather rare plants for potions.",
-            "Restore a cursed land.", "Organize a tournament event.",
-            "Rebuild a city after an attack.", "Lead an expedition into the tundra.",
-            "Uncover mysteries of the woods.", "Expand your guild's influence.",
-            "Plan an offensive against foes.", "Negotiate peace with a dragon.",
-            "Help an alchemist gather ingredients.", "Participate in the Elven Council.",
-            "Locate relics for a prophecy.", "Explore the Clockwork City.",
-            "Hunt dangerous creatures.", "Restore a forgotten library.",
-            "Negotiate peace treaties."
+            "Organize tasks for the upcoming sprint.", "Fix bugs and improve stability.",
+            "Perform in-depth code reviews across the team.", "Release new features to production.",
+            "Integrate third-party APIs into the application.", "Revamp the frontend for a fresh look.",
+            "Optimize backend performance and response times.", "Migrate data to a new database structure.",
+            "Conduct a thorough security audit of the system.", "Test performance under load and stress.",
+            "Improve the UI/UX based on user feedback.", "Set up automated CI/CD pipelines.",
+            "Deploy the project to the cloud infrastructure.", "Implement microservices for scalability.",
+            "Refactor code for better maintainability.", "Hold a retrospective on the last sprint.",
+            "Conduct user testing sessions.", "Prepare for the code freeze before release.",
+            "Automate quality assurance tests.", "Clean up and organize version control branches.",
+            "Onboard new team members.", "Address and reduce technical debt.",
+            "Set up data analytics for better insights.", "Dedicate time to writing and updating documentation.",
+            "Explore new technologies in an innovation sprint."
         };
 
         string[] campaignColors = new string[]
         {
-            "blue", "green", "yellow", "red", "pink",
-            "purple", "orange", "amber", "navy", "gold"
+            "red", "orange", "yellow", "green", "blue", "indigo", "violet"
         };
 
         List<Campaign> campaignsList = new List<Campaign>();
@@ -181,7 +180,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             campaignsList.Add(campaignEntity);
             this.Campaigns.Add(campaignEntity);
             this.SaveChanges();
-
 
             var campaignMember = new Member
             {
@@ -212,6 +210,53 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                     UpdatedOn = DateTime.UtcNow
                 };
                 this.Members.Add(campaignMember);
+            }
+
+            // Seed Quests for each Campaign
+            int questCount = random.Next(3, 21);
+            for (int j = 0; j < questCount; j++)
+            {
+                var quest = new Quest
+                {
+                    Name = $"Quest {j + 1} for {campaign.Name}",
+                    Description = $"Description for quest {j + 1} in {campaign.Name}",
+                    CampaignId = campaign.Id,
+                    CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
+                };
+                this.Quests.Add(quest);
+                this.SaveChanges();
+
+                // Seed Tasks for each Quest
+                int taskCount = random.Next(1, 6);
+                bool allTasksCompleted = true; // Flag to track if all tasks are completed
+
+                for (int k = 0; k < taskCount; k++)
+                {
+                    bool isTaskCompleted = random.Next(0, 2) == 1; // Randomly complete some tasks
+                    if (!isTaskCompleted)
+                    {
+                        allTasksCompleted = false; // If any task is not completed, set the flag to false
+                    }
+
+                    var task = new Task
+                    {
+                        Description = $"Task {k + 1} description for {quest.Name}",
+                        QuestId = quest.Id,
+                        IsCompleted = isTaskCompleted,
+                        CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
+                    };
+                    this.Tasks.Add(task);
+                }
+
+                this.SaveChanges();
+
+                // If all tasks are completed, mark the quest as completed
+                if (allTasksCompleted)
+                {
+                    quest.IsCompleted = true; // Mark quest as completed
+                }
+
+                this.SaveChanges();
             }
         }
 

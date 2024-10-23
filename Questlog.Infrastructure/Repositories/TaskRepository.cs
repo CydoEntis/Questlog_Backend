@@ -11,11 +11,11 @@ using Task = Questlog.Domain.Entities.Task;
 
 namespace Questlog.Infrastructure.Repositories;
 
-public class SubquestRepository : BaseRepository<Task>, ISubquestRepository
+public class TaskRepository : BaseRepository<Task>, ITaskRepository
 {
     private readonly ApplicationDbContext _db;
 
-    public SubquestRepository(ApplicationDbContext db) : base(db)
+    public TaskRepository(ApplicationDbContext db) : base(db)
     {
         _db = db;
     }
@@ -46,7 +46,7 @@ public class SubquestRepository : BaseRepository<Task>, ISubquestRepository
     public async Task<Task> UpdateAsync(Task entity)
     {
         entity.UpdatedAt = DateTime.Now;
-        _db.Subquests.Update(entity);
+        _db.Tasks.Update(entity);
         await _db.SaveChangesAsync();
         return entity;
     }

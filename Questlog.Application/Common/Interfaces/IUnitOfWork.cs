@@ -10,7 +10,7 @@ public interface IUnitOfWork
 
     IQuestRepository Quest { get; }
 
-    ISubquestRepository Subquest { get; }
+    ITaskRepository Task { get; }
 
     
     Task SaveAsync();
