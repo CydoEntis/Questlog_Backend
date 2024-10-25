@@ -1,4 +1,5 @@
 ﻿using Questlog.Application.Common.DTOs.Member.Response;
+using Questlog.Application.Common.DTOs.Quest;
 
 namespace Questlog.Application.Common.DTOs.Campaign.Responses
 {
@@ -11,6 +12,7 @@ namespace Questlog.Application.Common.DTOs.Campaign.Responses
         public string Owner { get; set; }
         public string Color { get; set; }
         public int NumberOfMembers { get; set; }
+        public List<GetQuestResponseDto> Quests { get; set; }
         public List<GetMemberResponseDto> Members { get; set; }
 
         public DateTime CreatedAt { get; set; }

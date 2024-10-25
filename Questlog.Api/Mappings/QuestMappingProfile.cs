@@ -16,23 +16,23 @@ public class QuestMappingProfile : Profile
 
         CreateMap<Quest, GetQuestResponseDto>()
             .ForMember(dest => dest.TotalMembers,
-                opt => opt.MapFrom(src => src.MemberQuests.Count(mq => mq.AssignedQuestId == src.Id))) // Count matching MemberQuests
+                opt => opt.MapFrom(src => src.MemberQuests.Count(mq => mq.AssignedQuestId == src.Id))) 
             .ForMember(dest => dest.TotalTasks,
                 opt => opt.MapFrom(src => src.Tasks.Count))
             .ForMember(dest => dest.CompletedTasks,
                 opt => opt.MapFrom(src => src.Tasks.Count(sq => sq.IsCompleted)))
             .ForMember(dest => dest.AssignedMembers, opt =>
                 opt.MapFrom(src => src.MemberQuests
-                    .Where(mq => mq.AssignedQuestId == src.Id) // Filter MemberQuests to match QuestId
+                    .Where(mq => mq.AssignedQuestId == src.Id) 
                     .Select(mq => new GetMemberResponseDto
                     {
-                        Id = mq.AssignedMember.Id, // Member's ID
-                        UserId = mq.UserId, // User ID from MemberQuest
-                        DisplayName = mq.AssignedMember.User.DisplayName, // Member's user display name
-                        Email = mq.AssignedMember.User.Email, // Member's email
-                        Avatar = mq.AssignedMember.User.Avatar, // Member's avatar
-                        CurrentLevel = mq.AssignedMember.User.CurrentLevel, // Member's level
-                        JoinedOn = mq.AssignedMember.JoinedOn, // Member's join date
+                        Id = mq.AssignedMember.Id, 
+                        UserId = mq.UserId, 
+                        DisplayName = mq.AssignedMember.User.DisplayName, 
+                        Email = mq.AssignedMember.User.Email, 
+                        Avatar = mq.AssignedMember.User.Avatar, 
+                        CurrentLevel = mq.AssignedMember.User.CurrentLevel, 
+                        JoinedOn = mq.AssignedMember.JoinedOn, 
                     })));
 
 
