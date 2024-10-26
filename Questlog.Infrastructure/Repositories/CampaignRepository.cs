@@ -23,7 +23,6 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
     {
         IQueryable<Campaign> query = _dbSet;
 
-        // Apply filters, searches, and ordering
         if (queryOptions.Filter != null)
         {
             query = query.Where(queryOptions.Filter);
@@ -39,30 +38,7 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
             query = ApplyOrdering(query, queryOptions.OrderOn, queryOptions.OrderBy);
         }
 
-        // Get total item count for pagination
-        var totalItems = await query.CountAsync();
-
-        // Get campaigns with pagination and limit members to 5
-        var campaigns = await query
-            .Skip((queryOptions.PageNumber - 1) * queryOptions.PageSize)
-            .Take(queryOptions.PageSize)
-            .Select(c => new Campaign()
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                DueDate = c.DueDate,
-                CreatedAt = c.CreatedAt,
-                Owner = c.Owner,
-                Members = c.Members.Take(5).Select(m => new Member()
-                {
-                    UserId = m.UserId,
-                    User = m.User
-                }).ToList(),
-            })
-            .ToListAsync();
-
-        return new PaginatedResult<Campaign>(campaigns, totalItems, queryOptions.PageNumber, queryOptions.PageSize);
+        return await Paginate(query, queryOptions.PageNumber, queryOptions.PageSize);
     }
 
 

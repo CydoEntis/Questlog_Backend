@@ -39,27 +39,33 @@ public class QuestService : BaseService, IQuestService
         _mapper = mapper;
     }
 
-    // public async Task<ServiceResult<GetQuestResponseDto>> GetQuestById(int campaignId)
-    // {
-    //     var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, "Quest Id");
-    //     if (!campaignIdValidationResult.IsSuccess)
-    //         return ServiceResult<GetQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
-    //
-    //     return await HandleExceptions<GetQuestResponseDto>(async () =>
-    //     {
-    //         var foundQuest =
-    //             await _unitOfWork.Quest.GetAsync(g => g.Id == campaignId, includeProperties: "Members,Members.User");
-    //
-    //         if (foundQuest == null)
-    //         {
-    //             return ServiceResult<GetQuestResponseDto>.Failure("Quest not found.");
-    //         }
-    //
-    //         var campaignResponseDTO = _mapper.Map<GetQuestResponseDto>(foundQuest);
-    //
-    //         return ServiceResult<GetQuestResponseDto>.Success(campaignResponseDTO);
-    //     });
-    // }
+    public async Task<ServiceResult<GetQuestResponseDto>> GetQuestById(int campaignId, int questId)
+    {
+        var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, "Campaign Id");
+        if (!campaignIdValidationResult.IsSuccess)
+            return ServiceResult<GetQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+
+        var questIdValidationResult = ValidationHelper.ValidateId(questId, "Quest Id");
+        if (!questIdValidationResult.IsSuccess)
+            return ServiceResult<GetQuestResponseDto>.Failure(questIdValidationResult.ErrorMessage);
+
+        return await HandleExceptions<GetQuestResponseDto>(async () =>
+        {
+            var foundQuest =
+                await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.CampaignId == campaignId,
+                    includeProperties: "Tasks");
+
+
+            if (foundQuest == null)
+            {
+                return ServiceResult<GetQuestResponseDto>.Failure("Quest not found.");
+            }
+
+            var campaignResponseDTO = _mapper.Map<GetQuestResponseDto>(foundQuest);
+
+            return ServiceResult<GetQuestResponseDto>.Success(campaignResponseDTO);
+        });
+    }
 
     public async Task<ServiceResult<PaginatedResult<GetQuestResponseDto>>> GetAllQuests(int campaignId, string userId,
         QueryParamsDto queryParams)

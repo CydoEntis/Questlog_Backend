@@ -71,7 +71,7 @@ public class CampaignService : BaseService, ICampaignService
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
                 IncludeProperties = "Members,Members.User",
-                Filter = c => c.Members.Any(m => m.UserId == userId)
+                Filter = c => c.Members.Any(m => m.UserId == userId) 
             };
 
             if (!string.IsNullOrEmpty(queryParams.SearchValue))
@@ -79,17 +79,18 @@ public class CampaignService : BaseService, ICampaignService
                 options.Filter = options.Filter.And(c => c.Name.Contains(queryParams.SearchValue));
             }
 
-
-            var paginatedResult = await _unitOfWork.Campaign.GetPaginatedCampaignsAsync(options);
+            
+            var paginatedResult = await _unitOfWork.Campaign.GetAllAsync(options);
 
             var campaignResponseDTOs = _mapper.Map<List<GetCampaignResponseDto>>(paginatedResult.Items);
 
-            var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems,
-                paginatedResult.CurrentPage, queryParams.PageSize);
+            var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
 
             return ServiceResult<PaginatedResult<GetCampaignResponseDto>>.Success(result);
         });
     }
+
+
 
 
     public async Task<ServiceResult<CreateCampaignResponseDto>> CreateCampaign(string userId,

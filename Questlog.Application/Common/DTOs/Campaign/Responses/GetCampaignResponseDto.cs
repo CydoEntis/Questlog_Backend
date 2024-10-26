@@ -12,14 +12,11 @@ namespace Questlog.Application.Common.DTOs.Campaign.Responses
         public string Owner { get; set; }
         public string Color { get; set; }
         public int NumberOfMembers { get; set; }
-        public List<GetQuestResponseDto> Quests { get; set; }
         public List<GetMemberResponseDto> Members { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime DueDate { get; set; }
 
-
-        // public int Quests { get; set; }
     }
 }

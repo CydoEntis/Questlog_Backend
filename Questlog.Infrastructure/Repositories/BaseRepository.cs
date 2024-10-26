@@ -104,7 +104,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         var totalCount = await query.CountAsync();
         var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
-
+        
         return new PaginatedResult<T>(items, totalCount, pageNumber, pageSize);
     }
 }

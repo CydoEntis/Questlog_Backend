@@ -22,20 +22,20 @@ public class QuestController : BaseController
         _questService = questService;
     }
 
-    // [HttpGet("{questId}")]
-    // public async Task<ActionResult<ApiResponse>> GetQuest(int questId)
-    // {
-    //     if (questId <= 0) return BadRequestResponse("Quest Id must be provided.");
-    //
-    //     var result = await _questService.GetQuestById(questId);
-    //
-    //     if (!result.IsSuccess)
-    //     {
-    //         return BadRequestResponse(result.ErrorMessage);
-    //     }
-    //
-    //     return OkResponse(result.Data);
-    // }
+    [HttpGet("{questId}")]
+    public async Task<ActionResult<ApiResponse>> GetQuest(int campaignId, int questId)
+    {
+        if (questId <= 0) return BadRequestResponse("Quest Id must be provided.");
+    
+        var result = await _questService.GetQuestById(campaignId, questId);
+    
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+    
+        return OkResponse(result.Data);
+    }
 
     [HttpGet]
     public async Task<ActionResult<ApiResponse>> GetAllQuests(int campaignId, [FromQuery] QueryParamsDto queryParams)
