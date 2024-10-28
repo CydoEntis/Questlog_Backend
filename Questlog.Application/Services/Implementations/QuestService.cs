@@ -134,7 +134,8 @@ public class QuestService : BaseService, IQuestService
                     var memberQuest = new MemberQuest
                     {
                         AssignedQuestId = createdQuest.Id,
-                        AssignedMemberId = existingMember.Id
+                        AssignedMemberId = existingMember.Id,
+                        UserId = existingMember.UserId
                     };
                     createdQuest.MemberQuests.Add(memberQuest);
                 }
@@ -145,7 +146,7 @@ public class QuestService : BaseService, IQuestService
 
             // Fetch the created quest with members
             var questWithMembers = await _unitOfWork.Quest
-                .GetAsync(q => q.Id == createdQuest.Id, includeProperties: "AssignedMembers.AssignedMember");
+                .GetAsync(q => q.Id == createdQuest.Id, includeProperties: "Tasks,MemberQuests.AssignedMember,MemberQuests.User");
 
             // Map to response DTO
             var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
@@ -154,7 +155,7 @@ public class QuestService : BaseService, IQuestService
         catch (Exception ex)
         {
             return ServiceResult<CreateQuestResponseDto>.Failure(
-                ex.Message);
+                ex.InnerException.ToString());
         }
     }
 

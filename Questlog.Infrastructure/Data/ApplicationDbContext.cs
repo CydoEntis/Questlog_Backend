@@ -237,7 +237,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     private void SeedQuests(Campaign campaign)
     {
         var random = new Random();
-        var difficulties = new[] { "Easy", "Medium", "Hard" };
+        var difficulties = new[] { "Critical", "High", "Medium", "Low" };
         int questCount = random.Next(3, 21);
 
         // Get the members of the current campaign
@@ -251,7 +251,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 Description = $"Description for quest {j + 1} in {campaign.Name}",
                 CampaignId = campaign.Id,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
-                Difficulty = difficulties[random.Next(difficulties.Length)]
+                Priority = difficulties[random.Next(difficulties.Length)]
             };
             Quests.Add(quest);
             SaveChanges();
