@@ -9,8 +9,11 @@ public interface IMemberService
 {
     Task<ServiceResult<GetMemberResponseDto>> GetMember(int campaignId, int memberId);
 
-    Task<ServiceResult<PaginatedResult<GetMemberResponseDto>>> GetAllMembers(int campaignId,
+    Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int campaignId);
+
+    Task<ServiceResult<PaginatedResult<GetMemberResponseDto>>> GetAllPaginatedMembers(int campaignId,
         QueryParamsDto queryParams);
+
     Task<ServiceResult<CreateMemberResponseDto>> CreateMember(CreateMemberRequestDto requestDto);
     Task<ServiceResult<UpdateMemberRoleResponseDto>> UpdateMember(UpdateMemberRoleRequestDto roleRequestDto);
     Task<ServiceResult<int>> RemoveMember(int campaignId, int memberId);

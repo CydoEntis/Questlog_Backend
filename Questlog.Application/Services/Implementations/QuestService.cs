@@ -104,22 +104,28 @@ public class QuestService : BaseService, IQuestService
     public async Task<ServiceResult<CreateQuestResponseDto>> CreateQuest(string userId,
         CreateQuestRequestDto requestDto)
     {
-        var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
-        if (!userValidationResult.IsSuccess)
-            return ServiceResult<CreateQuestResponseDto>.Failure(userValidationResult.ErrorMessage);
-
-        var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Quest Request DTO");
-        if (!campaignValidationResult.IsSuccess)
-            return ServiceResult<CreateQuestResponseDto>.Failure(campaignValidationResult.ErrorMessage);
-
-        return await HandleExceptions<CreateQuestResponseDto>(async () =>
+        try
         {
+            // Validate user ID
+            var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
+            if (!userValidationResult.IsSuccess)
+                return ServiceResult<CreateQuestResponseDto>.Failure(userValidationResult.ErrorMessage);
+
+            // Validate the request DTO
+            var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Quest Request DTO");
+            if (!campaignValidationResult.IsSuccess)
+                return ServiceResult<CreateQuestResponseDto>.Failure(campaignValidationResult.ErrorMessage);
+
+            // Map to Quest entity
             var quest = _mapper.Map<Quest>(requestDto);
 
+            // Create the quest in the database
             Quest createdQuest = await _unitOfWork.Quest.CreateAsync(quest);
 
+            // Get existing members
             var existingMembers = await _unitOfWork.Member.GetAllAsync(m => requestDto.MemberIds.Contains(m.Id));
 
+            // Assign members to the quest
             foreach (var memberId in requestDto.MemberIds)
             {
                 var existingMember = existingMembers.FirstOrDefault(m => m.Id == memberId);
@@ -134,14 +140,22 @@ public class QuestService : BaseService, IQuestService
                 }
             }
 
+            // Save changes to the database
             await _unitOfWork.SaveAsync();
 
+            // Fetch the created quest with members
             var questWithMembers = await _unitOfWork.Quest
                 .GetAsync(q => q.Id == createdQuest.Id, includeProperties: "AssignedMembers.AssignedMember");
 
+            // Map to response DTO
             var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
             return ServiceResult<CreateQuestResponseDto>.Success(createQuestResponseDTO);
-        });
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<CreateQuestResponseDto>.Failure(
+                ex.Message);
+        }
     }
 
 

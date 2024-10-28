@@ -55,7 +55,20 @@ public class MemberService : BaseService, IMemberService
     }
 
 
-    public async Task<ServiceResult<PaginatedResult<GetMemberResponseDto>>> GetAllMembers(int campaignId,
+    public async Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int campaignId)
+    {
+        return await HandleExceptions<List<GetMemberResponseDto>>(async () =>
+        {
+            var members = await _unitOfWork.Member.GetAllAsync(m => m.CampaignId == campaignId);
+
+            var memberResponseDtos = _mapper.Map<List<GetMemberResponseDto>>(members);
+
+
+            return ServiceResult<List<GetMemberResponseDto>>.Success(memberResponseDtos);
+        });
+    }
+
+    public async Task<ServiceResult<PaginatedResult<GetMemberResponseDto>>> GetAllPaginatedMembers(int campaignId,
         QueryParamsDto queryParams)
     {
         return await HandleExceptions<PaginatedResult<GetMemberResponseDto>>(async () =>
@@ -69,17 +82,19 @@ public class MemberService : BaseService, IMemberService
                 IncludeProperties = "User",
                 Filter = c => c.CampaignId == campaignId
             };
-    
+
             if (!string.IsNullOrEmpty(queryParams.SearchValue))
             {
                 options.Filter = options.Filter.And(c => c.User.DisplayName.Contains(queryParams.SearchValue));
             }
+
             var paginatedResult = await _unitOfWork.Member.GetPaginated(options);
-    
+
             var memberResponseDtos = _mapper.Map<List<GetMemberResponseDto>>(paginatedResult.Items);
 
             // Create a new PaginatedResult for the DTOs
-            var result = new PaginatedResult<GetMemberResponseDto>(memberResponseDtos, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
+            var result = new PaginatedResult<GetMemberResponseDto>(memberResponseDtos, paginatedResult.TotalItems,
+                paginatedResult.CurrentPage, queryParams.PageSize);
 
             return ServiceResult<PaginatedResult<GetMemberResponseDto>>.Success(result);
         });

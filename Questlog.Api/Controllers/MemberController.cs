@@ -38,7 +38,6 @@ public class MemberController : BaseController
         return OkResponse(result.Data);
     }
 
-
     [HttpGet]
     public async Task<ActionResult<ApiResponse>> GetAllMembers(int campaignId, [FromQuery] QueryParamsDto queryParams)
     {
@@ -47,7 +46,28 @@ public class MemberController : BaseController
             return BadRequestResponse(" Id must be provided.");
     
         // Call the service to get all guild members with the specified query parameters
-        var result = await _memberService.GetAllMembers(campaignId, queryParams);
+        var result = await _memberService.GetAllPaginatedMembers(campaignId, queryParams);
+    
+        // Check for success
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+    
+        // Return successful response
+        return OkResponse(result.Data);
+    }
+    
+
+    [HttpGet("paginated")]
+    public async Task<ActionResult<ApiResponse>> GetMembersPaginated(int campaignId, [FromQuery] QueryParamsDto queryParams)
+    {
+        // Validate the  Id
+        if (campaignId <= 0)
+            return BadRequestResponse(" Id must be provided.");
+    
+        // Call the service to get all guild members with the specified query parameters
+        var result = await _memberService.GetAllPaginatedMembers(campaignId, queryParams);
     
         // Check for success
         if (!result.IsSuccess)
