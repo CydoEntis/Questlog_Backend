@@ -62,7 +62,7 @@ public class CampaignService : BaseService, ICampaignService
     public async Task<ServiceResult<PaginatedResult<GetCampaignResponseDto>>> GetAllCampaigns(string userId,
         QueryParamsDto queryParams)
     {
-        return await HandleExceptions<PaginatedResult<GetCampaignResponseDto>>(async () =>
+        try
         {
             var options = new QueryOptions<Campaign>
             {
@@ -71,41 +71,44 @@ public class CampaignService : BaseService, ICampaignService
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
                 IncludeProperties = "Members,Members.User",
-                Filter = c => c.Members.Any(m => m.UserId == userId) 
+                Filter = c => c.Members.Any(m => m.UserId == userId)
             };
 
             if (!string.IsNullOrEmpty(queryParams.SearchValue))
             {
-                options.Filter = options.Filter.And(c => c.Name.Contains(queryParams.SearchValue));
+                options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.SearchValue));
             }
 
-            
             var paginatedResult = await _unitOfWork.Campaign.GetAllAsync(options);
 
             var campaignResponseDTOs = _mapper.Map<List<GetCampaignResponseDto>>(paginatedResult.Items);
 
-            var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
+            var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems,
+                paginatedResult.CurrentPage, queryParams.PageSize);
 
             return ServiceResult<PaginatedResult<GetCampaignResponseDto>>.Success(result);
-        });
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<PaginatedResult<GetCampaignResponseDto>>.Failure(ex.InnerException.ToString());
+        }
     }
-
-
 
 
     public async Task<ServiceResult<CreateCampaignResponseDto>> CreateCampaign(string userId,
         CreateCampaignRequestDto requestDto)
     {
-        var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
-        if (!userValidationResult.IsSuccess)
-            return ServiceResult<CreateCampaignResponseDto>.Failure(userValidationResult.ErrorMessage);
-
-        var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Campaign Request DTO");
-        if (!campaignValidationResult.IsSuccess)
-            return ServiceResult<CreateCampaignResponseDto>.Failure(campaignValidationResult.ErrorMessage);
-
-        return await HandleExceptions<CreateCampaignResponseDto>(async () =>
+        try
         {
+            var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
+            if (!userValidationResult.IsSuccess)
+                return ServiceResult<CreateCampaignResponseDto>.Failure(userValidationResult.ErrorMessage);
+
+            var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Campaign Request DTO");
+            if (!campaignValidationResult.IsSuccess)
+                return ServiceResult<CreateCampaignResponseDto>.Failure(campaignValidationResult.ErrorMessage);
+
+
             var campaign = _mapper.Map<Campaign>(requestDto);
             campaign.OwnerId = userId;
 
@@ -115,7 +118,7 @@ public class CampaignService : BaseService, ICampaignService
             {
                 UserId = userId,
                 CampaignId = createdCampaign.Id,
-                Role = RoleConstants.Leader,
+                Role = RoleConstants.Owner,
                 JoinedOn = DateTime.UtcNow,
             };
 
@@ -127,7 +130,12 @@ public class CampaignService : BaseService, ICampaignService
             var createCampaignResponseDTO = _mapper.Map<CreateCampaignResponseDto>(campaignWithLeader);
 
             return ServiceResult<CreateCampaignResponseDto>.Success(createCampaignResponseDTO);
-        });
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<CreateCampaignResponseDto>.Failure(
+                ex.InnerException.ToString());
+        }
     }
 
 
@@ -158,7 +166,7 @@ public class CampaignService : BaseService, ICampaignService
             }
 
 
-            foundCampaign.Name = requestDto.Name.Trim();
+            foundCampaign.Title = requestDto.Name.Trim();
             foundCampaign.Description = requestDto.Description.Trim();
             foundCampaign.Color = requestDto.Color;
             foundCampaign.UpdatedAt = DateTime.UtcNow;

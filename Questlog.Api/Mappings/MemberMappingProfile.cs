@@ -22,7 +22,8 @@ public class MemberMappingProfile : Profile
 
         CreateMap<Member, CreateMemberRequestDto>().ReverseMap();
         CreateMap<Member, CreateMemberResponseDto>().ReverseMap();
-
-        
+        CreateMap<Member, GetSimpleMemberResponseDto>()
+            .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.User.DisplayName))
+            .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User.Avatar));
     }
 }

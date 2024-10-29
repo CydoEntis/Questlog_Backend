@@ -13,7 +13,7 @@ public class Campaign
     [Required]
     [MinLength(3)]
     [MaxLength(50)]
-    public string Name { get; set; }
+    public string Title { get; set; }
 
     [Required]
     [MinLength(5)]

@@ -96,7 +96,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         var initialCampaign = new Campaign()
         {
-            Name = "My First Campaign",
+            Title = "My First Campaign",
             Description = "The first campaign ever created",
             CreatedAt = DateTime.UtcNow,
             OwnerId = ownerId
@@ -108,7 +108,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             CampaignId = initialCampaign.Id,
             UserId = ownerId,
-            Role = "Leader",
+            Role = "Owner",
             JoinedOn = DateTime.UtcNow,
             UpdatedOn = DateTime.UtcNow
         };
@@ -183,11 +183,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         var users = ApplicationUsers.Where(u => u.Id != adminUser.Id).ToList();
         int campaignCount = 0;
 
-        foreach (var (name, description) in campaignNames.Zip(campaignDescriptions, (n, d) => (n, d)))
+        foreach (var (title, description) in campaignNames.Zip(campaignDescriptions, (n, d) => (n, d)))
         {
             var campaign = new Campaign
             {
-                Name = name,
+                Title = title,
                 Description = description,
                 Color = campaignColors[random.Next(campaignColors.Length)],
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
@@ -205,12 +205,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             foreach (var memberUser in selectedMembers)
             {
-                var role = memberUser.Id == campaign.OwnerId ? "Leader" : "Member";
+                var role = memberUser.Id == campaign.OwnerId ? "Owner" : "Member";
                 SeedMembers(campaign, memberUser, role);
             }
 
             if (campaign.OwnerId == adminUser.Id)
-                SeedMembers(campaign, adminUser, "Leader");
+                SeedMembers(campaign, adminUser, "Owner");
             else
                 SeedMembers(campaign, adminUser, "Member");
 
@@ -247,8 +247,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             var quest = new Quest
             {
-                Name = $"Quest {j + 1} for {campaign.Name}",
-                Description = $"Description for quest {j + 1} in {campaign.Name}",
+                Name = $"Quest {j + 1} for {campaign.Title}",
+                Description = $"Description for quest {j + 1} in {campaign.Title}",
                 CampaignId = campaign.Id,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
                 Priority = difficulties[random.Next(difficulties.Length)]

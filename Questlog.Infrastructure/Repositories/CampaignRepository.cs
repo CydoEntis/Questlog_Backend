@@ -30,7 +30,7 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
 
         if (!string.IsNullOrEmpty(queryOptions.SearchValue))
         {
-            query = query.Where(c => c.Name.Contains(queryOptions.SearchValue));
+            query = query.Where(c => c.Title.Contains(queryOptions.SearchValue));
         }
 
         if (!string.IsNullOrEmpty(queryOptions.OrderOn))
@@ -92,8 +92,8 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
         return orderOn.ToLower() switch
         {
             "name" => orderDirection == OrderBy.Asc
-                ? query.OrderBy(c => c.Name)
-                : query.OrderByDescending(c => c.Name),
+                ? query.OrderBy(c => c.Title)
+                : query.OrderByDescending(c => c.Title),
             "createdat" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.CreatedAt)
                 : query.OrderByDescending(c => c.CreatedAt),
