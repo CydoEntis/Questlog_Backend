@@ -18,7 +18,7 @@ public interface ICampaignService
     Task<ServiceResult<PaginatedResult<GetCampaignResponseDto>>> GetAllCampaigns(string userId,
         QueryParamsDto queryParams);
     Task<ServiceResult<CreateCampaignResponseDto>> CreateCampaign(string userId, CreateCampaignRequestDto requestDto);
-    Task<ServiceResult<UpdateCampaignDetailsResponseDto>> UpdateCampaignDetails(UpdateCampaignDetailsRequestDto requestDto, string userId);
+    Task<ServiceResult<UpdateCampaignResponseDto>> UpdateCampaignDetails(UpdateCampaignRequestDto requestDto, string userId);
     Task<ServiceResult<GetCampaignResponseDto>> UpdateCampaignLeader(int campaignId, string userId, UpdateCampaignOwnerRequestDto requestDto);
     Task<ServiceResult<int>> DeleteCampaign(int campaignId);
 }

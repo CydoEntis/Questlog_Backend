@@ -91,7 +91,7 @@ public class CampaignController : BaseController
     }
 
     [HttpPut("{campaignId}/details")]
-    public async Task<ActionResult<ApiResponse>> UpdateCampaignDetails(int campaignId, [FromBody] UpdateCampaignDetailsRequestDto requestDto)
+    public async Task<ActionResult<ApiResponse>> UpdateCampaignDetails(int campaignId, [FromBody] UpdateCampaignRequestDto requestDto)
     {
         if (requestDto == null)
         {

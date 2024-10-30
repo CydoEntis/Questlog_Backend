@@ -139,46 +139,53 @@ public class CampaignService : BaseService, ICampaignService
     }
 
 
-    public async Task<ServiceResult<UpdateCampaignDetailsResponseDto>> UpdateCampaignDetails(
-        UpdateCampaignDetailsRequestDto requestDto, string userId)
+    public async Task<ServiceResult<UpdateCampaignResponseDto>> UpdateCampaignDetails(
+        UpdateCampaignRequestDto requestDto, string userId)
     {
-        var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Campaign Request DTO");
-        if (!campaignValidationResult.IsSuccess)
-            return ServiceResult<UpdateCampaignDetailsResponseDto>.Failure(campaignValidationResult.ErrorMessage);
-
-        var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Campaign Id");
-        if (!campaignIdValidationResult.IsSuccess)
-            return ServiceResult<UpdateCampaignDetailsResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
-
-        if (!await IsUserCampaignLeader(requestDto.Id, userId))
+        try
         {
-            return ServiceResult<UpdateCampaignDetailsResponseDto>.Failure(
-                "User is not authorized to update the campaign leader.");
-        }
+            var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Campaign Request DTO");
+            if (!campaignValidationResult.IsSuccess)
+                return ServiceResult<UpdateCampaignResponseDto>.Failure(campaignValidationResult.ErrorMessage);
 
-        return await HandleExceptions<UpdateCampaignDetailsResponseDto>(async () =>
-        {
+            var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Campaign Id");
+            if (!campaignIdValidationResult.IsSuccess)
+                return ServiceResult<UpdateCampaignResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+
+            if (!await IsUserCampaignLeader(requestDto.Id, userId))
+            {
+                return ServiceResult<UpdateCampaignResponseDto>.Failure(
+                    "User is not authorized to update the campaign leader.");
+            }
+
+
             var foundCampaign = await _unitOfWork.Campaign.GetAsync(g => g.Id == requestDto.Id && g.OwnerId == userId);
 
             if (foundCampaign == null)
             {
-                return ServiceResult<UpdateCampaignDetailsResponseDto>.Failure("Campaign not found.");
+                return ServiceResult<UpdateCampaignResponseDto>.Failure("Campaign not found.");
             }
 
 
-            foundCampaign.Title = requestDto.Name.Trim();
+            foundCampaign.Title = requestDto.Title.Trim();
             foundCampaign.Description = requestDto.Description.Trim();
             foundCampaign.Color = requestDto.Color;
             foundCampaign.UpdatedAt = DateTime.UtcNow;
-            foundCampaign.DueDate = requestDto.DueDate;
-
+            if (requestDto.DueDate.HasValue)
+            {
+                foundCampaign.DueDate = requestDto.DueDate.Value;
+            }
 
             await _unitOfWork.Campaign.UpdateAsync(foundCampaign);
 
-            var responseDto = _mapper.Map<UpdateCampaignDetailsResponseDto>(foundCampaign);
+            var responseDto = _mapper.Map<UpdateCampaignResponseDto>(foundCampaign);
 
-            return ServiceResult<UpdateCampaignDetailsResponseDto>.Success(responseDto);
-        });
+            return ServiceResult<UpdateCampaignResponseDto>.Success(responseDto);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<UpdateCampaignResponseDto>.Failure(ex.InnerException.ToString());
+        }
     }
 
     public async Task<ServiceResult<GetCampaignResponseDto>> UpdateCampaignLeader(int campaignId, string userId,

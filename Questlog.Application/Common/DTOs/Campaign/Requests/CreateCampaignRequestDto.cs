@@ -7,7 +7,7 @@ public record CreateCampaignRequestDto
     [Required(ErrorMessage = "Campaign name is required")]
     [MinLength(3, ErrorMessage = "Campaign name must be atleast 3 characters")]
     [MaxLength(20, ErrorMessage = "Campaign name cannot exceed 20 characters")]
-    public required string Name { get; set; }
+    public required string Title { get; set; }
 
     [Required(ErrorMessage = "Campaign description is required")]
     [MinLength(5, ErrorMessage = "Campaign description must be atleast 5 characters")]

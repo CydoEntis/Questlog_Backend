@@ -27,7 +27,7 @@ public class CampaignMappingProfile : Profile
         // .ForMember(dest => dest.Quests, opt => opt.MapFrom(src => src.Quests.Count)); 
 
         CreateMap<Campaign, CreateCampaignRequestDto>().ReverseMap();
-        CreateMap<Campaign, UpdateCampaignDetailsResponseDto>().ReverseMap();
-        CreateMap<Campaign, UpdateCampaignDetailsRequestDto>().ReverseMap();
+        CreateMap<Campaign, UpdateCampaignResponseDto>().ReverseMap();
+        CreateMap<Campaign, UpdateCampaignRequestDto>().ReverseMap();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Questlog.Application.Common.DTOs.Guild.Responses
 {
-    public record UpdateCampaignDetailsResponseDto
+    public record UpdateCampaignResponseDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
