@@ -130,22 +130,12 @@ public class QuestService : BaseService, IQuestService
                 }
             }
 
-            foreach (var step in requestDto.Steps)
-            {
-                var newStep = new Step
-                {
-                    Description = step,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
-                createdQuest.Steps.Add(newStep);
-            }
 
             await _unitOfWork.SaveAsync();
 
             var questWithMembers = await _unitOfWork.Quest
                 .GetAsync(q => q.Id == createdQuest.Id,
-                    includeProperties: "Tasks,MemberQuests.AssignedMember,MemberQuests.User");
+                    includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User");
 
             var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
             return ServiceResult<CreateQuestResponseDto>.Success(createQuestResponseDTO);
