@@ -14,7 +14,6 @@ public record CreateQuestResponseDto()
     public DateTime UpdatedAt { get; set; }
     public DateTime DueDate { get; set; }
     public int CampaignId { get; set; }
-    public List<GetMemberResponseDto> AssignedMembers { get; set; } = new List<GetMemberResponseDto>();
-    public List<CreateTaskResponseDto> Tasks { get; set; } = new List<CreateTaskResponseDto>();
-
+    public List<int> AssignedMemberIds { get; set; } = new List<int>();
+    public List<string> TaskDescriptions { get; set; } = new List<string>();
 }

@@ -1,21 +1,17 @@
-﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using Questlog.Application.Common;
+﻿using Microsoft.EntityFrameworkCore;
 using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Interfaces;
-using Questlog.Application.Common.Models;
 using Questlog.Domain.Entities;
 using Questlog.Infrastructure.Data;
-using Task = Questlog.Domain.Entities.Task;
 
 
 namespace Questlog.Infrastructure.Repositories;
 
-public class TaskRepository : BaseRepository<Task>, ITaskRepository
+public class StepRepository : BaseRepository<Step>, ITaskRepository
 {
     private readonly ApplicationDbContext _db;
 
-    public TaskRepository(ApplicationDbContext db) : base(db)
+    public StepRepository(ApplicationDbContext db) : base(db)
     {
         _db = db;
     }
@@ -43,16 +39,16 @@ public class TaskRepository : BaseRepository<Task>, ITaskRepository
     // }
 
 
-    public async Task<Task> UpdateAsync(Task entity)
+    public async Task<Step> UpdateAsync(Step entity)
     {
         entity.UpdatedAt = DateTime.Now;
-        _db.Tasks.Update(entity);
+        _db.Steps.Update(entity);
         await _db.SaveChangesAsync();
         return entity;
     }
 
 
-    private IQueryable<Task> ApplyIncludeProperties(IQueryable<Task> query, string includeProperties)
+    private IQueryable<Step> ApplyIncludeProperties(IQueryable<Step> query, string includeProperties)
     {
         foreach (var includeProp in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
@@ -62,7 +58,7 @@ public class TaskRepository : BaseRepository<Task>, ITaskRepository
     }
 
 
-    private IQueryable<Task> ApplyOrdering(IQueryable<Task> query, string orderOn, string orderBy)
+    private IQueryable<Step> ApplyOrdering(IQueryable<Step> query, string orderOn, string orderBy)
     {
         var orderDirection = Enum.TryParse<OrderBy>(orderBy, true, out var order) ? order : OrderBy.Desc;
 

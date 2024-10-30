@@ -1,19 +1,10 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common;
-using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Campaign.Requests;
-using Questlog.Application.Common.DTOs.Campaign.Responses;
-using Questlog.Application.Common.DTOs.Campaign.Requests;
-using Questlog.Application.Common.DTOs.Campaign.Responses;
-using Questlog.Application.Common.DTOs.Guild.Requests;
-using Questlog.Application.Common.DTOs.Guild.Responses;
 using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Application.Common.DTOs.Quest.Request;
-using Questlog.Application.Common.Enums;
 using Questlog.Application.Common.Extensions;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
@@ -41,19 +32,20 @@ public class QuestService : BaseService, IQuestService
 
     public async Task<ServiceResult<GetQuestResponseDto>> GetQuestById(int campaignId, int questId)
     {
-        var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, "Campaign Id");
-        if (!campaignIdValidationResult.IsSuccess)
-            return ServiceResult<GetQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
-
-        var questIdValidationResult = ValidationHelper.ValidateId(questId, "Quest Id");
-        if (!questIdValidationResult.IsSuccess)
-            return ServiceResult<GetQuestResponseDto>.Failure(questIdValidationResult.ErrorMessage);
-
-        return await HandleExceptions<GetQuestResponseDto>(async () =>
+        try
         {
+            var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, "Campaign Id");
+            if (!campaignIdValidationResult.IsSuccess)
+                return ServiceResult<GetQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+
+            var questIdValidationResult = ValidationHelper.ValidateId(questId, "Quest Id");
+            if (!questIdValidationResult.IsSuccess)
+                return ServiceResult<GetQuestResponseDto>.Failure(questIdValidationResult.ErrorMessage);
+
+
             var foundQuest =
                 await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.CampaignId == campaignId,
-                    includeProperties: "Tasks");
+                    includeProperties: "Steps");
 
 
             if (foundQuest == null)
@@ -61,10 +53,15 @@ public class QuestService : BaseService, IQuestService
                 return ServiceResult<GetQuestResponseDto>.Failure("Quest not found.");
             }
 
-            var campaignResponseDTO = _mapper.Map<GetQuestResponseDto>(foundQuest);
+            var questResponseDto = _mapper.Map<GetQuestResponseDto>(foundQuest);
 
-            return ServiceResult<GetQuestResponseDto>.Success(campaignResponseDTO);
-        });
+            return ServiceResult<GetQuestResponseDto>.Success(questResponseDto);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<GetQuestResponseDto>.Failure(
+                ex.InnerException?.Message ?? ex.Message);
+        }
     }
 
     public async Task<ServiceResult<PaginatedResult<GetQuestResponseDto>>> GetAllQuests(int campaignId, string userId,
@@ -78,7 +75,7 @@ public class QuestService : BaseService, IQuestService
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
-                IncludeProperties = "Tasks,MemberQuests.AssignedMember,MemberQuests.User",
+                IncludeProperties = "Steps,MemberQuests.AssignedMember,MemberQuests.User",
                 Filter = c => c.CampaignId == campaignId
             };
 
@@ -89,10 +86,8 @@ public class QuestService : BaseService, IQuestService
 
 
             var paginatedResult = await _unitOfWork.Quest.GetPaginated(options);
-            // Map the items to response DTOs
             var campaignResponseDTOs = _mapper.Map<List<GetQuestResponseDto>>(paginatedResult.Items);
 
-            // Create a new PaginatedResult for the DTOs
             var result = new PaginatedResult<GetQuestResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems,
                 paginatedResult.CurrentPage, queryParams.PageSize);
 
@@ -106,26 +101,20 @@ public class QuestService : BaseService, IQuestService
     {
         try
         {
-            // Validate user ID
             var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
             if (!userValidationResult.IsSuccess)
                 return ServiceResult<CreateQuestResponseDto>.Failure(userValidationResult.ErrorMessage);
 
-            // Validate the request DTO
             var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Quest Request DTO");
             if (!campaignValidationResult.IsSuccess)
                 return ServiceResult<CreateQuestResponseDto>.Failure(campaignValidationResult.ErrorMessage);
 
-            // Map to Quest entity
             var quest = _mapper.Map<Quest>(requestDto);
 
-            // Create the quest in the database
             Quest createdQuest = await _unitOfWork.Quest.CreateAsync(quest);
 
-            // Get existing members
             var existingMembers = await _unitOfWork.Member.GetAllAsync(m => requestDto.MemberIds.Contains(m.Id));
 
-            // Assign members to the quest
             foreach (var memberId in requestDto.MemberIds)
             {
                 var existingMember = existingMembers.FirstOrDefault(m => m.Id == memberId);
@@ -135,27 +124,36 @@ public class QuestService : BaseService, IQuestService
                     {
                         AssignedQuestId = createdQuest.Id,
                         AssignedMemberId = existingMember.Id,
-                        UserId = existingMember.UserId
+                        UserId = existingMember.UserId // Assuming UserId is a property in the Member entity
                     };
                     createdQuest.MemberQuests.Add(memberQuest);
                 }
             }
 
-            // Save changes to the database
+            foreach (var step in requestDto.Steps)
+            {
+                var newStep = new Step
+                {
+                    Description = step,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                createdQuest.Steps.Add(newStep);
+            }
+
             await _unitOfWork.SaveAsync();
 
-            // Fetch the created quest with members
             var questWithMembers = await _unitOfWork.Quest
-                .GetAsync(q => q.Id == createdQuest.Id, includeProperties: "Tasks,MemberQuests.AssignedMember,MemberQuests.User");
+                .GetAsync(q => q.Id == createdQuest.Id,
+                    includeProperties: "Tasks,MemberQuests.AssignedMember,MemberQuests.User");
 
-            // Map to response DTO
             var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
             return ServiceResult<CreateQuestResponseDto>.Success(createQuestResponseDTO);
         }
         catch (Exception ex)
         {
             return ServiceResult<CreateQuestResponseDto>.Failure(
-                ex.InnerException.ToString());
+                ex.InnerException?.Message ?? ex.Message);
         }
     }
 

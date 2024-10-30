@@ -28,7 +28,7 @@ public class UnitOfWork : IUnitOfWork
         Campaign = new CampaignRepository(db);
         Member = new MemberRepository(db);
         Quest = new QuestRepository(db);
-        Task = new TaskRepository(db);
+        Task = new StepRepository(db);
 
         
     }

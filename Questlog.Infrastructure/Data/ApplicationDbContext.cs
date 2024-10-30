@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Questlog.Domain.Entities;
-using Task = Questlog.Domain.Entities.Task;
 
 namespace Questlog.Infrastructure.Data;
 
@@ -13,7 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Campaign> Campaigns { get; set; }
     public DbSet<Member> Members { get; set; }
     public DbSet<Quest> Quests { get; set; }
-    public DbSet<Task> Tasks { get; set; }
+    public DbSet<Step> Steps { get; set; }
     public DbSet<MemberQuest> MemberQuests { get; set; }
 
 
@@ -291,14 +290,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 allTasksCompleted = false;
             }
 
-            var task = new Task
+            var task = new Step
             {
                 Description = $"Task {k + 1} description for {quest.Title}",
                 QuestId = quest.Id,
                 IsCompleted = isTaskCompleted,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
             };
-            Tasks.Add(task);
+            Steps.Add(task);
         }
 
         SaveChanges();

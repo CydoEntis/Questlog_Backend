@@ -11,8 +11,7 @@ namespace Questlog.Application.Common.DTOs.Campaign.Responses
         public string CreatorId { get; set; }
         public string Creator { get; set; }
         public string Color { get; set; }
-        public int TotalMembers { get; set; }
-        public List<GetSimpleMemberResponseDto> Members { get; set; }
+        public List<GetMemberResponseDto> Members { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

@@ -1,12 +1,11 @@
 ﻿using System.Linq.Expressions;
 using Questlog.Application.Common.Models;
 using Questlog.Domain.Entities;
-using Task = Questlog.Domain.Entities.Task;
 
 namespace Questlog.Application.Common.Interfaces;
 
-public interface ITaskRepository : IBaseRepository<Task>
+public interface ITaskRepository : IBaseRepository<Step>
 {
     // Task<PaginatedResult<Subquest>> GetAllAsync(SubquestQueryOptions options);
-    Task<Task> UpdateAsync(Task entity);
+    Task<Step> UpdateAsync(Step entity);
 }

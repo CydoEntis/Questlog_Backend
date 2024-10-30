@@ -14,7 +14,7 @@ public class Quest
     public int CampaignId { get; set; }
     public Campaign Campaign { get; set; }
 
-    public virtual List<Task> Tasks { get; set; } = new List<Task>();
+    public virtual List<Step> Steps { get; set; } = new List<Step>();
     
     public ICollection<MemberQuest> MemberQuests { get; set; } = new List<MemberQuest>();
 }

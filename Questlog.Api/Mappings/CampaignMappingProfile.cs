@@ -13,8 +13,6 @@ public class CampaignMappingProfile : Profile
     {
         CreateMap<Campaign, CreateCampaignResponseDto>().ReverseMap();
         CreateMap<Campaign, GetCampaignResponseDto>()
-            .ForMember(dest => dest.TotalMembers, opt => opt.MapFrom(src => src.Members.Count))
-            .ForMember(dest => dest.Members, opt => opt.MapFrom(src => src.Members.Take(5)))
             .ForMember(dest => dest.CreatorId, opt => opt.MapFrom(src => src.Members
                 .Where(m => m.Role == "Owner")
                 .Select(m => m.User.Id)

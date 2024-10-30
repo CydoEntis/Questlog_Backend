@@ -1,6 +1,6 @@
 ﻿namespace Questlog.Application.Common.DTOs.Task.Response;
 
-public record GetTaskResponseDto
+public record GetStepResponseDto
 {
     public int Id { get; set; }
     public string Description { get; set; }

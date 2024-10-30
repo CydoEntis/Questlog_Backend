@@ -15,24 +15,18 @@ public class QuestMappingProfile : Profile
         CreateMap<Quest, CreateQuestRequestDto>().ReverseMap();
 
         CreateMap<Quest, GetQuestResponseDto>()
-            .ForMember(dest => dest.TotalMembers,
-                opt => opt.MapFrom(src => src.MemberQuests.Count(mq => mq.AssignedQuestId == src.Id))) 
-            .ForMember(dest => dest.TotalTasks,
-                opt => opt.MapFrom(src => src.Tasks.Count))
-            .ForMember(dest => dest.CompletedTasks,
-                opt => opt.MapFrom(src => src.Tasks.Count(sq => sq.IsCompleted)))
-            .ForMember(dest => dest.AssignedMembers, opt =>
+            .ForMember(dest => dest.Members, opt =>
                 opt.MapFrom(src => src.MemberQuests
-                    .Where(mq => mq.AssignedQuestId == src.Id) 
+                    .Where(mq => mq.AssignedQuestId == src.Id)
                     .Select(mq => new GetMemberResponseDto
                     {
-                        Id = mq.AssignedMember.Id, 
-                        UserId = mq.UserId, 
-                        DisplayName = mq.AssignedMember.User.DisplayName, 
-                        Email = mq.AssignedMember.User.Email, 
-                        Avatar = mq.AssignedMember.User.Avatar, 
-                        CurrentLevel = mq.AssignedMember.User.CurrentLevel, 
-                        JoinedOn = mq.AssignedMember.JoinedOn, 
+                        Id = mq.AssignedMember.Id,
+                        UserId = mq.UserId,
+                        DisplayName = mq.AssignedMember.User.DisplayName,
+                        Email = mq.AssignedMember.User.Email,
+                        Avatar = mq.AssignedMember.User.Avatar,
+                        CurrentLevel = mq.AssignedMember.User.CurrentLevel,
+                        JoinedOn = mq.AssignedMember.JoinedOn,
                     })));
 
 
