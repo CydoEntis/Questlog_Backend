@@ -45,7 +45,7 @@ public class QuestService : BaseService, IQuestService
 
             var foundQuest =
                 await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.CampaignId == campaignId,
-                    includeProperties: "Steps");
+                    includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User");
 
 
             if (foundQuest == null)

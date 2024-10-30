@@ -29,6 +29,7 @@ public class QuestMappingProfile : Profile
                         Avatar = mq.AssignedMember.User.Avatar,
                         CurrentLevel = mq.AssignedMember.User.CurrentLevel,
                         JoinedOn = mq.AssignedMember.JoinedOn,
+                        CampaignId = mq.AssignedQuest.CampaignId
                     })));
 
 
