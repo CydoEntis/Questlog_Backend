@@ -84,7 +84,7 @@ public class QuestService : BaseService, IQuestService
 
             if (!string.IsNullOrEmpty(queryParams.SearchValue))
             {
-                options.Filter = options.Filter.And(c => c.Name.Contains(queryParams.SearchValue));
+                options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.SearchValue));
             }
 
 

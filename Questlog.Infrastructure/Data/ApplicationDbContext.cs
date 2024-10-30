@@ -247,7 +247,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             var quest = new Quest
             {
-                Name = $"Quest {j + 1} for {campaign.Title}",
+                Title = $"Quest {j + 1} for {campaign.Title}",
                 Description = $"Description for quest {j + 1} in {campaign.Title}",
                 CampaignId = campaign.Id,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
@@ -293,7 +293,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             var task = new Task
             {
-                Description = $"Task {k + 1} description for {quest.Name}",
+                Description = $"Task {k + 1} description for {quest.Title}",
                 QuestId = quest.Id,
                 IsCompleted = isTaskCompleted,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))

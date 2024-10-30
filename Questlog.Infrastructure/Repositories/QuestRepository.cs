@@ -57,8 +57,8 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
         return orderOn.ToLower() switch
         {
             "name" => orderDirection == OrderBy.Asc
-                ? query.OrderBy(c => c.Name)
-                : query.OrderByDescending(c => c.Name),
+                ? query.OrderBy(c => c.Title)
+                : query.OrderByDescending(c => c.Title),
             "createdat" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.CreatedAt)
                 : query.OrderByDescending(c => c.CreatedAt),
