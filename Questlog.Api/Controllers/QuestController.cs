@@ -88,33 +88,35 @@ public class QuestController : BaseController
         //return CreatedResponse(new { Id = createdQuestId, Location = locationUri, Message = "Quest created successfully" });
     }
 
-    // [HttpPut("{questId}/details")]
-    // public async Task<ActionResult<ApiResponse>> UpdateQuestDetails(int questId, [FromBody] UpdateQuestDetailsRequestDto requestDto)
-    // {
-    //     if (requestDto == null)
-    //     {
-    //         return BadRequestResponse("UpdateQuestRequestDTO cannot be null.");
-    //     }
-    //
-    //     string userId = HttpContext.Items["UserId"] as string;
-    //
-    //     if (string.IsNullOrEmpty(userId))
-    //     {
-    //         return BadRequestResponse("User Id is missing.");
-    //     }
-    //
-    //     var result = await _questService.UpdateQuestDetails(requestDto, userId);
-    //
-    //     if (!result.IsSuccess)
-    //     {
-    //         return BadRequestResponse(result.ErrorMessage);
-    //     }
-    //
-    //     return OkResponse(result.Data);
-    // }
+    [HttpPut("{questId}/details")]
+    public async Task<ActionResult<ApiResponse>> UpdateQuestDetails(int questId,
+        [FromBody] UpdateQuestRequestDto requestDto)
+    {
+        if (requestDto == null)
+        {
+            return BadRequestResponse("UpdateQuestRequestDTO cannot be null.");
+        }
+
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequestResponse("User Id is missing.");
+        }
+
+        var result = await _questService.UpdateQuest(requestDto, userId);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+
+        return OkResponse(result.Data);
+    }
 
     // [HttpPut("{questId}/leader")]
-    // public async Task<ActionResult<ApiResponse>> UpdateQuestLeader(int questId, [FromBody] UpdateQuestOwnerRequestDto requestDto)
+    // public async Task<ActionResult<ApiResponse>> UpdateQuestLeader(int questId,
+    //     [FromBody] UpdateQuestOwnerRequestDto requestDto)
     // {
     //     if (requestDto == null)
     //     {

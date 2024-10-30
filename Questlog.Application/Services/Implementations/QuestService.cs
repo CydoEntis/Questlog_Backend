@@ -148,46 +148,73 @@ public class QuestService : BaseService, IQuestService
     }
 
 
-    // public async Task<ServiceResult<UpdateQuestDetailsResponseDto>> UpdateQuestDetails(
-    //     UpdateQuestDetailsRequestDto requestDto, string userId)
-    // {
-    //     var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Quest Request DTO");
-    //     if (!campaignValidationResult.IsSuccess)
-    //         return ServiceResult<UpdateQuestDetailsResponseDto>.Failure(campaignValidationResult.ErrorMessage);
-    //
-    //     var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Quest Id");
-    //     if (!campaignIdValidationResult.IsSuccess)
-    //         return ServiceResult<UpdateQuestDetailsResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
-    //
-    //     if (!await IsUserQuestLeader(requestDto.Id, userId))
-    //     {
-    //         return ServiceResult<UpdateQuestDetailsResponseDto>.Failure(
-    //             "User is not authorized to update the campaign leader.");
-    //     }
-    //
-    //     return await HandleExceptions<UpdateQuestDetailsResponseDto>(async () =>
-    //     {
-    //         var foundQuest = await _unitOfWork.Quest.GetAsync(g => g.Id == requestDto.Id && g.OwnerId == userId);
-    //
-    //         if (foundQuest == null)
-    //         {
-    //             return ServiceResult<UpdateQuestDetailsResponseDto>.Failure("Quest not found.");
-    //         }
-    //
-    //
-    //         foundQuest.Name = requestDto.Name.Trim();
-    //         foundQuest.Description = requestDto.Description.Trim();
-    //         foundQuest.Color = requestDto.Color;
-    //         foundQuest.UpdatedAt = DateTime.UtcNow;
-    //         foundQuest.DueDate = requestDto.DueDate;
-    //
-    //
-    //         await _unitOfWork.Quest.UpdateAsync(foundQuest);
-    //
-    //         var responseDto = _mapper.Map<UpdateQuestDetailsResponseDto>(foundQuest);
-    //
-    //         return ServiceResult<UpdateQuestDetailsResponseDto>.Success(responseDto);
-    //     });
+    public async Task<ServiceResult<UpdateQuestResponseDto>> UpdateQuest(
+        UpdateQuestRequestDto requestDto, string userId)
+    {
+        var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Quest Request DTO");
+        if (!campaignValidationResult.IsSuccess)
+            return ServiceResult<UpdateQuestResponseDto>.Failure(campaignValidationResult.ErrorMessage);
+
+        var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Quest Id");
+        if (!campaignIdValidationResult.IsSuccess)
+            return ServiceResult<UpdateQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+
+
+        return await HandleExceptions<UpdateQuestResponseDto>(async () =>
+        {
+            var foundQuest =
+                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.CampaignId == requestDto.CampaignId);
+
+            if (foundQuest == null)
+            {
+                return ServiceResult<UpdateQuestResponseDto>.Failure("Quest not found.");
+            }
+
+            foundQuest.Title = requestDto.Title.Trim();
+            foundQuest.Description = requestDto.Description.Trim();
+            foundQuest.UpdatedAt = DateTime.UtcNow;
+            foundQuest.DueDate = requestDto.DueDate;
+
+            foundQuest.Steps.Clear(); 
+
+            foreach (var step in requestDto.Steps)
+            {
+                var newStep = new Step
+                {
+                    Description = step.Description.Trim(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                foundQuest.Steps.Add(newStep);
+            }
+
+            var existingMembers = await _unitOfWork.Member.GetAllAsync(m => requestDto.MemberIds.Contains(m.Id));
+
+            foundQuest.MemberQuests.Clear();
+
+            foreach (var memberId in requestDto.MemberIds)
+            {
+                var existingMember = existingMembers.FirstOrDefault(m => m.Id == memberId);
+                if (existingMember != null)
+                {
+                    var memberQuest = new MemberQuest
+                    {
+                        AssignedQuestId = foundQuest.Id,
+                        AssignedMemberId = existingMember.Id,
+                        UserId = existingMember.UserId 
+                    };
+                    foundQuest.MemberQuests.Add(memberQuest);
+                }
+            }
+
+            await _unitOfWork.Quest.UpdateAsync(foundQuest);
+
+            var responseDto = _mapper.Map<UpdateQuestResponseDto>(foundQuest);
+
+            return ServiceResult<UpdateQuestResponseDto>.Success(responseDto);
+        });
+    }
+
     // }
 
     // public async Task<ServiceResult<GetQuestResponseDto>> UpdateQuestLeader(int campaignId, string userId,
@@ -248,10 +275,4 @@ public class QuestService : BaseService, IQuestService
             return ServiceResult<int>.Success(foundQuest.Id);
         });
     }
-
-    // private async Task<bool> IsUserQuestLeader(int campaignId, string userId)
-    // {
-    //     var campaign = await _unitOfWork.Quest.GetAsync(g => g.Id == campaignId);
-    //     return campaign?.OwnerId == userId;
-    // }
 }
