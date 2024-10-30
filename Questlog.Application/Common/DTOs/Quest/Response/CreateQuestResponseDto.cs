@@ -6,7 +6,7 @@ namespace Questlog.Application.Common.DTOs.Quest;
 public record CreateQuestResponseDto()
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Title { get; set; }
     public string Description { get; set; }
     public string Difficulty { get; set; }
     public bool isCompleted { get; set; }
