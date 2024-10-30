@@ -15,6 +15,8 @@ public class QuestMappingProfile : Profile
         CreateMap<Quest, CreateQuestRequestDto>().ReverseMap();
 
         CreateMap<Quest, GetQuestResponseDto>()
+            .ForMember(dest => dest.CompletedSteps,
+                opt => opt.MapFrom(src => src.Steps.Count(sq => sq.IsCompleted)))
             .ForMember(dest => dest.Members, opt =>
                 opt.MapFrom(src => src.MemberQuests
                     .Where(mq => mq.AssignedQuestId == src.Id)
