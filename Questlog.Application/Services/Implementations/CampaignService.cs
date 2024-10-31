@@ -79,7 +79,7 @@ public class CampaignService : BaseService, ICampaignService
                 options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.SearchValue));
             }
 
-            var paginatedResult = await _unitOfWork.Campaign.GetAllAsync(options);
+            var paginatedResult = await _unitOfWork.Campaign.GetPaginatedCampaignsAsync(options);
 
             var campaignResponseDTOs = _mapper.Map<List<GetCampaignResponseDto>>(paginatedResult.Items);
 

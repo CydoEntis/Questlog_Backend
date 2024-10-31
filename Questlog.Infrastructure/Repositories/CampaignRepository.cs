@@ -19,30 +19,7 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
         _db = db;
     }
 
-    public async Task<PaginatedResult<Campaign>> GetPaginatedCampaignsAsync(QueryOptions<Campaign> queryOptions)
-    {
-        IQueryable<Campaign> query = _dbSet;
-
-        if (queryOptions.Filter != null)
-        {
-            query = query.Where(queryOptions.Filter);
-        }
-
-        if (!string.IsNullOrEmpty(queryOptions.SearchValue))
-        {
-            query = query.Where(c => c.Title.Contains(queryOptions.SearchValue));
-        }
-
-        if (!string.IsNullOrEmpty(queryOptions.OrderOn))
-        {
-            query = ApplyOrdering(query, queryOptions.OrderOn, queryOptions.OrderBy);
-        }
-
-        return await Paginate(query, queryOptions.PageNumber, queryOptions.PageSize);
-    }
-
-
-    public async Task<PaginatedResult<Campaign>> GetAllAsync(QueryOptions<Campaign> options)
+    public async Task<PaginatedResult<Campaign>> GetPaginatedCampaignsAsync(QueryOptions<Campaign> options)
     {
         IQueryable<Campaign> query = _dbSet;
 
@@ -63,7 +40,6 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
 
         return await Paginate(query, options.PageNumber, options.PageSize);
     }
-
 
     public async Task<Campaign> UpdateAsync(Campaign entity)
     {

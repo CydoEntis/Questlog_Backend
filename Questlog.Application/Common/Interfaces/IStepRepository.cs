@@ -4,7 +4,7 @@ using Questlog.Domain.Entities;
 
 namespace Questlog.Application.Common.Interfaces;
 
-public interface ITaskRepository : IBaseRepository<Step>
+public interface IStepRepository : IBaseRepository<Step>
 {
     // Task<PaginatedResult<Subquest>> GetAllAsync(SubquestQueryOptions options);
     Task<Step> UpdateAsync(Step entity);

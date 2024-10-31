@@ -171,7 +171,7 @@ public class QuestService : BaseService, IQuestService
             foundQuest.UpdatedAt = DateTime.UtcNow;
             foundQuest.DueDate = requestDto.DueDate;
 
-            UpdateQuestSteps(foundQuest, requestDto.Steps);
+            await UpdateQuestSteps(foundQuest, requestDto.Steps);
 
             await UpdateMemberQuests(foundQuest, requestDto.MemberIds);
 
@@ -186,46 +186,6 @@ public class QuestService : BaseService, IQuestService
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
-
-
-    // }
-
-    // public async Task<ServiceResult<GetQuestResponseDto>> UpdateQuestLeader(int campaignId, string userId,
-    //     UpdateQuestOwnerRequestDto requestDto)
-    // {
-    //     var validations = new[]
-    //     {
-    //         ValidationHelper.ValidateId(campaignId, "Quest Id"),
-    //         ValidationHelper.ValidateId(requestDto.UserId, "Userid")
-    //     };
-    //
-    //     var failedValidation = validations.FirstOrDefault(v => !v.IsSuccess);
-    //     if (failedValidation != null)
-    //         return ServiceResult<GetQuestResponseDto>.Failure(failedValidation.ErrorMessage);
-    //
-    //     if (campaignId != requestDto.QuestId)
-    //         return ServiceResult<GetQuestResponseDto>.Failure("Quest member must be from same campaign");
-    //
-    //     if (!await IsUserQuestLeader(campaignId, userId))
-    //         return ServiceResult<GetQuestResponseDto>.Failure(
-    //             "User is not authorized to update the campaign leader.");
-    //
-    //     return await HandleExceptions<GetQuestResponseDto>(async () =>
-    //     {
-    //         var foundQuest = await _unitOfWork.Quest.GetAsync(g => g.Id == campaignId);
-    //         if (foundQuest is null)
-    //             return ServiceResult<GetQuestResponseDto>.Failure("Quest not found");
-    //
-    //
-    //         foundQuest.OwnerId = requestDto.UserId;
-    //         await _unitOfWork.Quest.UpdateAsync(foundQuest);
-    //
-    //         var responseDto = _mapper.Map<GetQuestResponseDto>(foundQuest);
-    //
-    //         return ServiceResult<GetQuestResponseDto>.Success(responseDto);
-    //     });
-    // }
-
 
     public async Task<ServiceResult<int>> DeleteQuest(int campaignId)
     {
@@ -250,49 +210,78 @@ public class QuestService : BaseService, IQuestService
     }
 
 
-    private void UpdateQuestSteps(Quest foundQuest, IEnumerable<UpdateStepsRequestDto> steps)
+    private async Task UpdateQuestSteps(Quest foundQuest, IEnumerable<UpdateStepsRequestDto> steps)
     {
-        foundQuest.Steps.Clear();
+        var existingSteps = await _unitOfWork.Step.GetAllAsync(s => s.QuestId == foundQuest.Id);
+
+        var existingStepDict = existingSteps.ToDictionary(s => s.Id);
 
         foreach (var step in steps)
         {
-            var newStep = new Step
+            if (step.Id.HasValue && existingStepDict.ContainsKey(step.Id.Value))
             {
-                Description = step.Description.Trim(),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-            foundQuest.Steps.Add(newStep);
+                var existingStep = existingStepDict[step.Id.Value];
+                existingStep.Description = step.Description.Trim();
+                existingStep.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                // Create new step
+                var newStep = new Step
+                {
+                    Description = step.Description.Trim(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    QuestId = foundQuest.Id
+                };
+                foundQuest.Steps.Add(newStep);
+            }
+        }
+
+        var stepIdsInUpdate = steps.Select(s => s.Id).Where(id => id.HasValue).ToHashSet();
+        var stepsToRemove = existingSteps.Where(s => !stepIdsInUpdate.Contains(s.Id)).ToList();
+        foreach (var stepToRemove in stepsToRemove)
+        {
+            _unitOfWork.Step.RemoveAsync(stepToRemove);
         }
     }
 
+
     private async Task UpdateMemberQuests(Quest foundQuest, IEnumerable<int> memberIds)
     {
-        var existingMembers = await _unitOfWork.Member.GetAllAsync(m => memberIds.Contains(m.Id));
+        var existingMemberQuests = await _unitOfWork.MemberQuest.GetAllAsync(mq => mq.AssignedQuestId == foundQuest.Id);
 
-        // Create a set of existing member quest IDs to avoid duplicates
-        var existingMemberQuestIds = foundQuest.MemberQuests
-            .Select(mq => mq.AssignedMemberId)
-            .ToHashSet();
+        var newMemberIds = memberIds.ToHashSet();
 
-        foundQuest.MemberQuests.Clear();
-
-        foreach (var memberId in memberIds)
+        foreach (var memberQuest in existingMemberQuests)
         {
-            if (!existingMemberQuestIds.Contains(memberId))
+            if (!newMemberIds.Contains(memberQuest.AssignedMemberId))
             {
-                var existingMember = existingMembers.FirstOrDefault(m => m.Id == memberId);
+                foundQuest.MemberQuests.Remove(memberQuest);
+                await _unitOfWork.MemberQuest.RemoveAsync(memberQuest); 
+            }
+        }
+
+        foreach (var memberId in newMemberIds)
+        {
+            if (!existingMemberQuests.Any(mq => mq.AssignedMemberId == memberId))
+            {
+                var existingMember = await _unitOfWork.Member.GetAsync(m => m.Id == memberId);
                 if (existingMember != null)
                 {
                     var memberQuest = new MemberQuest
                     {
                         AssignedQuestId = foundQuest.Id,
                         AssignedMemberId = existingMember.Id,
-                        UserId = existingMember.UserId
+                        UserId = existingMember.UserId 
                     };
+
                     foundQuest.MemberQuests.Add(memberQuest);
                 }
             }
         }
     }
+
+
+
 }

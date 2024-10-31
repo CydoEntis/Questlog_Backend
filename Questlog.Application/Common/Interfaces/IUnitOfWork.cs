@@ -7,11 +7,12 @@ public interface IUnitOfWork
 
     ICampaignRepository Campaign { get; }
     IMemberRepository Member { get; }
+    IMemberQuestRepository MemberQuest { get; }
 
     IQuestRepository Quest { get; }
 
-    ITaskRepository Task { get; }
+    IStepRepository Step { get; }
 
-    
+
     Task SaveAsync();
 }

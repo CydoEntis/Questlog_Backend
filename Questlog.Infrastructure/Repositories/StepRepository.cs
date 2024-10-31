@@ -7,7 +7,7 @@ using Questlog.Infrastructure.Data;
 
 namespace Questlog.Infrastructure.Repositories;
 
-public class StepRepository : BaseRepository<Step>, ITaskRepository
+public class StepRepository : BaseRepository<Step>, IStepRepository
 {
     private readonly ApplicationDbContext _db;
 

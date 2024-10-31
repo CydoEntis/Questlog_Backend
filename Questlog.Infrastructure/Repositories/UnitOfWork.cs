@@ -10,11 +10,11 @@ public class UnitOfWork : IUnitOfWork
     public ITokenRepository Token { get; private set; }
     public ICampaignRepository Campaign { get; private set; }
     public IMemberRepository Member { get; private set; }
+    public IMemberQuestRepository MemberQuest { get; private set; }
 
     public IQuestRepository Quest { get; private set; }
 
-    public ITaskRepository Task { get; private set; }
-
+    public IStepRepository Step { get; private set; }
 
 
     public UnitOfWork(ApplicationDbContext db)
@@ -27,10 +27,9 @@ public class UnitOfWork : IUnitOfWork
 
         Campaign = new CampaignRepository(db);
         Member = new MemberRepository(db);
+        MemberQuest = new MemberQuestRepository(db);
         Quest = new QuestRepository(db);
-        Task = new StepRepository(db);
-
-        
+        Step = new StepRepository(db);
     }
 
 
