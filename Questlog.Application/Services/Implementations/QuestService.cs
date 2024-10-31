@@ -5,6 +5,7 @@ using Questlog.Application.Common;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Application.Common.DTOs.Quest.Request;
+using Questlog.Application.Common.DTOs.Task.Request;
 using Questlog.Application.Common.Extensions;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
@@ -124,7 +125,7 @@ public class QuestService : BaseService, IQuestService
                     {
                         AssignedQuestId = createdQuest.Id,
                         AssignedMemberId = existingMember.Id,
-                        UserId = existingMember.UserId // Assuming UserId is a property in the Member entity
+                        UserId = existingMember.UserId
                     };
                     createdQuest.MemberQuests.Add(memberQuest);
                 }
@@ -151,69 +152,41 @@ public class QuestService : BaseService, IQuestService
     public async Task<ServiceResult<UpdateQuestResponseDto>> UpdateQuest(
         UpdateQuestRequestDto requestDto, string userId)
     {
-        var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Quest Request DTO");
-        if (!campaignValidationResult.IsSuccess)
-            return ServiceResult<UpdateQuestResponseDto>.Failure(campaignValidationResult.ErrorMessage);
-
-        var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Quest Id");
-        if (!campaignIdValidationResult.IsSuccess)
-            return ServiceResult<UpdateQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
-
-
-        return await HandleExceptions<UpdateQuestResponseDto>(async () =>
+        try
         {
+            var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Quest Request DTO");
+            if (!campaignValidationResult.IsSuccess)
+                return ServiceResult<UpdateQuestResponseDto>.Failure(campaignValidationResult.ErrorMessage);
+
+            var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Quest Id");
+            if (!campaignIdValidationResult.IsSuccess)
+                return ServiceResult<UpdateQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+
+
             var foundQuest =
                 await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.CampaignId == requestDto.CampaignId);
-
-            if (foundQuest == null)
-            {
-                return ServiceResult<UpdateQuestResponseDto>.Failure("Quest not found.");
-            }
 
             foundQuest.Title = requestDto.Title.Trim();
             foundQuest.Description = requestDto.Description.Trim();
             foundQuest.UpdatedAt = DateTime.UtcNow;
             foundQuest.DueDate = requestDto.DueDate;
 
-            foundQuest.Steps.Clear(); 
+            UpdateQuestSteps(foundQuest, requestDto.Steps);
 
-            foreach (var step in requestDto.Steps)
-            {
-                var newStep = new Step
-                {
-                    Description = step.Description.Trim(),
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                foundQuest.Steps.Add(newStep);
-            }
-
-            var existingMembers = await _unitOfWork.Member.GetAllAsync(m => requestDto.MemberIds.Contains(m.Id));
-
-            foundQuest.MemberQuests.Clear();
-
-            foreach (var memberId in requestDto.MemberIds)
-            {
-                var existingMember = existingMembers.FirstOrDefault(m => m.Id == memberId);
-                if (existingMember != null)
-                {
-                    var memberQuest = new MemberQuest
-                    {
-                        AssignedQuestId = foundQuest.Id,
-                        AssignedMemberId = existingMember.Id,
-                        UserId = existingMember.UserId 
-                    };
-                    foundQuest.MemberQuests.Add(memberQuest);
-                }
-            }
+            await UpdateMemberQuests(foundQuest, requestDto.MemberIds);
 
             await _unitOfWork.Quest.UpdateAsync(foundQuest);
 
             var responseDto = _mapper.Map<UpdateQuestResponseDto>(foundQuest);
-
             return ServiceResult<UpdateQuestResponseDto>.Success(responseDto);
-        });
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<UpdateQuestResponseDto>.Failure(
+                ex.InnerException?.Message ?? ex.Message);
+        }
     }
+
 
     // }
 
@@ -274,5 +247,52 @@ public class QuestService : BaseService, IQuestService
 
             return ServiceResult<int>.Success(foundQuest.Id);
         });
+    }
+
+
+    private void UpdateQuestSteps(Quest foundQuest, IEnumerable<UpdateStepsRequestDto> steps)
+    {
+        foundQuest.Steps.Clear();
+
+        foreach (var step in steps)
+        {
+            var newStep = new Step
+            {
+                Description = step.Description.Trim(),
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            foundQuest.Steps.Add(newStep);
+        }
+    }
+
+    private async Task UpdateMemberQuests(Quest foundQuest, IEnumerable<int> memberIds)
+    {
+        var existingMembers = await _unitOfWork.Member.GetAllAsync(m => memberIds.Contains(m.Id));
+
+        // Create a set of existing member quest IDs to avoid duplicates
+        var existingMemberQuestIds = foundQuest.MemberQuests
+            .Select(mq => mq.AssignedMemberId)
+            .ToHashSet();
+
+        foundQuest.MemberQuests.Clear();
+
+        foreach (var memberId in memberIds)
+        {
+            if (!existingMemberQuestIds.Contains(memberId))
+            {
+                var existingMember = existingMembers.FirstOrDefault(m => m.Id == memberId);
+                if (existingMember != null)
+                {
+                    var memberQuest = new MemberQuest
+                    {
+                        AssignedQuestId = foundQuest.Id,
+                        AssignedMemberId = existingMember.Id,
+                        UserId = existingMember.UserId
+                    };
+                    foundQuest.MemberQuests.Add(memberQuest);
+                }
+            }
+        }
     }
 }

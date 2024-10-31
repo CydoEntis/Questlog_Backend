@@ -81,14 +81,9 @@ public class QuestController : BaseController
         }
 
         return CreatedResponse(result.Data);
-
-        //var createdQuestId = result.Data.Id; // Assuming Id is a property of QuestResponseDTO
-        //var locationUri = Url.Action("GetQuest", "Quest", new { questId = createdQuestId }, HttpContext.Request.Scheme);
-
-        //return CreatedResponse(new { Id = createdQuestId, Location = locationUri, Message = "Quest created successfully" });
     }
 
-    [HttpPut("{questId}/details")]
+    [HttpPut("{questId:int}")]
     public async Task<ActionResult<ApiResponse>> UpdateQuestDetails(int questId,
         [FromBody] UpdateQuestRequestDto requestDto)
     {
