@@ -1,8 +1,8 @@
-﻿using Questlog.Application.Common.DTOs.Task.Request;
+﻿using Questlog.Application.Common.DTOs.Step;
 
-namespace Questlog.Application.Common.DTOs.Quest.Request;
+namespace Questlog.Application.Common.DTOs.Quest;
 
-public record UpdateQuestRequestDto()
+public class UpdateQuestDto
 {
     public int Id { get; set; }
     public string Title { get; set; }
@@ -11,5 +11,5 @@ public record UpdateQuestRequestDto()
     public DateTime DueDate { get; set; }
     public int CampaignId { get; set; }
     public List<int> MemberIds { get; set; }
-    public List<UpdateStepsRequestDto> Steps { get; set; }
+    public List<UpdateStepDto> Steps { get; set; }
 }

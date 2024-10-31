@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="Common\DTOs\ApplicationUser\Request\" />
-    <Folder Include="Common\DTOs\MemberQuest\Request\" />
     <Folder Include="Queries\" />
   </ItemGroup>
 

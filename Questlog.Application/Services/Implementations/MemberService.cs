@@ -9,8 +9,7 @@ using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 using Questlog.Application.Common;
 using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Member.Request;
-using Questlog.Application.Common.DTOs.Member.Response;
+using Questlog.Application.Common.DTOs.Member;
 using Questlog.Application.Common.Extensions;
 
 namespace Questlog.Application.Services.Implementations;
@@ -29,49 +28,49 @@ public class MemberService : BaseService, IMemberService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<GetMemberResponseDto>> GetMember(int campaignId, int guildMemberId)
+    public async Task<ServiceResult<MemberDto>> GetMember(int campaignId, int guildMemberId)
     {
         var idValidation = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
-        if (!idValidation.IsSuccess) return ServiceResult<GetMemberResponseDto>.Failure(idValidation.ErrorMessage);
+        if (!idValidation.IsSuccess) return ServiceResult<MemberDto>.Failure(idValidation.ErrorMessage);
 
         var memberIdValidation = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
         if (!memberIdValidation.IsSuccess)
-            return ServiceResult<GetMemberResponseDto>.Failure(memberIdValidation.ErrorMessage);
+            return ServiceResult<MemberDto>.Failure(memberIdValidation.ErrorMessage);
 
-        return await HandleExceptions<GetMemberResponseDto>(async () =>
+        return await HandleExceptions<MemberDto>(async () =>
         {
             Member foundMember =
                 await _unitOfWork.Member.GetAsync(gm => gm.CampaignId == campaignId && gm.Id == guildMemberId);
 
             if (foundMember == null)
             {
-                return ServiceResult<GetMemberResponseDto>.Failure(" member not found.");
+                return ServiceResult<MemberDto>.Failure(" member not found.");
             }
 
-            var guildMemberResponseDTO = _mapper.Map<GetMemberResponseDto>(foundMember);
+            var guildMemberResponseDTO = _mapper.Map<MemberDto>(foundMember);
 
-            return ServiceResult<GetMemberResponseDto>.Success(guildMemberResponseDTO);
+            return ServiceResult<MemberDto>.Success(guildMemberResponseDTO);
         });
     }
 
 
-    public async Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int campaignId)
+    public async Task<ServiceResult<List<MemberDto>>> GetAllMembers(int campaignId)
     {
-        return await HandleExceptions<List<GetMemberResponseDto>>(async () =>
+        return await HandleExceptions<List<MemberDto>>(async () =>
         {
             var members = await _unitOfWork.Member.GetAllAsync(m => m.CampaignId == campaignId);
 
-            var memberResponseDtos = _mapper.Map<List<GetMemberResponseDto>>(members);
+            var memberResponseDtos = _mapper.Map<List<MemberDto>>(members);
 
 
-            return ServiceResult<List<GetMemberResponseDto>>.Success(memberResponseDtos);
+            return ServiceResult<List<MemberDto>>.Success(memberResponseDtos);
         });
     }
 
-    public async Task<ServiceResult<PaginatedResult<GetMemberResponseDto>>> GetAllPaginatedMembers(int campaignId,
+    public async Task<ServiceResult<PaginatedResult<MemberDto>>> GetAllPaginatedMembers(int campaignId,
         QueryParamsDto queryParams)
     {
-        return await HandleExceptions<PaginatedResult<GetMemberResponseDto>>(async () =>
+        return await HandleExceptions<PaginatedResult<MemberDto>>(async () =>
         {
             var options = new QueryOptions<Member>
             {
@@ -90,90 +89,66 @@ public class MemberService : BaseService, IMemberService
 
             var paginatedResult = await _unitOfWork.Member.GetPaginated(options);
 
-            var memberResponseDtos = _mapper.Map<List<GetMemberResponseDto>>(paginatedResult.Items);
+            var memberResponseDtos = _mapper.Map<List<MemberDto>>(paginatedResult.Items);
 
             // Create a new PaginatedResult for the DTOs
-            var result = new PaginatedResult<GetMemberResponseDto>(memberResponseDtos, paginatedResult.TotalItems,
+            var result = new PaginatedResult<MemberDto>(memberResponseDtos, paginatedResult.TotalItems,
                 paginatedResult.CurrentPage, queryParams.PageSize);
 
-            return ServiceResult<PaginatedResult<GetMemberResponseDto>>.Success(result);
+            return ServiceResult<PaginatedResult<MemberDto>>.Success(result);
         });
     }
 
-
-    // private Func<IQueryable<Member>, IOrderedQueryable<Member>> SortAndOrder(SortByOptions sortBy,
-    //     OrderByOptions orderBy)
-    // {
-    //     var sortExpression = GetSortByExpression(sortBy);
-    //
-    //     return orderBy == OrderByOptions.Asc
-    //         ? (q => q.OrderBy(sortExpression))
-    //         : (q => q.OrderByDescending(sortExpression));
-    // }
-    //
-    // private Expression<Func<Member, object>> GetSortByExpression(SortByOptions sortBy)
-    // {
-    //     return sortBy switch
-    //     {
-    //         SortByOptions.Id => gm => gm.Id,
-    //         SortByOptions.Email => gm => gm.User.Email,
-    //         SortByOptions.DisplayName => gm => gm.User.DisplayName,
-    //         SortByOptions.Role => gm => gm.Role,
-    //         SortByOptions.JoinOn => gm => gm.JoinedOn,
-    //         _ => gm => gm.Id // Default sorting by Id
-    //     };
-    // }
-
-    public async Task<ServiceResult<CreateMemberResponseDto>> CreateMember(CreateMemberRequestDto requestDto)
+    public async Task<ServiceResult<MemberDto>> CreateMember(CreateMemberDto requestDto)
     {
-        if (requestDto == null) ServiceResult<CreateMemberResponseDto>.Failure("Must provide a valid  Member");
+        if (requestDto == null) ServiceResult<MemberDto>.Failure("Must provide a valid  Member");
 
         var userValidationResult = await ValidationHelper.ValidateUserIdAsync(requestDto.UserId, _userManager);
         if (!userValidationResult.IsSuccess)
-            return ServiceResult<CreateMemberResponseDto>.Failure(userValidationResult.ErrorMessage);
+            return ServiceResult<MemberDto>.Failure(userValidationResult.ErrorMessage);
 
-        return await HandleExceptions<CreateMemberResponseDto>(async () =>
+        return await HandleExceptions<MemberDto>(async () =>
         {
             var guildMember = _mapper.Map<Member>(requestDto);
             guildMember.Role = RoleConstants.Member;
 
             var createdMember = await _unitOfWork.Member.CreateAsync(guildMember);
 
-            var responseDTO = _mapper.Map<CreateMemberResponseDto>(createdMember);
+            var responseDTO = _mapper.Map<MemberDto>(createdMember);
 
-            return ServiceResult<CreateMemberResponseDto>.Success(responseDTO);
+            return ServiceResult<MemberDto>.Success(responseDTO);
         });
     }
 
 
-    public async Task<ServiceResult<UpdateMemberRoleResponseDto>> UpdateMember(
-        UpdateMemberRoleRequestDto roleRequestDto)
+    public async Task<ServiceResult<MemberDto>> UpdateMember(
+        UpdateMemberDto requestDto)
     {
-        var guildValidationResult = ValidationHelper.ValidateObject(roleRequestDto, "Create  Request DTO");
+        var guildValidationResult = ValidationHelper.ValidateObject(requestDto, "Create  Request DTO");
         if (!guildValidationResult.IsSuccess)
-            return ServiceResult<UpdateMemberRoleResponseDto>.Failure(guildValidationResult.ErrorMessage);
+            return ServiceResult<MemberDto>.Failure(guildValidationResult.ErrorMessage);
 
-        var campaignIdValidationResult = ValidationHelper.ValidateId(roleRequestDto.Id, " Id");
+        var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, " Id");
         if (!campaignIdValidationResult.IsSuccess)
-            return ServiceResult<UpdateMemberRoleResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+            return ServiceResult<MemberDto>.Failure(campaignIdValidationResult.ErrorMessage);
 
-        return await HandleExceptions<UpdateMemberRoleResponseDto>(async () =>
+        return await HandleExceptions<MemberDto>(async () =>
         {
-            Member foundMember = await _unitOfWork.Member.GetAsync(gm => gm.Id == roleRequestDto.Id);
+            Member foundMember = await _unitOfWork.Member.GetAsync(gm => gm.Id == requestDto.Id);
 
             if (foundMember == null)
-                return ServiceResult<UpdateMemberRoleResponseDto>.Failure(" Member not found");
+                return ServiceResult<MemberDto>.Failure(" Member not found");
 
-            var guildMember = _mapper.Map<Member>(roleRequestDto);
+            var guildMember = _mapper.Map<Member>(requestDto);
 
             foundMember.Role = guildMember.Role;
             foundMember.UpdatedOn = DateTime.UtcNow;
 
             await _unitOfWork.Member.UpdateAsync(foundMember);
 
-            var guildMemberResponseDTO = _mapper.Map<UpdateMemberRoleResponseDto>(foundMember);
+            var guildMemberResponseDTO = _mapper.Map<MemberDto>(foundMember);
 
-            return ServiceResult<UpdateMemberRoleResponseDto>.Success(guildMemberResponseDTO);
+            return ServiceResult<MemberDto>.Success(guildMemberResponseDTO);
         });
     }
 

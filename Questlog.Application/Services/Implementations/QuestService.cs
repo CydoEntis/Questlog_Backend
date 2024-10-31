@@ -4,8 +4,7 @@ using Microsoft.Extensions.Logging;
 using Questlog.Application.Common;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Quest;
-using Questlog.Application.Common.DTOs.Quest.Request;
-using Questlog.Application.Common.DTOs.Task.Request;
+using Questlog.Application.Common.DTOs.Step;
 using Questlog.Application.Common.Extensions;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
@@ -31,17 +30,17 @@ public class QuestService : BaseService, IQuestService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<GetQuestResponseDto>> GetQuestById(int campaignId, int questId)
+    public async Task<ServiceResult<QuestDto>> GetQuestById(int campaignId, int questId)
     {
         try
         {
             var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, "Campaign Id");
             if (!campaignIdValidationResult.IsSuccess)
-                return ServiceResult<GetQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+                return ServiceResult<QuestDto>.Failure(campaignIdValidationResult.ErrorMessage);
 
             var questIdValidationResult = ValidationHelper.ValidateId(questId, "Quest Id");
             if (!questIdValidationResult.IsSuccess)
-                return ServiceResult<GetQuestResponseDto>.Failure(questIdValidationResult.ErrorMessage);
+                return ServiceResult<QuestDto>.Failure(questIdValidationResult.ErrorMessage);
 
 
             var foundQuest =
@@ -51,24 +50,24 @@ public class QuestService : BaseService, IQuestService
 
             if (foundQuest == null)
             {
-                return ServiceResult<GetQuestResponseDto>.Failure("Quest not found.");
+                return ServiceResult<QuestDto>.Failure("Quest not found.");
             }
 
-            var questResponseDto = _mapper.Map<GetQuestResponseDto>(foundQuest);
+            var questResponseDto = _mapper.Map<QuestDto>(foundQuest);
 
-            return ServiceResult<GetQuestResponseDto>.Success(questResponseDto);
+            return ServiceResult<QuestDto>.Success(questResponseDto);
         }
         catch (Exception ex)
         {
-            return ServiceResult<GetQuestResponseDto>.Failure(
+            return ServiceResult<QuestDto>.Failure(
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
 
-    public async Task<ServiceResult<PaginatedResult<GetQuestResponseDto>>> GetAllQuests(int campaignId, string userId,
+    public async Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int campaignId, string userId,
         QueryParamsDto queryParams)
     {
-        return await HandleExceptions<PaginatedResult<GetQuestResponseDto>>(async () =>
+        return await HandleExceptions<PaginatedResult<QuestDto>>(async () =>
         {
             var options = new QueryOptions<Quest>
             {
@@ -87,28 +86,28 @@ public class QuestService : BaseService, IQuestService
 
 
             var paginatedResult = await _unitOfWork.Quest.GetPaginated(options);
-            var campaignResponseDTOs = _mapper.Map<List<GetQuestResponseDto>>(paginatedResult.Items);
+            var campaignResponseDTOs = _mapper.Map<List<QuestDto>>(paginatedResult.Items);
 
-            var result = new PaginatedResult<GetQuestResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems,
+            var result = new PaginatedResult<QuestDto>(campaignResponseDTOs, paginatedResult.TotalItems,
                 paginatedResult.CurrentPage, queryParams.PageSize);
 
-            return ServiceResult<PaginatedResult<GetQuestResponseDto>>.Success(result);
+            return ServiceResult<PaginatedResult<QuestDto>>.Success(result);
         });
     }
 
 
-    public async Task<ServiceResult<CreateQuestResponseDto>> CreateQuest(string userId,
-        CreateQuestRequestDto requestDto)
+    public async Task<ServiceResult<QuestDto>> CreateQuest(string userId,
+        CreateQuestDto requestDto)
     {
         try
         {
             var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
             if (!userValidationResult.IsSuccess)
-                return ServiceResult<CreateQuestResponseDto>.Failure(userValidationResult.ErrorMessage);
+                return ServiceResult<QuestDto>.Failure(userValidationResult.ErrorMessage);
 
             var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Quest Request DTO");
             if (!campaignValidationResult.IsSuccess)
-                return ServiceResult<CreateQuestResponseDto>.Failure(campaignValidationResult.ErrorMessage);
+                return ServiceResult<QuestDto>.Failure(campaignValidationResult.ErrorMessage);
 
             var quest = _mapper.Map<Quest>(requestDto);
 
@@ -138,29 +137,29 @@ public class QuestService : BaseService, IQuestService
                 .GetAsync(q => q.Id == createdQuest.Id,
                     includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User");
 
-            var createQuestResponseDTO = _mapper.Map<CreateQuestResponseDto>(questWithMembers);
-            return ServiceResult<CreateQuestResponseDto>.Success(createQuestResponseDTO);
+            var createQuestResponseDTO = _mapper.Map<QuestDto>(questWithMembers);
+            return ServiceResult<QuestDto>.Success(createQuestResponseDTO);
         }
         catch (Exception ex)
         {
-            return ServiceResult<CreateQuestResponseDto>.Failure(
+            return ServiceResult<QuestDto>.Failure(
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
 
 
-    public async Task<ServiceResult<UpdateQuestResponseDto>> UpdateQuest(
-        UpdateQuestRequestDto requestDto, string userId)
+    public async Task<ServiceResult<QuestDto>> UpdateQuest(
+        UpdateQuestDto requestDto, string userId)
     {
         try
         {
             var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Quest Request DTO");
             if (!campaignValidationResult.IsSuccess)
-                return ServiceResult<UpdateQuestResponseDto>.Failure(campaignValidationResult.ErrorMessage);
+                return ServiceResult<QuestDto>.Failure(campaignValidationResult.ErrorMessage);
 
             var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Quest Id");
             if (!campaignIdValidationResult.IsSuccess)
-                return ServiceResult<UpdateQuestResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+                return ServiceResult<QuestDto>.Failure(campaignIdValidationResult.ErrorMessage);
 
 
             var foundQuest =
@@ -177,12 +176,12 @@ public class QuestService : BaseService, IQuestService
 
             await _unitOfWork.Quest.UpdateAsync(foundQuest);
 
-            var responseDto = _mapper.Map<UpdateQuestResponseDto>(foundQuest);
-            return ServiceResult<UpdateQuestResponseDto>.Success(responseDto);
+            var responseDto = _mapper.Map<QuestDto>(foundQuest);
+            return ServiceResult<QuestDto>.Success(responseDto);
         }
         catch (Exception ex)
         {
-            return ServiceResult<UpdateQuestResponseDto>.Failure(
+            return ServiceResult<QuestDto>.Failure(
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
@@ -210,7 +209,7 @@ public class QuestService : BaseService, IQuestService
     }
 
 
-    private async Task UpdateQuestSteps(Quest foundQuest, IEnumerable<UpdateStepsRequestDto> steps)
+    private async Task UpdateQuestSteps(Quest foundQuest, IEnumerable<UpdateStepDto> steps)
     {
         var existingSteps = await _unitOfWork.Step.GetAllAsync(s => s.QuestId == foundQuest.Id);
 
@@ -268,7 +267,7 @@ public class QuestService : BaseService, IQuestService
             if (!existingMemberQuests.Any(mq => mq.AssignedMemberId == memberId))
             {
                 var existingMember =
-                    await _unitOfWork.Member.GetAsync(m => m.Id == memberId, includeProperties: "AssignedMember,User");
+                    await _unitOfWork.Member.GetAsync(m => m.Id == memberId, includeProperties: "User");
                 if (existingMember != null)
                 {
                     var memberQuest = new MemberQuest

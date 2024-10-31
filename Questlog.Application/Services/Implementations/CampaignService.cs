@@ -5,13 +5,7 @@ using Microsoft.Extensions.Logging;
 using Questlog.Application.Common;
 using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Campaign.Requests;
-using Questlog.Application.Common.DTOs.Campaign.Responses;
-using Questlog.Application.Common.DTOs.Campaign.Requests;
-using Questlog.Application.Common.DTOs.Campaign.Responses;
-using Questlog.Application.Common.DTOs.Guild.Requests;
-using Questlog.Application.Common.DTOs.Guild.Responses;
-using Questlog.Application.Common.Enums;
+using Questlog.Application.Common.DTOs.Campaign;
 using Questlog.Application.Common.Extensions;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
@@ -37,29 +31,29 @@ public class CampaignService : BaseService, ICampaignService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<GetCampaignResponseDto>> GetCampaignById(int campaignId)
+    public async Task<ServiceResult<CampaignDto>> GetCampaignById(int campaignId)
     {
         var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, "Campaign Id");
         if (!campaignIdValidationResult.IsSuccess)
-            return ServiceResult<GetCampaignResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+            return ServiceResult<CampaignDto>.Failure(campaignIdValidationResult.ErrorMessage);
 
-        return await HandleExceptions<GetCampaignResponseDto>(async () =>
+        return await HandleExceptions<CampaignDto>(async () =>
         {
             var foundCampaign =
                 await _unitOfWork.Campaign.GetAsync(g => g.Id == campaignId, includeProperties: "Members,Members.User");
 
             if (foundCampaign == null)
             {
-                return ServiceResult<GetCampaignResponseDto>.Failure("Campaign not found.");
+                return ServiceResult<CampaignDto>.Failure("Campaign not found.");
             }
 
-            var campaignResponseDTO = _mapper.Map<GetCampaignResponseDto>(foundCampaign);
+            var campaignResponseDTO = _mapper.Map<CampaignDto>(foundCampaign);
 
-            return ServiceResult<GetCampaignResponseDto>.Success(campaignResponseDTO);
+            return ServiceResult<CampaignDto>.Success(campaignResponseDTO);
         });
     }
 
-    public async Task<ServiceResult<PaginatedResult<GetCampaignResponseDto>>> GetAllCampaigns(string userId,
+    public async Task<ServiceResult<PaginatedResult<CampaignDto>>> GetAllCampaigns(string userId,
         QueryParamsDto queryParams)
     {
         try
@@ -81,32 +75,32 @@ public class CampaignService : BaseService, ICampaignService
 
             var paginatedResult = await _unitOfWork.Campaign.GetPaginatedCampaignsAsync(options);
 
-            var campaignResponseDTOs = _mapper.Map<List<GetCampaignResponseDto>>(paginatedResult.Items);
+            var campaignResponseDTOs = _mapper.Map<List<CampaignDto>>(paginatedResult.Items);
 
-            var result = new PaginatedResult<GetCampaignResponseDto>(campaignResponseDTOs, paginatedResult.TotalItems,
+            var result = new PaginatedResult<CampaignDto>(campaignResponseDTOs, paginatedResult.TotalItems,
                 paginatedResult.CurrentPage, queryParams.PageSize);
 
-            return ServiceResult<PaginatedResult<GetCampaignResponseDto>>.Success(result);
+            return ServiceResult<PaginatedResult<CampaignDto>>.Success(result);
         }
         catch (Exception ex)
         {
-            return ServiceResult<PaginatedResult<GetCampaignResponseDto>>.Failure(ex.InnerException.ToString());
+            return ServiceResult<PaginatedResult<CampaignDto>>.Failure(ex.InnerException.ToString());
         }
     }
 
 
-    public async Task<ServiceResult<CreateCampaignResponseDto>> CreateCampaign(string userId,
-        CreateCampaignRequestDto requestDto)
+    public async Task<ServiceResult<CampaignDto>> CreateCampaign(string userId,
+        CreateCampaignDto requestDto)
     {
         try
         {
             var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
             if (!userValidationResult.IsSuccess)
-                return ServiceResult<CreateCampaignResponseDto>.Failure(userValidationResult.ErrorMessage);
+                return ServiceResult<CampaignDto>.Failure(userValidationResult.ErrorMessage);
 
             var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Campaign Request DTO");
             if (!campaignValidationResult.IsSuccess)
-                return ServiceResult<CreateCampaignResponseDto>.Failure(campaignValidationResult.ErrorMessage);
+                return ServiceResult<CampaignDto>.Failure(campaignValidationResult.ErrorMessage);
 
 
             var campaign = _mapper.Map<Campaign>(requestDto);
@@ -127,34 +121,34 @@ public class CampaignService : BaseService, ICampaignService
             var campaignWithLeader = await _unitOfWork.Campaign
                 .GetAsync(g => g.Id == campaign.Id, includeProperties: "Members,Members.User");
 
-            var createCampaignResponseDTO = _mapper.Map<CreateCampaignResponseDto>(campaignWithLeader);
+            var createCampaignResponseDTO = _mapper.Map<CampaignDto>(campaignWithLeader);
 
-            return ServiceResult<CreateCampaignResponseDto>.Success(createCampaignResponseDTO);
+            return ServiceResult<CampaignDto>.Success(createCampaignResponseDTO);
         }
         catch (Exception ex)
         {
-            return ServiceResult<CreateCampaignResponseDto>.Failure(
+            return ServiceResult<CampaignDto>.Failure(
                 ex.InnerException.ToString());
         }
     }
 
 
-    public async Task<ServiceResult<UpdateCampaignResponseDto>> UpdateCampaignDetails(
-        UpdateCampaignRequestDto requestDto, string userId)
+    public async Task<ServiceResult<CampaignDto>> UpdateCampaign(
+        UpdateCampaignDto requestDto, string userId)
     {
         try
         {
             var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Campaign Request DTO");
             if (!campaignValidationResult.IsSuccess)
-                return ServiceResult<UpdateCampaignResponseDto>.Failure(campaignValidationResult.ErrorMessage);
+                return ServiceResult<CampaignDto>.Failure(campaignValidationResult.ErrorMessage);
 
             var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Campaign Id");
             if (!campaignIdValidationResult.IsSuccess)
-                return ServiceResult<UpdateCampaignResponseDto>.Failure(campaignIdValidationResult.ErrorMessage);
+                return ServiceResult<CampaignDto>.Failure(campaignIdValidationResult.ErrorMessage);
 
             if (!await IsUserCampaignLeader(requestDto.Id, userId))
             {
-                return ServiceResult<UpdateCampaignResponseDto>.Failure(
+                return ServiceResult<CampaignDto>.Failure(
                     "User is not authorized to update the campaign leader.");
             }
 
@@ -163,7 +157,7 @@ public class CampaignService : BaseService, ICampaignService
 
             if (foundCampaign == null)
             {
-                return ServiceResult<UpdateCampaignResponseDto>.Failure("Campaign not found.");
+                return ServiceResult<CampaignDto>.Failure("Campaign not found.");
             }
 
 
@@ -178,52 +172,15 @@ public class CampaignService : BaseService, ICampaignService
 
             await _unitOfWork.Campaign.UpdateAsync(foundCampaign);
 
-            var responseDto = _mapper.Map<UpdateCampaignResponseDto>(foundCampaign);
+            var responseDto = _mapper.Map<CampaignDto>(foundCampaign);
 
-            return ServiceResult<UpdateCampaignResponseDto>.Success(responseDto);
+            return ServiceResult<CampaignDto>.Success(responseDto);
         }
         catch (Exception ex)
         {
-            return ServiceResult<UpdateCampaignResponseDto>.Failure(ex.InnerException.ToString());
+            return ServiceResult<CampaignDto>.Failure(ex.InnerException.ToString());
         }
     }
-
-    public async Task<ServiceResult<GetCampaignResponseDto>> UpdateCampaignLeader(int campaignId, string userId,
-        UpdateCampaignOwnerRequestDto requestDto)
-    {
-        var validations = new[]
-        {
-            ValidationHelper.ValidateId(campaignId, "Campaign Id"),
-            ValidationHelper.ValidateId(requestDto.UserId, "Userid")
-        };
-
-        var failedValidation = validations.FirstOrDefault(v => !v.IsSuccess);
-        if (failedValidation != null)
-            return ServiceResult<GetCampaignResponseDto>.Failure(failedValidation.ErrorMessage);
-
-        if (campaignId != requestDto.CampaignId)
-            return ServiceResult<GetCampaignResponseDto>.Failure("Campaign member must be from same campaign");
-
-        if (!await IsUserCampaignLeader(campaignId, userId))
-            return ServiceResult<GetCampaignResponseDto>.Failure(
-                "User is not authorized to update the campaign leader.");
-
-        return await HandleExceptions<GetCampaignResponseDto>(async () =>
-        {
-            var foundCampaign = await _unitOfWork.Campaign.GetAsync(g => g.Id == campaignId);
-            if (foundCampaign is null)
-                return ServiceResult<GetCampaignResponseDto>.Failure("Campaign not found");
-
-
-            foundCampaign.OwnerId = requestDto.UserId;
-            await _unitOfWork.Campaign.UpdateAsync(foundCampaign);
-
-            var responseDto = _mapper.Map<GetCampaignResponseDto>(foundCampaign);
-
-            return ServiceResult<GetCampaignResponseDto>.Success(responseDto);
-        });
-    }
-
 
     public async Task<ServiceResult<int>> DeleteCampaign(int campaignId)
     {

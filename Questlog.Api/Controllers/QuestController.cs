@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Quest.Request;
+using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
@@ -26,14 +26,14 @@ public class QuestController : BaseController
     public async Task<ActionResult<ApiResponse>> GetQuest(int campaignId, int questId)
     {
         if (questId <= 0) return BadRequestResponse("Quest Id must be provided.");
-    
+
         var result = await _questService.GetQuestById(campaignId, questId);
-    
+
         if (!result.IsSuccess)
         {
             return BadRequestResponse(result.ErrorMessage);
         }
-    
+
         return OkResponse(result.Data);
     }
 
@@ -41,25 +41,25 @@ public class QuestController : BaseController
     public async Task<ActionResult<ApiResponse>> GetAllQuests(int campaignId, [FromQuery] QueryParamsDto queryParams)
     {
         string userId = HttpContext.Items["UserId"] as string;
-    
+
         if (string.IsNullOrEmpty(userId))
         {
             return BadRequestResponse("User Id is missing.");
         }
-    
-         
+
+
         var result = await _questService.GetAllQuests(campaignId, userId, queryParams);
-    
+
         if (!result.IsSuccess)
         {
             return BadRequestResponse(result.ErrorMessage);
         }
-    
+
         return OkResponse(result.Data);
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse>> CreateQuest([FromBody] CreateQuestRequestDto requestDto)
+    public async Task<ActionResult<ApiResponse>> CreateQuest([FromBody] CreateQuestDto requestDto)
     {
         if (requestDto == null)
         {
@@ -85,7 +85,7 @@ public class QuestController : BaseController
 
     [HttpPut("{questId:int}")]
     public async Task<ActionResult<ApiResponse>> UpdateQuestDetails(int questId,
-        [FromBody] UpdateQuestRequestDto requestDto)
+        [FromBody] UpdateQuestDto requestDto)
     {
         if (requestDto == null)
         {

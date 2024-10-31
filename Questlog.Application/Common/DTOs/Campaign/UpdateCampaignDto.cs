@@ -1,6 +1,6 @@
-﻿namespace Questlog.Application.Common.DTOs.Campaign.Requests;
+﻿namespace Questlog.Application.Common.DTOs.Campaign;
 
-public record UpdateCampaignRequestDto
+public class UpdateCampaignDto
 {
     public int Id { get; set; }
     public string? Title { get; set; }

@@ -1,6 +1,6 @@
-﻿namespace Questlog.Application.Common.DTOs.Member.Request;
+﻿namespace Questlog.Application.Common.DTOs.Member;
 
-public record GetMemberRequestDto
+public class CreateMemberDto
 {
     public int Id { get; set; }
     public string UserId { get; set; }

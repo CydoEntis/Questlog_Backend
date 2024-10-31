@@ -1,22 +1,21 @@
 ﻿using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Quest;
-using Questlog.Application.Common.DTOs.Quest.Request;
 using Questlog.Application.Common.Models;
 
 namespace Questlog.Application.Services.Interfaces;
 
 public interface IQuestService
 {
-    Task<ServiceResult<GetQuestResponseDto>> GetQuestById(int campaignId, int questId);
+    Task<ServiceResult<QuestDto>> GetQuestById(int campaignId, int questId);
 
-    Task<ServiceResult<PaginatedResult<GetQuestResponseDto>>> GetAllQuests(int campaignId, string userId,
+    Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int campaignId, string userId,
         QueryParamsDto queryParams);
 
-    Task<ServiceResult<CreateQuestResponseDto>> CreateQuest(string userId,
-        CreateQuestRequestDto requestDto);
+    Task<ServiceResult<QuestDto>> CreateQuest(string userId,
+        CreateQuestDto requestDto);
 
-    Task<ServiceResult<UpdateQuestResponseDto>> UpdateQuest(
-        UpdateQuestRequestDto requestDto, string userId);
+    Task<ServiceResult<QuestDto>> UpdateQuest(
+        UpdateQuestDto requestDto, string userId);
 
     Task<ServiceResult<int>> DeleteQuest(int campaignId);
 }

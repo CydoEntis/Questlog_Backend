@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Member.Request;
+using Questlog.Application.Common.DTOs.Member;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
@@ -81,7 +81,7 @@ public class MemberController : BaseController
 
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse>> CreateMember([FromBody] CreateMemberRequestDto requestDto)
+    public async Task<ActionResult<ApiResponse>> CreateMember([FromBody] CreateMemberDto requestDto)
     {
         if (requestDto == null)
         {
@@ -99,7 +99,7 @@ public class MemberController : BaseController
     }
 
     [HttpPut("{userId}")]
-    public async Task<ActionResult<ApiResponse>> UpdateMember(int campaignId, string userId, [FromBody] UpdateMemberRoleRequestDto roleRequestDto)
+    public async Task<ActionResult<ApiResponse>> UpdateMember(int campaignId, string userId, [FromBody] UpdateMemberDto roleRequestDto)
     {
         if (roleRequestDto == null)
         {

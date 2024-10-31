@@ -1,20 +1,22 @@
 ﻿using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Member.Request;
-using Questlog.Application.Common.DTOs.Member.Response;
+using Questlog.Application.Common.DTOs.Member;
 using Questlog.Application.Common.Models;
 
 namespace Questlog.Application.Services.Interfaces;
 
 public interface IMemberService
 {
-    Task<ServiceResult<GetMemberResponseDto>> GetMember(int campaignId, int memberId);
+    Task<ServiceResult<MemberDto>> GetMember(int campaignId, int guildMemberId);
 
-    Task<ServiceResult<List<GetMemberResponseDto>>> GetAllMembers(int campaignId);
+    Task<ServiceResult<List<MemberDto>>> GetAllMembers(int campaignId);
 
-    Task<ServiceResult<PaginatedResult<GetMemberResponseDto>>> GetAllPaginatedMembers(int campaignId,
+    Task<ServiceResult<PaginatedResult<MemberDto>>> GetAllPaginatedMembers(int campaignId,
         QueryParamsDto queryParams);
 
-    Task<ServiceResult<CreateMemberResponseDto>> CreateMember(CreateMemberRequestDto requestDto);
-    Task<ServiceResult<UpdateMemberRoleResponseDto>> UpdateMember(UpdateMemberRoleRequestDto roleRequestDto);
-    Task<ServiceResult<int>> RemoveMember(int campaignId, int memberId);
+    Task<ServiceResult<MemberDto>> CreateMember(CreateMemberDto requestDto);
+
+    Task<ServiceResult<MemberDto>> UpdateMember(
+        UpdateMemberDto roleRequestDto);
+
+    Task<ServiceResult<int>> RemoveMember(int campaignId, int guildMemberId);
 }

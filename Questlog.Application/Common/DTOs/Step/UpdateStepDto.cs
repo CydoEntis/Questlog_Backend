@@ -1,6 +1,6 @@
-﻿namespace Questlog.Application.Common.DTOs.Task.Request;
+﻿namespace Questlog.Application.Common.DTOs.Step;
 
-public record UpdateStepsRequestDto()
+public class UpdateStepDto
 {
     public int? Id { get; set; }
     public string? Description { get; set; }

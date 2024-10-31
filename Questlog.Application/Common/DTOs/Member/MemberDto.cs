@@ -1,8 +1,8 @@
 ﻿using Questlog.Domain.Entities;
 
-namespace Questlog.Application.Common.DTOs.Member.Response;
+namespace Questlog.Application.Common.DTOs.Member;
 
-public record GetMemberResponseDto
+public class MemberDto
 {
     public int Id { get; set; }
     public int CampaignId { get; set; }
@@ -13,5 +13,4 @@ public record GetMemberResponseDto
     public Avatar Avatar { get; set; }
     public int CurrentLevel { get; set; }
     public DateTime JoinedOn { get; set; }
-    
 }
