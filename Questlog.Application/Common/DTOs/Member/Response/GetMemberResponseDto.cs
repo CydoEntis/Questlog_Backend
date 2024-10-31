@@ -1,5 +1,4 @@
-﻿using Questlog.Application.Common.Enums;
-using Questlog.Domain.Entities;
+﻿using Questlog.Domain.Entities;
 
 namespace Questlog.Application.Common.DTOs.Member.Response;
 

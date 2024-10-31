@@ -35,6 +35,24 @@ public class QuestMappingProfile : Profile
 
         CreateMap<Quest, GetMemberQuestResponseDto>().ReverseMap();
         CreateMap<Quest, UpdateQuestRequestDto>().ReverseMap();
-        CreateMap<Quest, UpdateQuestResponseDto>().ReverseMap();
+
+
+        CreateMap<Quest, UpdateQuestResponseDto>()
+            .ForMember(dest => dest.CompletedSteps,
+                opt => opt.MapFrom(src => src.Steps.Count(sq => sq.IsCompleted)))
+            .ForMember(dest => dest.Members, opt =>
+                opt.MapFrom(src => src.MemberQuests
+                    .Where(mq => mq.AssignedQuestId == src.Id)
+                    .Select(mq => new GetMemberResponseDto
+                    {
+                        Id = mq.AssignedMember.Id,
+                        UserId = mq.UserId,
+                        DisplayName = mq.AssignedMember.User.DisplayName,
+                        Email = mq.AssignedMember.User.Email,
+                        Avatar = mq.AssignedMember.User.Avatar,
+                        CurrentLevel = mq.AssignedMember.User.CurrentLevel,
+                        JoinedOn = mq.AssignedMember.JoinedOn,
+                        CampaignId = mq.AssignedQuest.CampaignId
+                    })));
     }
 }

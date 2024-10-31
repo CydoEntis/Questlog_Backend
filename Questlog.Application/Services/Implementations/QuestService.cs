@@ -249,7 +249,8 @@ public class QuestService : BaseService, IQuestService
 
     private async Task UpdateMemberQuests(Quest foundQuest, IEnumerable<int> memberIds)
     {
-        var existingMemberQuests = await _unitOfWork.MemberQuest.GetAllAsync(mq => mq.AssignedQuestId == foundQuest.Id);
+        var existingMemberQuests = await _unitOfWork.MemberQuest.GetAllAsync(mq => mq.AssignedQuestId == foundQuest.Id,
+            includeProperties: "AssignedMember,User");
 
         var newMemberIds = memberIds.ToHashSet();
 
@@ -258,7 +259,7 @@ public class QuestService : BaseService, IQuestService
             if (!newMemberIds.Contains(memberQuest.AssignedMemberId))
             {
                 foundQuest.MemberQuests.Remove(memberQuest);
-                await _unitOfWork.MemberQuest.RemoveAsync(memberQuest); 
+                await _unitOfWork.MemberQuest.RemoveAsync(memberQuest);
             }
         }
 
@@ -266,14 +267,15 @@ public class QuestService : BaseService, IQuestService
         {
             if (!existingMemberQuests.Any(mq => mq.AssignedMemberId == memberId))
             {
-                var existingMember = await _unitOfWork.Member.GetAsync(m => m.Id == memberId);
+                var existingMember =
+                    await _unitOfWork.Member.GetAsync(m => m.Id == memberId, includeProperties: "AssignedMember,User");
                 if (existingMember != null)
                 {
                     var memberQuest = new MemberQuest
                     {
                         AssignedQuestId = foundQuest.Id,
                         AssignedMemberId = existingMember.Id,
-                        UserId = existingMember.UserId 
+                        UserId = existingMember.UserId
                     };
 
                     foundQuest.MemberQuests.Add(memberQuest);
@@ -281,7 +283,4 @@ public class QuestService : BaseService, IQuestService
             }
         }
     }
-
-
-
 }
