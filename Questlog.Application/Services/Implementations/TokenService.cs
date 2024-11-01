@@ -36,7 +36,6 @@ public class TokenService : ITokenService
                 new Claim(JwtRegisteredClaimNames.Jti, tokenId),
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             }),
-            //Expires = DateTime.UtcNow.AddMinutes(1),
             Expires = DateTime.UtcNow.AddMinutes(30),
             SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             Issuer = "https://localhost:7265/",
@@ -103,7 +102,7 @@ public class TokenService : ITokenService
             IsValid = true,
             UserId = userId,
             JwtTokenId = tokenId,
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            ExpiresAt = DateTime.UtcNow.AddHours(12),
             Refresh_Token = Guid.NewGuid() + "-" + Guid.NewGuid()
         };
 
