@@ -169,6 +169,7 @@ public class QuestService : BaseService, IQuestService
             foundQuest.Description = requestDto.Description.Trim();
             foundQuest.UpdatedAt = DateTime.UtcNow;
             foundQuest.DueDate = requestDto.DueDate;
+            foundQuest.Priority = requestDto.Priority;
 
             await UpdateQuestSteps(foundQuest, requestDto.Steps);
 
