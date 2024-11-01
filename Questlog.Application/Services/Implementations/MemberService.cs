@@ -174,4 +174,63 @@ public class MemberService : BaseService, IMemberService
             return ServiceResult<int>.Success(foundMember.Id);
         });
     }
+
+    public async Task<ServiceResult<string>> GenerateInviteLink(int campaignId)
+    {
+        var campaignValidationResult = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
+        if (!campaignValidationResult.IsSuccess)
+            return ServiceResult<string>.Failure(campaignValidationResult.ErrorMessage);
+
+        var token = Guid.NewGuid().ToString();
+
+        var expirationTime = DateTime.UtcNow.AddMinutes(5);
+
+        await _unitOfWork.InviteToken.CreateAsync(new InviteToken
+        {
+            Token = token,
+            CampaignId = campaignId,
+            CreatedOn = DateTime.UtcNow,
+            Expiration = expirationTime,
+        });
+
+        var inviteToken = token;
+
+        return ServiceResult<string>.Success(token);
+    }
+
+    public async Task<ServiceResult<string>> AcceptInvite(string token, string userId)
+    {
+        try
+        {
+            var inviteToken = await _unitOfWork.InviteToken.GetAsync(t => t.Token == token);
+
+            if (inviteToken.Expiration < DateTime.UtcNow)
+            {
+                inviteToken.IsExpired = true;
+                await _unitOfWork.InviteToken.SaveAsync();
+                return ServiceResult<string>.Failure("Invite token has expired.");
+            }
+
+            var newMember = new Member()
+            {
+                CampaignId = inviteToken.CampaignId,
+                Role = RoleConstants.Member,
+                JoinedOn = DateTime.UtcNow,
+                UpdatedOn = DateTime.UtcNow,
+                UserId = userId
+            };
+
+            await _unitOfWork.Member.CreateAsync(newMember);
+
+            await _unitOfWork.InviteToken.RemoveAsync(inviteToken);
+            await _unitOfWork.SaveAsync();
+
+            return ServiceResult<string>.Success("You have successfully joined the campaign.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while accepting the invite for token {Token}.", token);
+            return ServiceResult<string>.Failure("An error occurred while processing your request.");
+        }
+    }
 }

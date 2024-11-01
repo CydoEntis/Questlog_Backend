@@ -19,4 +19,8 @@ public interface IMemberService
         UpdateMemberDto roleRequestDto);
 
     Task<ServiceResult<int>> RemoveMember(int campaignId, int guildMemberId);
+
+    Task<ServiceResult<string>> GenerateInviteLink(int campaignId);
+
+    Task<ServiceResult<string>> AcceptInvite(string token, string userId);
 }

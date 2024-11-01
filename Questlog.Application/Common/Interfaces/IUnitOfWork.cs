@@ -12,7 +12,7 @@ public interface IUnitOfWork
     IQuestRepository Quest { get; }
 
     IStepRepository Step { get; }
-
+    IInviteTokenRepository InviteToken { get; }
 
     Task SaveAsync();
 }

@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Quest> Quests { get; set; }
     public DbSet<Step> Steps { get; set; }
     public DbSet<MemberQuest> MemberQuests { get; set; }
+    public DbSet<InviteToken> InviteTokens { get; set; }
 
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)

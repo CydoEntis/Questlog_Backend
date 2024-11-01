@@ -177,6 +177,10 @@ public class QuestService : BaseService, IQuestService
 
             await _unitOfWork.Quest.UpdateAsync(foundQuest);
 
+            var campaign = await _unitOfWork.Campaign.GetAsync(c => c.Id == requestDto.CampaignId);
+            campaign.UpdatedAt = DateTime.UtcNow;
+            await _unitOfWork.Campaign.SaveAsync();
+
             var responseDto = _mapper.Map<QuestDto>(foundQuest);
             return ServiceResult<QuestDto>.Success(responseDto);
         }
