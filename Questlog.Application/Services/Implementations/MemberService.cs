@@ -183,7 +183,7 @@ public class MemberService : BaseService, IMemberService
 
         var token = Guid.NewGuid().ToString();
 
-        var expirationTime = DateTime.UtcNow.AddMinutes(5);
+        var expirationTime = DateTime.UtcNow.AddMinutes(15);
 
         await _unitOfWork.InviteToken.CreateAsync(new InviteToken
         {

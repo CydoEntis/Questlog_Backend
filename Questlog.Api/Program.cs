@@ -51,6 +51,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICampaignService, CampaignService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IQuestService, QuestService>();
+builder.Services.AddScoped<IStepService, StepService>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
