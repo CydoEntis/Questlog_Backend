@@ -15,8 +15,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Step> Steps { get; set; }
     public DbSet<MemberQuest> MemberQuests { get; set; }
     public DbSet<InviteToken> InviteTokens { get; set; }
-
     public DbSet<Avatar> Avatars { get; set; }
+    public DbSet<UnlockedAvatar> UnlockedAvatars { get; set; }
 
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -59,6 +59,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(m => m.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UnlockedAvatar>()
+            .HasOne(ua => ua.User)
+            .WithMany(u => u.UnlockedAvatars)
+            .HasForeignKey(ua => ua.UserId);
+
+        modelBuilder.Entity<UnlockedAvatar>()
+            .HasOne(ua => ua.Avatar)
+            .WithMany()
+            .HasForeignKey(ua => ua.AvatarId);
 
 
         modelBuilder.Entity<Avatar>().HasData(
@@ -172,22 +182,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         string[] userDisplayNames =
             { "Alex", "Jordan", "Taylor", "Casey", "Riley", "Morgan", "Skylar", "Jamie", "Cameron", "Avery" };
 
-        var avatars = Avatars.ToList(); // Load all avatars for reference
+        var avatars = Avatars.ToList();
 
         var usersList = userDisplayNames.Select(name =>
         {
-            var userLevel = random.Next(1, 101); // Random level for the user (between 1 and 100)
-        
-            // Filter avatars that the user can unlock based on their level
+            var userLevel = random.Next(1, 101);
+
             var unlockedAvatars = avatars.Where(a => a.UnlockLevel <= userLevel).ToList();
-        
-            // Choose a random avatar from the unlocked ones
+
             var assignedAvatar = unlockedAvatars[random.Next(unlockedAvatars.Count)];
 
-            // Assign random currency between 100 and 5000
             var currencyAmount = random.Next(100, 5001);
 
-            // Calculate experience required for the next level based on the user's level
             int experienceForNextLevel = CalculateExpForLevel(userLevel);
 
             var user = new ApplicationUser
@@ -198,22 +204,38 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 AvatarId = assignedAvatar.Id,
                 Currency = currencyAmount,
                 CurrentLevel = userLevel,
-                CurrentExp = random.Next(0, experienceForNextLevel), // Current experience within the level
+                CurrentExp = random.Next(0, experienceForNextLevel),
                 ExpToNextLevel = experienceForNextLevel,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
             };
 
-            // Hash the password for the created user
             user.PasswordHash = HashPassword(user, "Test123*");
+
+            Users.Add(user);
+            SaveChanges();
+
+            SeedUnlockedAvatars(user, unlockedAvatars);
 
             return user;
         }).ToList();
+    }
 
-        Users.AddRange(usersList);
+    private void SeedUnlockedAvatars(ApplicationUser user, List<Avatar> unlockedAvatars)
+    {
+        foreach (var avatar in unlockedAvatars)
+        {
+            var unlockedAvatar = new UnlockedAvatar
+            {
+                UserId = user.Id,
+                AvatarId = avatar.Id,
+                UnlockedAt = DateTime.UtcNow
+            };
+            UnlockedAvatars.Add(unlockedAvatar);
+        }
+
         SaveChanges();
     }
 
-// Helper method to calculate experience needed for a given level
     private int CalculateExpForLevel(int level)
     {
         int baseExp = 100;
