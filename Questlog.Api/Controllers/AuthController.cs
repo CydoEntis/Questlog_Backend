@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequestDTO registrationRequestDTO)
+    public async Task<IActionResult> Register([FromBody] RegisterDto registrationDto)
     {
         if (!ModelState.IsValid)
         {
@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
             return BadRequest(_response);
         }
 
-        bool isUsernameUnique = await _authService.CheckIfUsernameIsUnique(registrationRequestDTO.Email);
+        bool isUsernameUnique = await _authService.CheckIfUsernameIsUnique(registrationDto.Email);
         if (!isUsernameUnique)
         {
             _response.StatusCode = HttpStatusCode.BadRequest;
@@ -51,7 +51,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            var user = await _authService.Register(registrationRequestDTO);
+            var user = await _authService.Register(registrationDto);
 
             if (user is null)
             {
@@ -84,9 +84,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
+    public async Task<IActionResult> Login([FromBody] LoginCredentialsDto loginCredentialsDto)
     {
-        var loginResponseDTO = await _authService.Login(loginRequestDTO);
+        var loginResponseDTO = await _authService.Login(loginCredentialsDto);
         if (loginResponseDTO.Tokens is null || string.IsNullOrEmpty(loginResponseDTO.Tokens.AccessToken))
         {
             _response.StatusCode = HttpStatusCode.BadRequest;

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Questlog.Application.Common.DTOs.Auth;
 
-public record RegisterRequestDTO
+public record RegisterDto
 {
     [Required(ErrorMessage = "Email is required.")]
     [EmailAddress(ErrorMessage = "Invalid email address.")]
@@ -13,7 +13,6 @@ public record RegisterRequestDTO
     public string DisplayName { get; set; }
 
     [Required(ErrorMessage = "Avatar is required.")]
-    [ValidAvatar]
     public Avatar Avatar { get; set; }
 
     [Required(ErrorMessage = "Password is required.")]

@@ -8,7 +8,6 @@ public class MappingConfig
     {
         return new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile(new ApplicationUserMappingProfile());
             cfg.AddProfile(new CampaignMappingProfile());
             cfg.AddProfile(new MemberMappingProfile());
             cfg.AddProfile(new QuestMappingProfile());

@@ -33,14 +33,14 @@ public class AuthService : IAuthService
         return await _unitOfWork.User.isUserUnique(username);
     }
 
-    public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
+    public async Task<LoginDto> Login(LoginCredentialsDto loginCredentialsDto)
     {
-        var user = await _unitOfWork.User.GetByEmail(loginRequestDTO.Email);
-        bool isUserValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
+        var user = await _unitOfWork.User.GetByEmail(loginCredentialsDto.Email);
+        bool isUserValid = await _userManager.CheckPasswordAsync(user, loginCredentialsDto.Password);
 
         if (user is null || !isUserValid)
         {
-            return new LoginResponseDTO()
+            return new LoginDto()
             {
                 UserId = "",
                 Email = "",
@@ -57,7 +57,7 @@ public class AuthService : IAuthService
         var refreshToken = await _tokenService.CreateRefreshToken(user.Id, jwtTokenId);
 
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
+        LoginDto loginDto = new LoginDto()
         {
             UserId = user.Id,
             Email = user.Email,
@@ -73,26 +73,26 @@ public class AuthService : IAuthService
             },
         };
 
-        return loginResponseDTO;
+        return loginDto;
 
     }
 
-    public async Task<LoginResponseDTO> Register(RegisterRequestDTO registerRequestDTO)
+    public async Task<LoginDto> Register(RegisterDto registerDto)
     {
-        var existingUser = await _userManager.FindByEmailAsync(registerRequestDTO.Email);
+        var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
         if (existingUser != null)
         {
-            throw new ArgumentException("A user with this email already exists.", nameof(registerRequestDTO.Email));
+            throw new ArgumentException("A user with this email already exists.", nameof(registerDto.Email));
         }
 
         ApplicationUser user = new()
         {
-            UserName = registerRequestDTO.Email,
-            Email = registerRequestDTO.Email,
-            NormalizedEmail = registerRequestDTO.Email.ToUpper(),
-            NormalizedUserName = registerRequestDTO.Email.ToUpper(),
-            DisplayName = registerRequestDTO.DisplayName,
-            Avatar = registerRequestDTO.Avatar,
+            UserName = registerDto.Email,
+            Email = registerDto.Email,
+            NormalizedEmail = registerDto.Email.ToUpper(),
+            NormalizedUserName = registerDto.Email.ToUpper(),
+            DisplayName = registerDto.DisplayName,
+            Avatar = registerDto.Avatar,
             CurrentLevel = 1,
             CurrentExp = 0,
             ExpToNextLevel = 100,
@@ -101,16 +101,16 @@ public class AuthService : IAuthService
 
         try
         {
-            var result = await _userManager.CreateAsync(user, registerRequestDTO.Password);
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
 
             if (result.Succeeded)
             {
                 await _userManager.UpdateAsync(user);
 
-                var loginRequestDTO = new LoginRequestDTO
+                var loginRequestDTO = new LoginCredentialsDto
                 {
-                    Email = registerRequestDTO.Email,
-                    Password = registerRequestDTO.Password,
+                    Email = registerDto.Email,
+                    Password = registerDto.Password,
                 };
 
                 return await Login(loginRequestDTO);
