@@ -63,12 +63,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<UnlockedAvatar>()
             .HasOne(ua => ua.User)
             .WithMany(u => u.UnlockedAvatars)
-            .HasForeignKey(ua => ua.UserId);
+            .HasForeignKey(ua => ua.UserId)
+            .OnDelete(DeleteBehavior.Cascade); 
 
         modelBuilder.Entity<UnlockedAvatar>()
             .HasOne(ua => ua.Avatar)
             .WithMany()
-            .HasForeignKey(ua => ua.AvatarId);
+            .HasForeignKey(ua => ua.AvatarId)
+            .OnDelete(DeleteBehavior.Restrict); 
 
 
         modelBuilder.Entity<Avatar>().HasData(
@@ -112,7 +114,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             new Avatar { Id = 38, Name = "Angel", UnlockLevel = 70, Tier = 14, Cost = 7000 },
             new Avatar { Id = 39, Name = "Male Devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
             new Avatar { Id = 40, Name = "Female Devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
-            new Avatar { Id = 41, Name = "Demon Male", UnlockLevel = 90, Tier = 16, Cost = 10000 },
+            new Avatar { Id = 41, Name = "Demon Male", UnlockLevel = 100, Tier = 16, Cost = 10000 },
             new Avatar { Id = 42, Name = "Demon Female", UnlockLevel = 100, Tier = 16, Cost = 10000 }
         );
     }
