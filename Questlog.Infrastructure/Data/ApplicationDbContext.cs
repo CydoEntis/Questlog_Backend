@@ -15,9 +15,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Step> Steps { get; set; }
     public DbSet<MemberQuest> MemberQuests { get; set; }
     public DbSet<InviteToken> InviteTokens { get; set; }
-    
-    public DbSet<Avatar> Avatars { get; set; }
 
+    public DbSet<Avatar> Avatars { get; set; }
 
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -60,6 +59,52 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(m => m.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+
+        modelBuilder.Entity<Avatar>().HasData(
+            new Avatar { Id = 1, Name = "Male B", UnlockLevel = 1, Tier = 0, Cost = 0 },
+            new Avatar { Id = 2, Name = "Female A", UnlockLevel = 1, Tier = 0, Cost = 0 },
+            new Avatar { Id = 3, Name = "Female B", UnlockLevel = 1, Tier = 0, Cost = 0 },
+            new Avatar { Id = 4, Name = "Skeleton A", UnlockLevel = 3, Tier = 1, Cost = 200 },
+            new Avatar { Id = 5, Name = "Skeleton B", UnlockLevel = 3, Tier = 1, Cost = 200 },
+            new Avatar { Id = 6, Name = "Zombie Male", UnlockLevel = 5, Tier = 2, Cost = 350 },
+            new Avatar { Id = 7, Name = "Zombie Female", UnlockLevel = 5, Tier = 2, Cost = 350 },
+            new Avatar { Id = 8, Name = "Bear", UnlockLevel = 8, Tier = 3, Cost = 500 },
+            new Avatar { Id = 9, Name = "Gorilla", UnlockLevel = 8, Tier = 3, Cost = 500 },
+            new Avatar { Id = 10, Name = "Frog", UnlockLevel = 8, Tier = 3, Cost = 500 },
+            new Avatar { Id = 11, Name = "Snake", UnlockLevel = 8, Tier = 3, Cost = 500 },
+            new Avatar { Id = 12, Name = "Medusa", UnlockLevel = 10, Tier = 4, Cost = 750 },
+            new Avatar { Id = 13, Name = "Knight", UnlockLevel = 12, Tier = 5, Cost = 1000 },
+            new Avatar { Id = 14, Name = "Priest", UnlockLevel = 12, Tier = 5, Cost = 1000 },
+            new Avatar { Id = 15, Name = "Mage", UnlockLevel = 12, Tier = 5, Cost = 1000 },
+            new Avatar { Id = 16, Name = "Archer", UnlockLevel = 12, Tier = 5, Cost = 1000 },
+            new Avatar { Id = 17, Name = "Rogue", UnlockLevel = 15, Tier = 5, Cost = 1200 },
+            new Avatar { Id = 18, Name = "Merfolk", UnlockLevel = 16, Tier = 6, Cost = 1500 },
+            new Avatar { Id = 19, Name = "Squidman", UnlockLevel = 16, Tier = 6, Cost = 1500 },
+            new Avatar { Id = 20, Name = "Fishman", UnlockLevel = 16, Tier = 6, Cost = 1500 },
+            new Avatar { Id = 21, Name = "Mummy", UnlockLevel = 18, Tier = 7, Cost = 2000 },
+            new Avatar { Id = 22, Name = "Pharaoh", UnlockLevel = 18, Tier = 7, Cost = 2000 },
+            new Avatar { Id = 23, Name = "Spider A", UnlockLevel = 18, Tier = 7, Cost = 2000 },
+            new Avatar { Id = 24, Name = "Fanatic", UnlockLevel = 22, Tier = 8, Cost = 2500 },
+            new Avatar { Id = 25, Name = "Prince", UnlockLevel = 22, Tier = 8, Cost = 2500 },
+            new Avatar { Id = 26, Name = "Occultist", UnlockLevel = 22, Tier = 8, Cost = 2500 },
+            new Avatar { Id = 27, Name = "Slime", UnlockLevel = 28, Tier = 9, Cost = 3000 },
+            new Avatar { Id = 28, Name = "Mimic", UnlockLevel = 28, Tier = 9, Cost = 3000 },
+            new Avatar { Id = 29, Name = "Ghoul", UnlockLevel = 28, Tier = 9, Cost = 3000 },
+            new Avatar { Id = 30, Name = "Goblin", UnlockLevel = 32, Tier = 10, Cost = 3500 },
+            new Avatar { Id = 31, Name = "Werewolf A", UnlockLevel = 40, Tier = 11, Cost = 4000 },
+            new Avatar { Id = 32, Name = "Werewolf B", UnlockLevel = 40, Tier = 11, Cost = 4000 },
+            new Avatar { Id = 33, Name = "Werewolf C", UnlockLevel = 40, Tier = 11, Cost = 4000 },
+            new Avatar { Id = 34, Name = "Male Orc", UnlockLevel = 50, Tier = 12, Cost = 5000 },
+            new Avatar { Id = 35, Name = "Female Orc", UnlockLevel = 50, Tier = 12, Cost = 5000 },
+            new Avatar { Id = 36, Name = "Lich", UnlockLevel = 60, Tier = 13, Cost = 6000 },
+            new Avatar { Id = 37, Name = "Witch", UnlockLevel = 70, Tier = 14, Cost = 7000 },
+            new Avatar { Id = 38, Name = "Angel", UnlockLevel = 70, Tier = 14, Cost = 7000 },
+            new Avatar { Id = 39, Name = "Male Devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
+            new Avatar { Id = 40, Name = "Female Devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
+            new Avatar { Id = 41, Name = "Demon Male", UnlockLevel = 90, Tier = 16, Cost = 10000 },
+            new Avatar { Id = 42, Name = "Demon Female", UnlockLevel = 100, Tier = 16, Cost = 10000 }
+        );
     }
 
     public void Seed()
@@ -82,7 +127,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             UserName = "Test",
             Email = "test@test.com",
             DisplayName = "Demo User",
-            Avatar = Avatar.Archer,
+            AvatarId = 1,
             CurrentLevel = 99,
             CurrentExp = 999999,
             CreatedAt = DateTime.UtcNow
@@ -127,21 +172,39 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         string[] userDisplayNames =
             { "Alex", "Jordan", "Taylor", "Casey", "Riley", "Morgan", "Skylar", "Jamie", "Cameron", "Avery" };
 
+        var avatars = Avatars.ToList(); // Load all avatars for reference
+
         var usersList = userDisplayNames.Select(name =>
         {
+            var userLevel = random.Next(1, 101); // Random level for the user (between 1 and 100)
+        
+            // Filter avatars that the user can unlock based on their level
+            var unlockedAvatars = avatars.Where(a => a.UnlockLevel <= userLevel).ToList();
+        
+            // Choose a random avatar from the unlocked ones
+            var assignedAvatar = unlockedAvatars[random.Next(unlockedAvatars.Count)];
+
+            // Assign random currency between 100 and 5000
+            var currencyAmount = random.Next(100, 5001);
+
+            // Calculate experience required for the next level based on the user's level
+            int experienceForNextLevel = CalculateExpForLevel(userLevel);
+
             var user = new ApplicationUser
             {
                 UserName = name,
                 Email = $"{name.ToLower()}@example.com",
                 DisplayName = name,
-                Avatar = new Avatar(),
-                CurrentLevel = random.Next(1, 21),
-                CurrentExp = random.Next(0, 1000),
+                AvatarId = assignedAvatar.Id,
+                Currency = currencyAmount,
+                CurrentLevel = userLevel,
+                CurrentExp = random.Next(0, experienceForNextLevel), // Current experience within the level
+                ExpToNextLevel = experienceForNextLevel,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
             };
 
             // Hash the password for the created user
-            user.PasswordHash = HashPassword(user, "Test123*"); // Pass the user instance instead of name
+            user.PasswordHash = HashPassword(user, "Test123*");
 
             return user;
         }).ToList();
@@ -149,6 +212,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         Users.AddRange(usersList);
         SaveChanges();
     }
+
+// Helper method to calculate experience needed for a given level
+    private int CalculateExpForLevel(int level)
+    {
+        int baseExp = 100;
+        return baseExp * level;
+    }
+
 
     private void SeedRandomCampaigns(Campaign initialCampaign, ApplicationUser adminUser)
     {
