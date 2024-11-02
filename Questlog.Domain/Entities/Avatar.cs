@@ -1,9 +1,10 @@
 ﻿namespace Questlog.Domain.Entities;
 
-public enum Avatar
+public class Avatar
 {
-    Barbarian = 1,
-    Knight = 2,
-    Mage = 3,
-    Archer = 4
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int Tier { get; set; }
+    public int UnlockLevel { get; set; }
+    public int Cost { get; set; }
 }

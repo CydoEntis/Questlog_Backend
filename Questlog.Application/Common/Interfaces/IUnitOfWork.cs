@@ -13,6 +13,9 @@ public interface IUnitOfWork
 
     IStepRepository Step { get; }
     IInviteTokenRepository InviteToken { get; }
+    
+    IAvatarRepository Avatar { get; }
+
 
     Task SaveAsync();
 }

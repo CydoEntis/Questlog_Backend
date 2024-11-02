@@ -18,6 +18,8 @@ public class UnitOfWork : IUnitOfWork
 
     public IInviteTokenRepository InviteToken { get; private set; }
 
+    public IAvatarRepository Avatar { get; private set; }
+
 
     public UnitOfWork(ApplicationDbContext db)
     {
@@ -33,6 +35,7 @@ public class UnitOfWork : IUnitOfWork
         Quest = new QuestRepository(db);
         Step = new StepRepository(db);
         InviteToken = new InviteTokenRepository(db);
+        Avatar = new AvatarRepository(db);
     }
 
 
