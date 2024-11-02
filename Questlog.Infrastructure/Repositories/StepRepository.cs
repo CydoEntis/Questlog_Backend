@@ -16,29 +16,6 @@ public class StepRepository : BaseRepository<Step>, IStepRepository
         _db = db;
     }
 
-    // public async Task<PaginatedResult<Subquest>> GetAllAsync(SubquestQueryOptions options)
-    // {
-    //     IQueryable<Subquest> query = _dbSet;
-    //
-    //     if (options.Filter != null)
-    //     {
-    //         query = query.Where(options.Filter);
-    //     }
-    //
-    //     if (!string.IsNullOrEmpty(options.OrderOn))
-    //     {
-    //         query = ApplyOrdering(query, options.OrderOn, options.OrderBy);
-    //     }
-    //
-    //     if (!string.IsNullOrEmpty(options.IncludeProperties))
-    //     {
-    //         query = ApplyIncludeProperties(query, options.IncludeProperties);
-    //     }
-    //
-    //     return await Paginate(query, options.PageNumber, options.PageSize);
-    // }
-
-
     public async Task<Step> UpdateAsync(Step entity)
     {
         entity.UpdatedAt = DateTime.Now;

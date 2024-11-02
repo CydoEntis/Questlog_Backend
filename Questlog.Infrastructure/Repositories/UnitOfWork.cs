@@ -11,15 +11,11 @@ public class UnitOfWork : IUnitOfWork
     public ICampaignRepository Campaign { get; private set; }
     public IMemberRepository Member { get; private set; }
     public IMemberQuestRepository MemberQuest { get; private set; }
-
     public IQuestRepository Quest { get; private set; }
-
     public IStepRepository Step { get; private set; }
-
     public IInviteTokenRepository InviteToken { get; private set; }
-
     public IAvatarRepository Avatar { get; private set; }
-
+    public IUnlockedAvatarRepository UnlockedAvatar { get; private set; }
 
     public UnitOfWork(ApplicationDbContext db)
     {
@@ -28,7 +24,6 @@ public class UnitOfWork : IUnitOfWork
         User = new UserRepository(db);
         Token = new TokenRepository(db);
 
-
         Campaign = new CampaignRepository(db);
         Member = new MemberRepository(db);
         MemberQuest = new MemberQuestRepository(db);
@@ -36,6 +31,7 @@ public class UnitOfWork : IUnitOfWork
         Step = new StepRepository(db);
         InviteToken = new InviteTokenRepository(db);
         Avatar = new AvatarRepository(db);
+        UnlockedAvatar = new UnlockedAvatarRepository(db);
     }
 
 
