@@ -339,7 +339,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         var difficulties = new[] { "Critical", "High", "Medium", "Low" };
         int questCount = random.Next(3, 21);
 
-        // Get the members of the current campaign
         var members = Members.Where(m => m.CampaignId == campaign.Id).ToList();
 
         for (int j = 0; j < questCount; j++)
@@ -355,16 +354,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             Quests.Add(quest);
             SaveChanges();
 
-            // Randomly select a number of members between 1 and 4 for the quest
-            int numberOfQuestMembers = random.Next(1, 5); // 1 to 4 members
+            int numberOfQuestMembers = random.Next(1, 5); 
             var questMembers = members.OrderBy(u => random.Next()).Take(numberOfQuestMembers).ToList();
 
-            // Add member-quest relationships
             foreach (var member in questMembers)
             {
                 var memberQuest = new MemberQuest
                 {
-                    AssignedMemberId = member.Id, // Member's Id
+                    AssignedMemberId = member.Id, 
                     AssignedQuestId = quest.Id,
                     UserId = member.UserId
                 };
@@ -405,9 +402,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         if (allTasksCompleted)
         {
             quest.IsCompleted = true;
+            quest.CompletionDate = DateTime.Now;
+
+            var memberQuests = MemberQuests.Where(mq => mq.AssignedQuestId == quest.Id).ToList();
+            foreach (var memberQuest in memberQuests)
+            {
+                memberQuest.IsCompleted = true;
+            }
+
             SaveChanges();
         }
     }
+
 
     private string HashPassword(ApplicationUser user, string password)
     {
