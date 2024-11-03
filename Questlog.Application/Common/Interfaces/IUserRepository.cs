@@ -2,13 +2,8 @@
 
 namespace Questlog.Application.Common.Interfaces;
 
-public interface IUserRepository
+public interface IUserRepository : IBaseRepository<ApplicationUser>
 {
     Task<bool> isUserUnique(string email);
-    //Task RefreshAccessToken(TokenDTO tokenDTO);
-    //Task RevokeRefreshToken(TokenDTO tokenDTO);
-    Task<ApplicationUser> GetByEmail(string email);
     Task<ApplicationUser> GetUserById(string userId);
-
-
 }

@@ -1,31 +1,31 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.DTOs.Auth;
 using Questlog.Application.Common.Errors;
 using Questlog.Application.Common.Exceptions;
 using Questlog.Application.Common.Interfaces;
+using Questlog.Application.Common.Models;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Application.Services.IServices;
 using Questlog.Domain.Entities;
 
 namespace Questlog.Application.Services.Implementations;
 
-public class AuthService : IAuthService
+public class AuthService : BaseService, IAuthService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITokenService _tokenService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMapper _mapper;
-    private readonly ErrorMapper _errorMapper;
 
-    public AuthService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, ITokenService tokenService)
+    public AuthService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AuthService> logger,
+        UserManager<ApplicationUser> userManager, ITokenService tokenService) : base(logger)
     {
         _unitOfWork = unitOfWork;
         _userManager = userManager;
         _mapper = mapper;
         _tokenService = tokenService;
-        _errorMapper = new();
     }
 
     public async Task<bool> CheckIfUsernameIsUnique(string username)
@@ -33,56 +33,82 @@ public class AuthService : IAuthService
         return await _unitOfWork.User.isUserUnique(username);
     }
 
-    public async Task<LoginDto> Login(LoginCredentialsDto loginCredentialsDto)
+
+    public async Task<ServiceResult<LoginDto>> Login(LoginCredentialsDto loginCredentialsDto)
     {
-        var user = await _unitOfWork.User.GetByEmail(loginCredentialsDto.Email);
+        var user = await _unitOfWork.User.GetAsync(u => u.Email == loginCredentialsDto.Email,
+            includeProperties: "Avatar");
         bool isUserValid = await _userManager.CheckPasswordAsync(user, loginCredentialsDto.Password);
 
-        if (user is null || !isUserValid)
+        if (!isUserValid)
         {
-            return new LoginDto()
-            {
-                UserId = "",
-                Email = "",
-                Tokens = new TokenDTO()
-                {
-                    AccessToken = "",
-                    RefreshToken = "",
-                },
-            };
+            return ServiceResult<LoginDto>.Failure("Invalid email or password.");
         }
 
         var jwtTokenId = $"JTI{Guid.NewGuid()}";
         var accessToken = _tokenService.CreateAccessToken(user, jwtTokenId);
         var refreshToken = await _tokenService.CreateRefreshToken(user.Id, jwtTokenId);
 
-
-        LoginDto loginDto = new LoginDto()
+        var loginDto = _mapper.Map<LoginDto>(user);
+        loginDto.Tokens = new TokenDTO()
         {
-            UserId = user.Id,
-            Email = user.Email,
-            DisplayName = user.DisplayName,
-            Avatar = user.Avatar,
-            CurrentExp = user.CurrentExp,
-            CurrentLevel = user.CurrentLevel,
-            ExpToNextLevel = user.ExpToNextLevel,
-            Tokens = new TokenDTO()
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-            },
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
         };
 
-        return loginDto;
-
+        return ServiceResult<LoginDto>.Success(loginDto);
     }
 
-    public async Task<LoginDto> Register(RegisterDto registerDto)
+    // public async Task<LoginDto> Login(LoginCredentialsDto loginCredentialsDto)
+    // {
+    //     var user = await _unitOfWork.User.GetByEmail(loginCredentialsDto.Email);
+    //     bool isUserValid = await _userManager.CheckPasswordAsync(user, loginCredentialsDto.Password);
+    //
+    //     if (user is null || !isUserValid)
+    //     {
+    //         return new LoginDto()
+    //         {
+    //             UserId = "",
+    //             Email = "",
+    //             Tokens = new TokenDTO()
+    //             {
+    //                 AccessToken = "",
+    //                 RefreshToken = "",
+    //             },
+    //         };
+    //     }
+    //
+    //     var jwtTokenId = $"JTI{Guid.NewGuid()}";
+    //     var accessToken = _tokenService.CreateAccessToken(user, jwtTokenId);
+    //     var refreshToken = await _tokenService.CreateRefreshToken(user.Id, jwtTokenId);
+    //
+    //
+    //     LoginDto loginDto = new LoginDto()
+    //     {
+    //         UserId = user.Id,
+    //         Email = user.Email,
+    //         DisplayName = user.DisplayName,
+    //         Avatar = user.Avatar,
+    //         CurrentExp = user.CurrentExp,
+    //         CurrentLevel = user.CurrentLevel,
+    //         ExpToNextLevel = user.ExpToNextLevel,
+    //         Tokens = new TokenDTO()
+    //         {
+    //             AccessToken = accessToken,
+    //             RefreshToken = refreshToken,
+    //         },
+    //     };
+    //
+    //     return loginDto;
+    //
+    // }
+
+    public async Task<ServiceResult<LoginDto>> Register(RegisterDto registerDto)
     {
         var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
         if (existingUser != null)
         {
-            throw new ArgumentException("A user with this email already exists.", nameof(registerDto.Email));
+            return ServiceResult<LoginDto>.Failure("A user with this email already exists.");
         }
 
         ApplicationUser user = new()
@@ -92,7 +118,7 @@ public class AuthService : IAuthService
             NormalizedEmail = registerDto.Email.ToUpper(),
             NormalizedUserName = registerDto.Email.ToUpper(),
             DisplayName = registerDto.DisplayName,
-            Avatar = registerDto.Avatar,
+            Avatar = _mapper.Map<Avatar>(registerDto.Avatar),
             CurrentLevel = 1,
             CurrentExp = 0,
             ExpToNextLevel = 100,
@@ -105,28 +131,20 @@ public class AuthService : IAuthService
 
             if (result.Succeeded)
             {
-                await _userManager.UpdateAsync(user);
-
-                var loginRequestDTO = new LoginCredentialsDto
+                var loginRequestDto = new LoginCredentialsDto
                 {
                     Email = registerDto.Email,
                     Password = registerDto.Password,
                 };
 
-                return await Login(loginRequestDTO);
-            }
-            else
-            {
-                _errorMapper.MapErrors(result);
-                throw new RegistrationException(_errorMapper.Errors);
+                return await Login(loginRequestDto);
             }
         }
         catch (Exception ex)
         {
-            throw;
+            return ServiceResult<LoginDto>.Failure("An unexpected error occurred during registration.");
         }
+
+        return ServiceResult<LoginDto>.Failure("Registration failed for an unknown reason.");
     }
-
-
-
 }

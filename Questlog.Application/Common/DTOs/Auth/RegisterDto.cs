@@ -1,5 +1,6 @@
 ﻿using Questlog.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
+using Questlog.Application.Common.DTOs.Avatar;
 
 namespace Questlog.Application.Common.DTOs.Auth;
 
@@ -13,7 +14,7 @@ public record RegisterDto
     public string DisplayName { get; set; }
 
     [Required(ErrorMessage = "Avatar is required.")]
-    public Avatar Avatar { get; set; }
+    public AvatarDto Avatar { get; set; }
 
     [Required(ErrorMessage = "Password is required.")]
     [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]

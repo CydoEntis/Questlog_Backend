@@ -5,11 +5,11 @@ using Questlog.Infrastructure.Data;
 
 namespace Questlog.Infrastructure.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository : BaseRepository<ApplicationUser>, IUserRepository
 {
     private readonly ApplicationDbContext _db;
 
-    public UserRepository(ApplicationDbContext db)
+    public UserRepository(ApplicationDbContext db) : base(db)
     {
         _db = db;
     }

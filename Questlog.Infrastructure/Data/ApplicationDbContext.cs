@@ -64,58 +64,59 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(ua => ua.User)
             .WithMany(u => u.UnlockedAvatars)
             .HasForeignKey(ua => ua.UserId)
-            .OnDelete(DeleteBehavior.Cascade); 
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UnlockedAvatar>()
             .HasOne(ua => ua.Avatar)
             .WithMany()
             .HasForeignKey(ua => ua.AvatarId)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Restrict);
 
 
         modelBuilder.Entity<Avatar>().HasData(
-            new Avatar { Id = 1, Name = "Male B", UnlockLevel = 1, Tier = 0, Cost = 0 },
-            new Avatar { Id = 2, Name = "Female A", UnlockLevel = 1, Tier = 0, Cost = 0 },
-            new Avatar { Id = 3, Name = "Female B", UnlockLevel = 1, Tier = 0, Cost = 0 },
-            new Avatar { Id = 4, Name = "Skeleton A", UnlockLevel = 3, Tier = 1, Cost = 200 },
-            new Avatar { Id = 5, Name = "Skeleton B", UnlockLevel = 3, Tier = 1, Cost = 200 },
-            new Avatar { Id = 6, Name = "Zombie Male", UnlockLevel = 5, Tier = 2, Cost = 350 },
-            new Avatar { Id = 7, Name = "Zombie Female", UnlockLevel = 5, Tier = 2, Cost = 350 },
-            new Avatar { Id = 8, Name = "Bear", UnlockLevel = 8, Tier = 3, Cost = 500 },
-            new Avatar { Id = 9, Name = "Gorilla", UnlockLevel = 8, Tier = 3, Cost = 500 },
-            new Avatar { Id = 10, Name = "Frog", UnlockLevel = 8, Tier = 3, Cost = 500 },
-            new Avatar { Id = 11, Name = "Snake", UnlockLevel = 8, Tier = 3, Cost = 500 },
-            new Avatar { Id = 12, Name = "Medusa", UnlockLevel = 10, Tier = 4, Cost = 750 },
-            new Avatar { Id = 13, Name = "Knight", UnlockLevel = 12, Tier = 5, Cost = 1000 },
-            new Avatar { Id = 14, Name = "Priest", UnlockLevel = 12, Tier = 5, Cost = 1000 },
-            new Avatar { Id = 15, Name = "Mage", UnlockLevel = 12, Tier = 5, Cost = 1000 },
-            new Avatar { Id = 16, Name = "Archer", UnlockLevel = 12, Tier = 5, Cost = 1000 },
-            new Avatar { Id = 17, Name = "Rogue", UnlockLevel = 15, Tier = 5, Cost = 1200 },
-            new Avatar { Id = 18, Name = "Merfolk", UnlockLevel = 16, Tier = 6, Cost = 1500 },
-            new Avatar { Id = 19, Name = "Squidman", UnlockLevel = 16, Tier = 6, Cost = 1500 },
-            new Avatar { Id = 20, Name = "Fishman", UnlockLevel = 16, Tier = 6, Cost = 1500 },
-            new Avatar { Id = 21, Name = "Mummy", UnlockLevel = 18, Tier = 7, Cost = 2000 },
-            new Avatar { Id = 22, Name = "Pharaoh", UnlockLevel = 18, Tier = 7, Cost = 2000 },
-            new Avatar { Id = 23, Name = "Spider A", UnlockLevel = 18, Tier = 7, Cost = 2000 },
-            new Avatar { Id = 24, Name = "Fanatic", UnlockLevel = 22, Tier = 8, Cost = 2500 },
-            new Avatar { Id = 25, Name = "Prince", UnlockLevel = 22, Tier = 8, Cost = 2500 },
-            new Avatar { Id = 26, Name = "Occultist", UnlockLevel = 22, Tier = 8, Cost = 2500 },
-            new Avatar { Id = 27, Name = "Slime", UnlockLevel = 28, Tier = 9, Cost = 3000 },
-            new Avatar { Id = 28, Name = "Mimic", UnlockLevel = 28, Tier = 9, Cost = 3000 },
-            new Avatar { Id = 29, Name = "Ghoul", UnlockLevel = 28, Tier = 9, Cost = 3000 },
-            new Avatar { Id = 30, Name = "Goblin", UnlockLevel = 32, Tier = 10, Cost = 3500 },
-            new Avatar { Id = 31, Name = "Werewolf A", UnlockLevel = 40, Tier = 11, Cost = 4000 },
-            new Avatar { Id = 32, Name = "Werewolf B", UnlockLevel = 40, Tier = 11, Cost = 4000 },
-            new Avatar { Id = 33, Name = "Werewolf C", UnlockLevel = 40, Tier = 11, Cost = 4000 },
-            new Avatar { Id = 34, Name = "Male Orc", UnlockLevel = 50, Tier = 12, Cost = 5000 },
-            new Avatar { Id = 35, Name = "Female Orc", UnlockLevel = 50, Tier = 12, Cost = 5000 },
-            new Avatar { Id = 36, Name = "Lich", UnlockLevel = 60, Tier = 13, Cost = 6000 },
-            new Avatar { Id = 37, Name = "Witch", UnlockLevel = 70, Tier = 14, Cost = 7000 },
-            new Avatar { Id = 38, Name = "Angel", UnlockLevel = 70, Tier = 14, Cost = 7000 },
-            new Avatar { Id = 39, Name = "Male Devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
-            new Avatar { Id = 40, Name = "Female Devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
-            new Avatar { Id = 41, Name = "Demon Male", UnlockLevel = 100, Tier = 16, Cost = 10000 },
-            new Avatar { Id = 42, Name = "Demon Female", UnlockLevel = 100, Tier = 16, Cost = 10000 }
+            new Avatar { Id = 1, Name = "male_a", UnlockLevel = 1, Tier = 0, Cost = 0 },
+            new Avatar { Id = 2, Name = "male_b", UnlockLevel = 1, Tier = 0, Cost = 0 },
+            new Avatar { Id = 3, Name = "female_a", UnlockLevel = 1, Tier = 0, Cost = 0 },
+            new Avatar { Id = 4, Name = "female_b", UnlockLevel = 1, Tier = 0, Cost = 0 },
+            new Avatar { Id = 5, Name = "skeleton_a", UnlockLevel = 3, Tier = 1, Cost = 200 },
+            new Avatar { Id = 6, Name = "skeleton_b", UnlockLevel = 3, Tier = 1, Cost = 200 },
+            new Avatar { Id = 7, Name = "zombie_male", UnlockLevel = 5, Tier = 2, Cost = 350 },
+            new Avatar { Id = 8, Name = "zombie_female", UnlockLevel = 5, Tier = 2, Cost = 350 },
+            new Avatar { Id = 9, Name = "bear", UnlockLevel = 8, Tier = 3, Cost = 500 },
+            new Avatar { Id = 10, Name = "gorilla", UnlockLevel = 8, Tier = 3, Cost = 500 },
+            new Avatar { Id = 11, Name = "frog", UnlockLevel = 8, Tier = 3, Cost = 500 },
+            new Avatar { Id = 12, Name = "snake", UnlockLevel = 8, Tier = 3, Cost = 500 },
+            new Avatar { Id = 13, Name = "medusa", UnlockLevel = 10, Tier = 4, Cost = 750 },
+            new Avatar { Id = 14, Name = "knight", UnlockLevel = 12, Tier = 5, Cost = 1000 },
+            new Avatar { Id = 15, Name = "priest", UnlockLevel = 12, Tier = 5, Cost = 1000 },
+            new Avatar { Id = 16, Name = "mage", UnlockLevel = 12, Tier = 5, Cost = 1000 },
+            new Avatar { Id = 17, Name = "archer", UnlockLevel = 12, Tier = 5, Cost = 1000 },
+            new Avatar { Id = 18, Name = "rogue", UnlockLevel = 15, Tier = 5, Cost = 1200 },
+            new Avatar { Id = 19, Name = "merfolk", UnlockLevel = 16, Tier = 6, Cost = 1500 },
+            new Avatar { Id = 20, Name = "squidman", UnlockLevel = 16, Tier = 6, Cost = 1500 },
+            new Avatar { Id = 21, Name = "fishman", UnlockLevel = 16, Tier = 6, Cost = 1500 },
+            new Avatar { Id = 22, Name = "mummy", UnlockLevel = 18, Tier = 7, Cost = 2000 },
+            new Avatar { Id = 23, Name = "pharaoh", UnlockLevel = 18, Tier = 7, Cost = 2000 },
+            new Avatar { Id = 24, Name = "spider_a", UnlockLevel = 18, Tier = 7, Cost = 2000 },
+            new Avatar { Id = 25, Name = "fanatic", UnlockLevel = 22, Tier = 8, Cost = 2500 },
+            new Avatar { Id = 26, Name = "prince", UnlockLevel = 22, Tier = 8, Cost = 2500 },
+            new Avatar { Id = 27, Name = "occultist", UnlockLevel = 22, Tier = 8, Cost = 2500 },
+            new Avatar { Id = 28, Name = "slime", UnlockLevel = 28, Tier = 9, Cost = 3000 },
+            new Avatar { Id = 29, Name = "mimic", UnlockLevel = 28, Tier = 9, Cost = 3000 },
+            new Avatar { Id = 30, Name = "ghoul", UnlockLevel = 28, Tier = 9, Cost = 3000 },
+            new Avatar { Id = 31, Name = "goblin", UnlockLevel = 32, Tier = 10, Cost = 3500 },
+            new Avatar { Id = 32, Name = "werewolf_a", UnlockLevel = 40, Tier = 11, Cost = 4000 },
+            new Avatar { Id = 33, Name = "werewolf_b", UnlockLevel = 40, Tier = 11, Cost = 4000 },
+            new Avatar { Id = 34, Name = "werewolf_c", UnlockLevel = 40, Tier = 11, Cost = 4000 },
+            new Avatar { Id = 35, Name = "male_orc", UnlockLevel = 50, Tier = 12, Cost = 5000 },
+            new Avatar { Id = 36, Name = "female_orc", UnlockLevel = 50, Tier = 12, Cost = 5000 },
+            new Avatar { Id = 37, Name = "lich", UnlockLevel = 60, Tier = 13, Cost = 6000 },
+            new Avatar { Id = 38, Name = "witch", UnlockLevel = 70, Tier = 14, Cost = 7000 },
+            new Avatar { Id = 39, Name = "angel", UnlockLevel = 70, Tier = 14, Cost = 7000 },
+            new Avatar { Id = 40, Name = "male_devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
+            new Avatar { Id = 41, Name = "female_devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
+            new Avatar { Id = 42, Name = "demon_male", UnlockLevel = 100, Tier = 16, Cost = 10000 },
+            new Avatar { Id = 43, Name = "demon_female", UnlockLevel = 100, Tier = 16, Cost = 10000 }
         );
     }
 
@@ -140,8 +141,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             Email = "test@test.com",
             DisplayName = "Demo User",
             AvatarId = 1,
-            CurrentLevel = 99,
-            CurrentExp = 999999,
+            CurrentLevel = 3,
+            CurrentExp = 300,
             CreatedAt = DateTime.UtcNow
         };
         user.PasswordHash = HashPassword(user, "Test123*");
