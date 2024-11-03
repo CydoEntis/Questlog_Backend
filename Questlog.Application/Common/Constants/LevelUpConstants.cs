@@ -2,13 +2,13 @@
 
 public class LevelUpConstants
 {
-    private const int CriticalXPReward = 200;
-    private const int HighXPReward = 150;
-    private const int MediumXPReward = 100;
-    private const int LowXPReward = 50;
+    public const int CriticalXPReward = 200;
+    public const int HighXPReward = 150;
+    public const int MediumXPReward = 100;
+    public const int LowXPReward = 50;
 
-    private const int CriticalCurrencyReward = 100;
-    private const int HighCurrencyReward = 75;
-    private const int MediumCurrencyReward = 50;
-    private const int LowCurrencyReward = 25;
+    public const int CriticalCurrencyReward = 100;
+    public const int HighCurrencyReward = 75;
+    public const int MediumCurrencyReward = 50;
+    public const int LowCurrencyReward = 25;
 }

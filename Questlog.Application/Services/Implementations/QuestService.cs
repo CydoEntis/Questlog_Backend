@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common;
+using Questlog.Application.Common.Constants;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Application.Common.DTOs.Step;
@@ -286,5 +287,29 @@ public class QuestService : BaseService, IQuestService
                 }
             }
         }
+    }
+
+    private int GetExpRewardForPriority(string priority)
+    {
+        return priority switch
+        {
+            "Critical" => LevelUpConstants.CriticalXPReward,
+            "High" => LevelUpConstants.HighXPReward,
+            "Medium" => LevelUpConstants.MediumXPReward,
+            "Low" => LevelUpConstants.LowXPReward,
+            _ => 0
+        };
+    }
+
+    private int GetCurrencyRewardForPriority(string priority)
+    {
+        return priority switch
+        {
+            "Critical" => LevelUpConstants.CriticalCurrencyReward,
+            "High" => LevelUpConstants.HighCurrencyReward,
+            "Medium" => LevelUpConstants.MediumCurrencyReward,
+            "Low" => LevelUpConstants.LowCurrencyReward,
+            _ => 0
+        };
     }
 }
