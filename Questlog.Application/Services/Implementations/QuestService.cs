@@ -288,6 +288,40 @@ public class QuestService : BaseService, IQuestService
             }
         }
     }
+    
+    public async Task<ServiceResult> CompleteQuest(int questId, string userId)
+    {
+        var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == questId);
+        if (quest == null)
+            return ServiceResult.Failure("Quest not found.");
+
+        if (quest.CompletionDate != null)
+            return ServiceResult.Failure("Quest has already been completed.");
+
+        var user = await _userManager.FindByIdAsync(userId);
+        var memberQuest = await _unitOfWork.MemberQuest.GetAsync(mq => mq.AssignedQuestId == questId && mq.UserId == userId);
+
+        if (memberQuest == null || memberQuest.IsCompleted)
+            return ServiceResult.Failure("Quest not assigned to user or already completed by them.");
+
+        int expReward = GetExpRewardForPriority(quest.Priority);
+        int currencyReward = GetCurrencyRewardForPriority(quest.Priority);
+
+        user.CurrentExp += expReward;
+        user.Currency += currencyReward;
+
+        memberQuest.IsCompleted = true;
+        memberQuest.AwardedExp = expReward;
+        memberQuest.AwardedCurrency = currencyReward;
+
+        quest.CompletionDate = DateTime.Now;
+
+        await _unitOfWork.SaveAsync();
+
+        return ServiceResult.Success();
+    }
+
+
 
     private int GetExpRewardForPriority(string priority)
     {

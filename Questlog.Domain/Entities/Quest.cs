@@ -11,6 +11,8 @@ public class Quest
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
     public DateTime DueDate { get; set; } = DateTime.Now;
 
+    public DateTime CompletionDate { get; set; }
+    
     public int CampaignId { get; set; }
     public Campaign Campaign { get; set; }
 
