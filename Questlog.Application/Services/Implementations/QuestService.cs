@@ -288,7 +288,7 @@ public class QuestService : BaseService, IQuestService
             }
         }
     }
-    
+
     public async Task<ServiceResult> CompleteQuest(int questId, string userId)
     {
         var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == questId);
@@ -299,7 +299,8 @@ public class QuestService : BaseService, IQuestService
             return ServiceResult.Failure("Quest has already been completed.");
 
         var user = await _userManager.FindByIdAsync(userId);
-        var memberQuest = await _unitOfWork.MemberQuest.GetAsync(mq => mq.AssignedQuestId == questId && mq.UserId == userId);
+        var memberQuest =
+            await _unitOfWork.MemberQuest.GetAsync(mq => mq.AssignedQuestId == questId && mq.UserId == userId);
 
         if (memberQuest == null || memberQuest.IsCompleted)
             return ServiceResult.Failure("Quest not assigned to user or already completed by them.");
@@ -321,6 +322,34 @@ public class QuestService : BaseService, IQuestService
         return ServiceResult.Success();
     }
 
+
+    public async Task<ServiceResult> UncompleteQuest(int questId, string userId)
+    {
+        var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == questId);
+        if (quest == null)
+            return ServiceResult.Failure("Quest not found.");
+
+        var member = await _unitOfWork.Member.GetAsync(m => m.CampaignId == quest.CampaignId && m.UserId == userId);
+        if (member == null || (member.Role != "owner" && member.Role != "captain"))
+            return ServiceResult.Failure("Only campaign owners or captains can uncomplete this quest.");
+
+        var memberQuest =
+            await _unitOfWork.MemberQuest.GetAsync(mq => mq.AssignedQuestId == questId && mq.UserId == userId);
+        if (memberQuest == null || !memberQuest.IsCompleted)
+            return ServiceResult.Failure("Quest not found or not completed.");
+
+        var user = await _userManager.FindByIdAsync(userId);
+        user.CurrentExp -= memberQuest.AwardedExp;
+        user.Currency -= memberQuest.AwardedCurrency;
+
+        memberQuest.IsCompleted = false;
+        memberQuest.AwardedExp = 0;
+        memberQuest.AwardedCurrency = 0;
+
+        await _unitOfWork.SaveAsync();
+
+        return ServiceResult.Success();
+    }
 
 
     private int GetExpRewardForPriority(string priority)
