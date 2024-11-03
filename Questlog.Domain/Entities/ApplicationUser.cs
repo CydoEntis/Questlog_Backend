@@ -28,9 +28,9 @@ public class ApplicationUser : IdentityUser
     public DateTime? UpdatedAt { get; set; }
 
 
-    public int CalculateExpForLevel()
+    public int CalculateExpForLevel(int level)
     {
         int baseExp = 100;
-        return baseExp * CurrentLevel;
+        return baseExp * level;
     }
 }

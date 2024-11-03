@@ -319,9 +319,10 @@ public class QuestService : BaseService, IQuestService
 
         await _unitOfWork.SaveAsync();
 
+        UpdateUserLevel(user);
+
         return ServiceResult.Success();
     }
-
 
     public async Task<ServiceResult> UncompleteQuest(int questId, string userId)
     {
@@ -348,9 +349,55 @@ public class QuestService : BaseService, IQuestService
 
         await _unitOfWork.SaveAsync();
 
+        UpdateUserLevel(user);
+
         return ServiceResult.Success();
     }
 
+    private void UpdateUserLevel(ApplicationUser user)
+    {
+        while (user.CurrentExp >= user.CalculateExpForLevel(user.CurrentLevel))
+        {
+            LevelUp(user);
+        }
+
+        while (user.CurrentExp < 0 && user.CurrentLevel > 1)
+        {
+            LevelDown(user);
+        }
+    }
+
+    private void LevelUp(ApplicationUser user)
+    {
+        if (user.CurrentExp >= user.CalculateExpForLevel(user.CurrentLevel))
+        {
+            user.CurrentExp -= user.CalculateExpForLevel(user.CurrentLevel);
+            user.CurrentLevel++;
+            user.ExpToNextLevel = user.CalculateExpForLevel(user.CurrentLevel);
+        }
+    }
+
+    private void LevelDown(ApplicationUser user)
+    {
+        if (user.CurrentLevel > 1)
+        {
+            user.CurrentExp += user.CalculateExpForLevel(user.CurrentLevel - 1);
+            user.CurrentLevel--;
+
+            if (user.CurrentLevel < 1)
+            {
+                user.CurrentLevel = 1;
+                user.CurrentExp = 0;
+            }
+
+            user.ExpToNextLevel = user.CalculateExpForLevel(user.CurrentLevel);
+        }
+
+        if (user.CurrentExp < 0)
+        {
+            user.CurrentExp = 0;
+        }
+    }
 
     private int GetExpRewardForPriority(string priority)
     {
