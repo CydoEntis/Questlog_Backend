@@ -10,4 +10,8 @@ public class MemberQuest
 
     public string UserId { get; set; }
     public ApplicationUser User { get; set; }
+
+    public bool IsCompleted { get; set; } = false;
+    public int AwardedExp { get; set; } = 0;
+    public int AwardedCurrency { get; set; } = 0;
 }
