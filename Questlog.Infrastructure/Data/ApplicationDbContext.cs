@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Questlog.Application.Common.Constants;
 using Questlog.Domain.Entities;
 
 namespace Questlog.Infrastructure.Data;
@@ -354,14 +355,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             Quests.Add(quest);
             SaveChanges();
 
-            int numberOfQuestMembers = random.Next(1, 5); 
+            int numberOfQuestMembers = random.Next(1, 5);
             var questMembers = members.OrderBy(u => random.Next()).Take(numberOfQuestMembers).ToList();
 
             foreach (var member in questMembers)
             {
                 var memberQuest = new MemberQuest
                 {
-                    AssignedMemberId = member.Id, 
+                    AssignedMemberId = member.Id,
                     AssignedQuestId = quest.Id,
                     UserId = member.UserId
                 };
@@ -404,14 +405,62 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             quest.IsCompleted = true;
             quest.CompletionDate = DateTime.Now;
 
+            int expReward = GetExpRewardForPriority(quest.Priority);
+            int currencyReward = GetCurrencyRewardForPriority(quest.Priority);
+
             var memberQuests = MemberQuests.Where(mq => mq.AssignedQuestId == quest.Id).ToList();
             foreach (var memberQuest in memberQuests)
             {
                 memberQuest.IsCompleted = true;
+                memberQuest.AwardedExp = expReward;
+                memberQuest.AwardedCurrency = currencyReward;
+
+                var user = Users.FirstOrDefault(u => u.Id == memberQuest.UserId);
+                if (user != null)
+                {
+                    user.CurrentExp += expReward;
+                    user.Currency += currencyReward;
+                    CheckForLevelUp(user);
+                }
             }
 
             SaveChanges();
         }
+    }
+
+    private void CheckForLevelUp(ApplicationUser user)
+    {
+        while (user.CurrentExp >= user.ExpToNextLevel)
+        {
+            user.CurrentExp -= user.ExpToNextLevel;
+            user.CurrentLevel++;
+            user.ExpToNextLevel = CalculateExpForLevel(user.CurrentLevel);
+        }
+    }
+
+
+    private int GetExpRewardForPriority(string priority)
+    {
+        return priority switch
+        {
+            "Critical" => LevelUpConstants.CriticalXPReward,
+            "High" => LevelUpConstants.HighXPReward,
+            "Medium" => LevelUpConstants.MediumXPReward,
+            "Low" => LevelUpConstants.LowXPReward,
+            _ => 0
+        };
+    }
+
+    private int GetCurrencyRewardForPriority(string priority)
+    {
+        return priority switch
+        {
+            "Critical" => LevelUpConstants.CriticalCurrencyReward,
+            "High" => LevelUpConstants.HighCurrencyReward,
+            "Medium" => LevelUpConstants.MediumCurrencyReward,
+            "Low" => LevelUpConstants.LowCurrencyReward,
+            _ => 0
+        };
     }
 
 
