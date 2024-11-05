@@ -18,4 +18,8 @@ public interface IQuestService
         UpdateQuestDto requestDto, string userId);
 
     Task<ServiceResult<int>> DeleteQuest(int campaignId);
+
+    Task<ServiceResult> CompleteQuest(int questId, string userId);
+
+    Task<ServiceResult> UncompleteQuest(int questId, string userId);
 }

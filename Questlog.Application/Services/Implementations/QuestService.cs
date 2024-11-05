@@ -46,7 +46,7 @@ public class QuestService : BaseService, IQuestService
 
             var foundQuest =
                 await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.CampaignId == campaignId,
-                    includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User");
+                    includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
 
             if (foundQuest == null)
@@ -164,7 +164,7 @@ public class QuestService : BaseService, IQuestService
 
 
             var foundQuest =
-                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.CampaignId == requestDto.CampaignId);
+                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.CampaignId == requestDto.CampaignId, includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
             foundQuest.Title = requestDto.Title.Trim();
             foundQuest.Description = requestDto.Description.Trim();
@@ -255,7 +255,7 @@ public class QuestService : BaseService, IQuestService
     private async Task UpdateMemberQuests(Quest foundQuest, IEnumerable<int> memberIds)
     {
         var existingMemberQuests = await _unitOfWork.MemberQuest.GetAllAsync(mq => mq.AssignedQuestId == foundQuest.Id,
-            includeProperties: "AssignedMember,User");
+            includeProperties: "AssignedMember,User,User.Avatar");
 
         var newMemberIds = memberIds.ToHashSet();
 
@@ -273,7 +273,7 @@ public class QuestService : BaseService, IQuestService
             if (!existingMemberQuests.Any(mq => mq.AssignedMemberId == memberId))
             {
                 var existingMember =
-                    await _unitOfWork.Member.GetAsync(m => m.Id == memberId, includeProperties: "User");
+                    await _unitOfWork.Member.GetAsync(m => m.Id == memberId, includeProperties: "User,User.Avatar");
                 if (existingMember != null)
                 {
                     var memberQuest = new MemberQuest

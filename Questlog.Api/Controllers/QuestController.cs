@@ -109,32 +109,6 @@ public class QuestController : BaseController
         return OkResponse(result.Data);
     }
 
-    // [HttpPut("{questId}/leader")]
-    // public async Task<ActionResult<ApiResponse>> UpdateQuestLeader(int questId,
-    //     [FromBody] UpdateQuestOwnerRequestDto requestDto)
-    // {
-    //     if (requestDto == null)
-    //     {
-    //         return BadRequestResponse("UpdateQuestRequestDTO cannot be null.");
-    //     }
-    //
-    //     string userId = HttpContext.Items["UserId"] as string;
-    //
-    //     if (string.IsNullOrEmpty(userId))
-    //     {
-    //         return BadRequestResponse("User Id is missing.");
-    //     }
-    //
-    //     var result = await _questService.UpdateQuestLeader(questId, userId, requestDto);
-    //
-    //     if (!result.IsSuccess)
-    //     {
-    //         return BadRequestResponse(result.ErrorMessage);
-    //     }
-    //
-    //     return OkResponse(result.Data);
-    // }
-
     [HttpDelete("{questId}")]
     public async Task<ActionResult<ApiResponse>> DeleteQuest(int questId)
     {
@@ -149,4 +123,45 @@ public class QuestController : BaseController
 
         return OkResponse(result.Data);
     }
+    
+    [HttpPost("{questId}/complete")]
+    public async Task<ActionResult<ApiResponse>> CompleteQuest(int campaignId, int questId)
+    {
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequestResponse("User Id is missing.");
+        }
+
+        var result = await _questService.CompleteQuest(questId, userId);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+
+        return OkResponse("Quest completed successfully.");
+    }
+    
+    [HttpPut("{questId}/uncomplete")]
+    public async Task<ActionResult<ApiResponse>> UncompleteQuest(int campaignId, int questId)
+    {
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequestResponse("User Id is missing.");
+        }
+
+        var result = await _questService.UncompleteQuest(questId, userId);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+
+        return OkResponse("Quest uncompleted successfully.");
+    }
+
 }

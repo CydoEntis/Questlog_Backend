@@ -5,7 +5,7 @@ namespace Questlog.Application.Common.DTOs.Auth;
 
 public record LoginDto
 {
-    // public string UserId { get; set; }
+    public string Id { get; set; }
     // public string Email { get; set; }
     public string DisplayName { get; set; }
     public TokenDTO Tokens { get; set; }
