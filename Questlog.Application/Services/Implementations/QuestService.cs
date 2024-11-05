@@ -76,7 +76,7 @@ public class QuestService : BaseService, IQuestService
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
-                IncludeProperties = "Steps,MemberQuests.AssignedMember,MemberQuests.User",
+                IncludeProperties = "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar",
                 Filter = c => c.CampaignId == campaignId
             };
 

@@ -22,6 +22,8 @@ namespace Questlog.Api.Mappings
                         .Select(mq => new MemberDto()
                         {
                             Id = mq.AssignedMember.Id,
+                            CampaignId = mq.AssignedQuest.CampaignId,
+                            Role = mq.AssignedMember.Role,
                             UserId = mq.UserId,
                             DisplayName = mq.AssignedMember.User.DisplayName,
                             Email = mq.AssignedMember.User.Email,
@@ -32,7 +34,6 @@ namespace Questlog.Api.Mappings
                             },
                             CurrentLevel = mq.AssignedMember.User.CurrentLevel,
                             JoinedOn = mq.AssignedMember.JoinedOn,
-                            CampaignId = mq.AssignedQuest.CampaignId
                         })));
         }
     }
