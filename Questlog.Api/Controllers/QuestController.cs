@@ -123,9 +123,9 @@ public class QuestController : BaseController
 
         return OkResponse(result.Data);
     }
-    
+
     [HttpPost("{questId}/complete")]
-    public async Task<ActionResult<ApiResponse>> CompleteQuest(int campaignId, int questId)
+    public async Task<ActionResult<ApiResponse>> CompleteQuest(int questId)
     {
         string userId = HttpContext.Items["UserId"] as string;
 
@@ -141,11 +141,12 @@ public class QuestController : BaseController
             return BadRequestResponse(result.ErrorMessage);
         }
 
-        return OkResponse("Quest completed successfully.");
+        return OkResponse(result.Data); 
     }
-    
+
+
     [HttpPut("{questId}/uncomplete")]
-    public async Task<ActionResult<ApiResponse>> UncompleteQuest(int campaignId, int questId)
+    public async Task<ActionResult<ApiResponse>> UncompleteQuest(int questId)
     {
         string userId = HttpContext.Items["UserId"] as string;
 
@@ -161,7 +162,6 @@ public class QuestController : BaseController
             return BadRequestResponse(result.ErrorMessage);
         }
 
-        return OkResponse("Quest uncompleted successfully.");
+        return OkResponse(result.Data);
     }
-
 }

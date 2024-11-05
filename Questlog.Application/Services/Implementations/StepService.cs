@@ -20,8 +20,7 @@ public class StepService : BaseService, IStepService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<StepDto>> UpdateStep(
-        UpdateStepDto requestDto, string userId)
+    public async Task<ServiceResult<StepDto>> UpdateStep(UpdateStepDto requestDto, string userId)
     {
         try
         {
@@ -36,13 +35,18 @@ public class StepService : BaseService, IStepService
 
             await _unitOfWork.Step.UpdateAsync(foundStep);
 
+            var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == foundStep.QuestId,
+                includeProperties: "Steps");
+            var completedStepsCount = quest.Steps.Count(s => s.IsCompleted);
+
             var responseDto = _mapper.Map<StepDto>(foundStep);
+            responseDto.CompletedSteps = completedStepsCount;
+
             return ServiceResult<StepDto>.Success(responseDto);
         }
         catch (Exception ex)
         {
-            return ServiceResult<StepDto>.Failure(
-                ex.InnerException?.Message ?? ex.Message);
+            return ServiceResult<StepDto>.Failure(ex.InnerException?.Message ?? ex.Message);
         }
     }
 }

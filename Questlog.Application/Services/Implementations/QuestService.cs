@@ -164,7 +164,8 @@ public class QuestService : BaseService, IQuestService
 
 
             var foundQuest =
-                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.CampaignId == requestDto.CampaignId, includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
+                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.CampaignId == requestDto.CampaignId,
+                    includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
             foundQuest.Title = requestDto.Title.Trim();
             foundQuest.Description = requestDto.Description.Trim();
@@ -212,6 +213,122 @@ public class QuestService : BaseService, IQuestService
 
             return ServiceResult<int>.Success(foundQuest.Id);
         });
+    }
+
+    public async Task<ServiceResult<QuestDto>> CompleteQuest(int questId, string userId)
+    {
+        try
+        {
+            var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == questId,
+                includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
+
+            if (quest.CompletionDate != null)
+                return ServiceResult<QuestDto>.Failure("Quest has already been completed.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            var memberQuest =
+                await _unitOfWork.MemberQuest.GetAsync(mq => mq.AssignedQuestId == questId && mq.UserId == userId);
+
+            if (memberQuest.IsCompleted)
+                return ServiceResult<QuestDto>.Failure("Quest not assigned to user or already completed by them.");
+
+            
+
+            var expReward = GetExpRewardForPriority(quest.Priority);
+            var currencyReward = GetCurrencyRewardForPriority(quest.Priority);
+
+            var existingSteps = await _unitOfWork.Step.GetAllAsync(s => s.QuestId == questId);
+
+            
+            if (user != null)
+            {
+                foreach (var step in existingSteps)
+                {
+                    step.IsCompleted = true;
+                    step.UpdatedAt = DateTime.UtcNow;
+                }
+                
+                
+                user.CurrentExp += expReward;
+                user.Currency += currencyReward;
+
+                memberQuest.IsCompleted = true;
+                memberQuest.AwardedExp = expReward;
+                memberQuest.AwardedCurrency = currencyReward;
+
+                quest.CompletionDate = DateTime.Now;
+                quest.IsCompleted = true;
+
+                await _unitOfWork.SaveAsync();
+
+                UpdateUserLevel(user);
+            }
+
+            var responseDto = _mapper.Map<QuestDto>(quest);
+            return ServiceResult<QuestDto>.Success(responseDto);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<QuestDto>.Failure(
+                ex.InnerException?.Message ?? ex.Message);
+        }
+    }
+
+
+    public async Task<ServiceResult<QuestDto>> UncompleteQuest(int questId, string userId)
+    {
+        try
+        {
+            var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == questId,
+                includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
+
+            var member = await _unitOfWork.Member.GetAsync(m => m.CampaignId == quest.CampaignId && m.UserId == userId);
+            if ((!string.Equals(member.Role, "owner", StringComparison.OrdinalIgnoreCase) &&
+                 !string.Equals(member.Role, "captain", StringComparison.OrdinalIgnoreCase)))
+            {
+                return ServiceResult<QuestDto>.Failure("Only campaign owners or captains can uncomplete this quest.");
+            }
+
+            var memberQuest =
+                await _unitOfWork.MemberQuest.GetAsync(mq => mq.AssignedQuestId == questId && mq.UserId == userId);
+            if (!memberQuest.IsCompleted)
+                return ServiceResult<QuestDto>.Failure("Quest not found or not completed.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+ 
+            var existingSteps = await _unitOfWork.Step.GetAllAsync(s => s.QuestId == questId);
+            if (user != null)
+            {
+                foreach (var step in existingSteps)
+                {
+                    step.IsCompleted = false;
+                    step.UpdatedAt = DateTime.UtcNow;
+                }
+            
+            
+                user.CurrentExp -= memberQuest.AwardedExp;
+                user.Currency -= memberQuest.AwardedCurrency;
+
+                memberQuest.IsCompleted = false;
+                memberQuest.AwardedExp = 0;
+                memberQuest.AwardedCurrency = 0;
+
+                quest.CompletionDate = null;
+                quest.IsCompleted = false;
+
+                await _unitOfWork.SaveAsync();
+
+                UpdateUserLevel(user);
+            }
+
+            var responseDto = _mapper.Map<QuestDto>(quest);
+            return ServiceResult<QuestDto>.Success(responseDto);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<QuestDto>.Failure(
+                ex.InnerException?.Message ?? ex.Message);
+        }
     }
 
 
@@ -287,71 +404,6 @@ public class QuestService : BaseService, IQuestService
                 }
             }
         }
-    }
-
-    public async Task<ServiceResult> CompleteQuest(int questId, string userId)
-    {
-        var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == questId);
-        if (quest == null)
-            return ServiceResult.Failure("Quest not found.");
-
-        if (quest.CompletionDate != null)
-            return ServiceResult.Failure("Quest has already been completed.");
-
-        var user = await _userManager.FindByIdAsync(userId);
-        var memberQuest =
-            await _unitOfWork.MemberQuest.GetAsync(mq => mq.AssignedQuestId == questId && mq.UserId == userId);
-
-        if (memberQuest == null || memberQuest.IsCompleted)
-            return ServiceResult.Failure("Quest not assigned to user or already completed by them.");
-
-        int expReward = GetExpRewardForPriority(quest.Priority);
-        int currencyReward = GetCurrencyRewardForPriority(quest.Priority);
-
-        user.CurrentExp += expReward;
-        user.Currency += currencyReward;
-
-        memberQuest.IsCompleted = true;
-        memberQuest.AwardedExp = expReward;
-        memberQuest.AwardedCurrency = currencyReward;
-
-        quest.CompletionDate = DateTime.Now;
-
-        await _unitOfWork.SaveAsync();
-
-        UpdateUserLevel(user);
-
-        return ServiceResult.Success();
-    }
-
-    public async Task<ServiceResult> UncompleteQuest(int questId, string userId)
-    {
-        var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == questId);
-        if (quest == null)
-            return ServiceResult.Failure("Quest not found.");
-
-        var member = await _unitOfWork.Member.GetAsync(m => m.CampaignId == quest.CampaignId && m.UserId == userId);
-        if (member == null || (member.Role != "owner" && member.Role != "captain"))
-            return ServiceResult.Failure("Only campaign owners or captains can uncomplete this quest.");
-
-        var memberQuest =
-            await _unitOfWork.MemberQuest.GetAsync(mq => mq.AssignedQuestId == questId && mq.UserId == userId);
-        if (memberQuest == null || !memberQuest.IsCompleted)
-            return ServiceResult.Failure("Quest not found or not completed.");
-
-        var user = await _userManager.FindByIdAsync(userId);
-        user.CurrentExp -= memberQuest.AwardedExp;
-        user.Currency -= memberQuest.AwardedCurrency;
-
-        memberQuest.IsCompleted = false;
-        memberQuest.AwardedExp = 0;
-        memberQuest.AwardedCurrency = 0;
-
-        await _unitOfWork.SaveAsync();
-
-        UpdateUserLevel(user);
-
-        return ServiceResult.Success();
     }
 
     private void UpdateUserLevel(ApplicationUser user)

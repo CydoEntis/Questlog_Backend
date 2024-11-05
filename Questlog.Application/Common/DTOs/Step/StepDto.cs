@@ -8,4 +8,5 @@ public class StepDto
     public int QuestId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public int CompletedSteps { get; set; }
 }
