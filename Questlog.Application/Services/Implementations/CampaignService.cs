@@ -40,7 +40,7 @@ public class CampaignService : BaseService, ICampaignService
         return await HandleExceptions<CampaignDto>(async () =>
         {
             var foundCampaign =
-                await _unitOfWork.Campaign.GetAsync(g => g.Id == campaignId, includeProperties: "Members,Members.User");
+                await _unitOfWork.Campaign.GetAsync(g => g.Id == campaignId, includeProperties: "Members,Members.User,Members.User.Avatar");
 
             if (foundCampaign == null)
             {
@@ -64,7 +64,7 @@ public class CampaignService : BaseService, ICampaignService
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
-                IncludeProperties = "Members,Members.User",
+                IncludeProperties = "Members,Members.User,Members.User.Avatar",
                 Filter = c => c.Members.Any(m => m.UserId == userId)
             };
 
