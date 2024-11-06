@@ -9,5 +9,7 @@ public class AvatarMappingProfile : Profile
     public AvatarMappingProfile()
     {
         CreateMap<Avatar, AvatarDto>().ReverseMap();
+        CreateMap<UnlockedAvatar, UnlockedAvatarDto>().ReverseMap();
+
     }
 }

@@ -151,8 +151,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         Users.Add(user);
         SaveChanges();
 
+        var unlockedAvatars = Avatars.Where(a => a.UnlockLevel <= user.CurrentLevel).ToList();
+        SeedUnlockedAvatars(user, unlockedAvatars); 
+
         return user;
     }
+
 
     private Campaign SeedInitialCampaign(string ownerId)
     {

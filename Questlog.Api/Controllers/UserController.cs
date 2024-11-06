@@ -1,24 +1,33 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.Identity.Client;
+using Questlog.Api.Models;
+using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
 
-[ApiController]
 [Route("api/user")]
-public class UserController : ControllerBase
+[ApiController]
+[Authorize]
+[ServiceFilter(typeof(TokenValidationFilter))]
+public class UserController : BaseController
 {
-    [HttpGet("details")]
-    [Authorize]
-    public IActionResult GetUserDetails()
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        _userService = userService;
+    }
 
-        if (userId == null)
-        {
-            return Unauthorized("User ID not found.");
-        }
+    [HttpGet("{userId}")]
+    public async Task<ActionResult<ApiResponse>> GetQuest(string userId)
+    {
+        if (string.IsNullOrEmpty(userId))
+            return BadRequestResponse("User Id must be provided");
 
-        return Ok(new { UserId = userId });
+        var result = await _userService.GetUserById(userId);
+
+        return !result.IsSuccess ? BadRequestResponse(result.ErrorMessage) : OkResponse(result.Data);
     }
 }

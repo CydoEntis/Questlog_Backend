@@ -9,6 +9,7 @@ public class MappingConfig
         return new MapperConfiguration(cfg =>
 
         {
+            cfg.AddProfile(new UserMappingProfile());
             cfg.AddProfile(new AuthMappingProfile());
             cfg.AddProfile(new CampaignMappingProfile());
             cfg.AddProfile(new MemberMappingProfile());
