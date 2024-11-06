@@ -13,12 +13,10 @@ namespace Questlog.Api.Controllers;
 [ServiceFilter(typeof(TokenValidationFilter))]
 public class CampaignController : BaseController
 {
-    protected ApiResponse _response;
     private readonly ICampaignService _campaignService;
 
     public CampaignController(ICampaignService campaignService)
     {
-        _response = new ApiResponse();
         _campaignService = campaignService;
     }
 
