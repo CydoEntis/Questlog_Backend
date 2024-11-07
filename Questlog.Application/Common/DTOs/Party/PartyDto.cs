@@ -1,8 +1,8 @@
 ﻿using Questlog.Application.Common.DTOs.Member;
 
-namespace Questlog.Application.Common.DTOs.Campaign;
+namespace Questlog.Application.Common.DTOs.Party;
 
-public class CampaignDto
+public class PartyDto
 {
     public int Id { get; set; }
     public string Title { get; set; }

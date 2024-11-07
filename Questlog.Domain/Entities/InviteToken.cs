@@ -11,5 +11,5 @@ public class InviteToken
     public DateTime Expiration { get; set; }
     public bool IsExpired { get; set; } = false;
 
-    public virtual Campaign Campaign { get; set; }
+    public virtual Party Party { get; set; }
 }

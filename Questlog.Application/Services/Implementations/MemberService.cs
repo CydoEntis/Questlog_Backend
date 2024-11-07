@@ -40,7 +40,7 @@ public class MemberService : BaseService, IMemberService
         return await HandleExceptions<MemberDto>(async () =>
         {
             Member foundMember =
-                await _unitOfWork.Member.GetAsync(gm => gm.CampaignId == campaignId && gm.Id == guildMemberId);
+                await _unitOfWork.Member.GetAsync(gm => gm.PartyId == campaignId && gm.Id == guildMemberId);
 
             if (foundMember == null)
             {
@@ -58,7 +58,7 @@ public class MemberService : BaseService, IMemberService
     {
         return await HandleExceptions<List<MemberDto>>(async () =>
         {
-            var members = await _unitOfWork.Member.GetAllAsync(m => m.CampaignId == campaignId);
+            var members = await _unitOfWork.Member.GetAllAsync(m => m.PartyId == campaignId);
 
             var memberResponseDtos = _mapper.Map<List<MemberDto>>(members);
 
@@ -79,7 +79,7 @@ public class MemberService : BaseService, IMemberService
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
                 IncludeProperties = "User",
-                Filter = c => c.CampaignId == campaignId
+                Filter = c => c.PartyId == campaignId
             };
 
             if (!string.IsNullOrEmpty(queryParams.SearchValue))
@@ -165,7 +165,7 @@ public class MemberService : BaseService, IMemberService
         return await HandleExceptions<int>(async () =>
         {
             var foundMember =
-                await _unitOfWork.Member.GetAsync(gm => gm.Id == guildMemberId && gm.CampaignId == campaignId);
+                await _unitOfWork.Member.GetAsync(gm => gm.Id == guildMemberId && gm.PartyId == campaignId);
             if (foundMember == null)
                 return ServiceResult<int>.Failure(" Member not found");
 
@@ -213,7 +213,7 @@ public class MemberService : BaseService, IMemberService
 
             var newMember = new Member()
             {
-                CampaignId = inviteToken.CampaignId,
+                PartyId = inviteToken.CampaignId,
                 Role = RoleConstants.Member,
                 JoinedOn = DateTime.UtcNow,
                 UpdatedOn = DateTime.UtcNow,

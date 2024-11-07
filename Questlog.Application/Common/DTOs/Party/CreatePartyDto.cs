@@ -1,6 +1,7 @@
-﻿namespace Questlog.Application.Common.DTOs.Campaign;
+﻿namespace Questlog.Application.Common.DTOs.Party;
 
-public class CreateCampaignDto
+
+public class CreatePartyDto
 {
     public string Title { get; set; }
     public string Description { get; set; }

@@ -45,7 +45,7 @@ public class QuestService : BaseService, IQuestService
 
 
             var foundQuest =
-                await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.CampaignId == campaignId,
+                await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.PartyId == campaignId,
                     includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
 
@@ -77,7 +77,7 @@ public class QuestService : BaseService, IQuestService
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
                 IncludeProperties = "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar",
-                Filter = c => c.CampaignId == campaignId
+                Filter = c => c.PartyId == campaignId
             };
 
             if (!string.IsNullOrEmpty(queryParams.SearchValue))
@@ -164,7 +164,7 @@ public class QuestService : BaseService, IQuestService
 
 
             var foundQuest =
-                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.CampaignId == requestDto.CampaignId,
+                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.PartyId == requestDto.CampaignId,
                     includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
             foundQuest.Title = requestDto.Title.Trim();
@@ -179,9 +179,9 @@ public class QuestService : BaseService, IQuestService
 
             await _unitOfWork.Quest.UpdateAsync(foundQuest);
 
-            var campaign = await _unitOfWork.Campaign.GetAsync(c => c.Id == requestDto.CampaignId);
+            var campaign = await _unitOfWork.Party.GetAsync(c => c.Id == requestDto.CampaignId);
             campaign.UpdatedAt = DateTime.UtcNow;
-            await _unitOfWork.Campaign.SaveAsync();
+            await _unitOfWork.Party.SaveAsync();
 
             var responseDto = _mapper.Map<QuestDto>(foundQuest);
             return ServiceResult<QuestDto>.Success(responseDto);
@@ -282,7 +282,7 @@ public class QuestService : BaseService, IQuestService
             var quest = await _unitOfWork.Quest.GetAsync(q => q.Id == questId,
                 includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
-            var member = await _unitOfWork.Member.GetAsync(m => m.CampaignId == quest.CampaignId && m.UserId == userId);
+            var member = await _unitOfWork.Member.GetAsync(m => m.PartyId == quest.PartyId && m.UserId == userId);
             if ((!string.Equals(member.Role, "owner", StringComparison.OrdinalIgnoreCase) &&
                  !string.Equals(member.Role, "captain", StringComparison.OrdinalIgnoreCase)))
             {

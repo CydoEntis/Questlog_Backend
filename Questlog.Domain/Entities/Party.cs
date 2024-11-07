@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Questlog.Domain.Entities;
 
-public class Campaign
+public class Party
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

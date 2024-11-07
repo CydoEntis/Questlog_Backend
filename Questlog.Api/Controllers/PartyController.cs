@@ -2,30 +2,30 @@
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
-using Questlog.Application.Common.DTOs.Campaign;
+using Questlog.Application.Common.DTOs.Party;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
 
-[Route("api/campaigns")]
+[Route("api/parties")]
 [ApiController]
 [Authorize]
 [ServiceFilter(typeof(TokenValidationFilter))]
-public class CampaignController : BaseController
+public class PartyController : BaseController
 {
-    private readonly ICampaignService _campaignService;
+    private readonly IPartyService _partyService;
 
-    public CampaignController(ICampaignService campaignService)
+    public PartyController(IPartyService partyService)
     {
-        _campaignService = campaignService;
+        _partyService = partyService;
     }
 
-    [HttpGet("{campaignId}")]
-    public async Task<ActionResult<ApiResponse>> GetCampaign(int campaignId)
+    [HttpGet("{partyId}")]
+    public async Task<ActionResult<ApiResponse>> GetParty(int partyId)
     {
-        if (campaignId <= 0) return BadRequestResponse("Campaign Id must be provided.");
+        if (partyId <= 0) return BadRequestResponse("Party Id must be provided.");
 
-        var result = await _campaignService.GetCampaignById(campaignId);
+        var result = await _partyService.GetPartyById(partyId);
 
         if (!result.IsSuccess)
         {
@@ -36,7 +36,7 @@ public class CampaignController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse>> GetAllCampaigns([FromQuery] QueryParamsDto queryParams)
+    public async Task<ActionResult<ApiResponse>> GetAllParties([FromQuery] QueryParamsDto queryParams)
     {
         string userId = HttpContext.Items["UserId"] as string;
 
@@ -46,7 +46,7 @@ public class CampaignController : BaseController
         }
 
 
-        var result = await _campaignService.GetAllCampaigns(userId, queryParams);
+        var result = await _partyService.GetAllParties(userId, queryParams);
 
         if (!result.IsSuccess)
         {
@@ -57,7 +57,7 @@ public class CampaignController : BaseController
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse>> CreateCampaign([FromBody] CreateCampaignDto requestDto)
+    public async Task<ActionResult<ApiResponse>> CreateParty([FromBody] CreatePartyDto requestDto)
     {
         if (requestDto == null)
         {
@@ -71,7 +71,7 @@ public class CampaignController : BaseController
             return BadRequestResponse("User Id is missing.");
         }
 
-        var result = await _campaignService.CreateCampaign(userId, requestDto);
+        var result = await _partyService.CreateParty(userId, requestDto);
 
         if (!result.IsSuccess)
         {
@@ -86,9 +86,9 @@ public class CampaignController : BaseController
         //return CreatedResponse(new { Id = createdCampaignId, Location = locationUri, Message = "Campaign created successfully" });
     }
 
-    [HttpPut("{campaignId}/details")]
-    public async Task<ActionResult<ApiResponse>> UpdateCampaignDetails(int campaignId,
-        [FromBody] UpdateCampaignDto requestDto)
+    [HttpPut("{partyId}/details")]
+    public async Task<ActionResult<ApiResponse>> UpdatePartyDetails(int partyId,
+        [FromBody] UpdatePartyDto requestDto)
     {
         if (requestDto == null)
         {
@@ -102,7 +102,7 @@ public class CampaignController : BaseController
             return BadRequestResponse("User Id is missing.");
         }
 
-        var result = await _campaignService.UpdateCampaign(requestDto, userId);
+        var result = await _partyService.UpdateParty(requestDto, userId);
 
         if (!result.IsSuccess)
         {
@@ -113,12 +113,12 @@ public class CampaignController : BaseController
     }
 
 
-    [HttpDelete("{campaignId}")]
-    public async Task<ActionResult<ApiResponse>> DeleteCampaign(int campaignId)
+    [HttpDelete("{partyId}")]
+    public async Task<ActionResult<ApiResponse>> DeleteParty(int partyId)
     {
-        if (campaignId <= 0) return BadRequestResponse("Campaign Id must be provided.");
+        if (partyId <= 0) return BadRequestResponse("Party Id must be provided.");
 
-        var result = await _campaignService.DeleteCampaign(campaignId);
+        var result = await _partyService.DeleteParty(partyId);
 
         if (!result.IsSuccess)
         {

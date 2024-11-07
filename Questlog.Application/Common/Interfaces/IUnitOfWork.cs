@@ -4,7 +4,7 @@ public interface IUnitOfWork
 {
     IUserRepository User { get; }
     ITokenRepository Token { get; }
-    ICampaignRepository Campaign { get; }
+    IPartyRepository Party { get; }
     IMemberRepository Member { get; }
     IMemberQuestRepository MemberQuest { get; }
     IQuestRepository Quest { get; }

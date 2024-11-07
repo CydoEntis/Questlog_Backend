@@ -10,18 +10,18 @@ using Questlog.Infrastructure.Data;
 
 namespace Questlog.Infrastructure.Repositories;
 
-public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
+public class PartyRepository : BaseRepository<Party>, IPartyRepository
 {
     private readonly ApplicationDbContext _db;
 
-    public CampaignRepository(ApplicationDbContext db) : base(db)
+    public PartyRepository(ApplicationDbContext db) : base(db)
     {
         _db = db;
     }
 
-    public async Task<PaginatedResult<Campaign>> GetPaginatedCampaignsAsync(QueryOptions<Campaign> options)
+    public async Task<PaginatedResult<Party>> GetPaginatedPartiesAsync(QueryOptions<Party> options)
     {
-        IQueryable<Campaign> query = _dbSet;
+        IQueryable<Party> query = _dbSet;
 
         if (options.Filter != null)
         {
@@ -41,16 +41,16 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
         return await Paginate(query, options.PageNumber, options.PageSize);
     }
 
-    public async Task<Campaign> UpdateAsync(Campaign entity)
+    public async Task<Party> UpdateAsync(Party entity)
     {
         entity.UpdatedAt = DateTime.Now;
-        _db.Campaigns.Update(entity);
+        _db.Parties.Update(entity);
         await _db.SaveChangesAsync();
         return entity;
     }
 
 
-    private IQueryable<Campaign> ApplyIncludeProperties(IQueryable<Campaign> query, string includeProperties)
+    private IQueryable<Party> ApplyIncludeProperties(IQueryable<Party> query, string includeProperties)
     {
         foreach (var includeProp in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
@@ -61,7 +61,7 @@ public class CampaignRepository : BaseRepository<Campaign>, ICampaignRepository
     }
 
 
-    private IQueryable<Campaign> ApplyOrdering(IQueryable<Campaign> query, string orderOn, string orderBy)
+    private IQueryable<Party> ApplyOrdering(IQueryable<Party> query, string orderOn, string orderBy)
     {
         var orderDirection = Enum.TryParse<OrderBy>(orderBy, true, out var order) ? order : OrderBy.Desc;
 

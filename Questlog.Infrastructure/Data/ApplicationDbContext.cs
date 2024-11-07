@@ -10,7 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-    public DbSet<Campaign> Campaigns { get; set; }
+    public DbSet<Party> Parties { get; set; }
     public DbSet<Member> Members { get; set; }
     public DbSet<Quest> Quests { get; set; }
     public DbSet<Step> Steps { get; set; }
@@ -50,9 +50,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Member>()
-            .HasOne(m => m.Campaign)
+            .HasOne(m => m.Party)
             .WithMany(c => c.Members)
-            .HasForeignKey(m => m.CampaignId)
+            .HasForeignKey(m => m.PartyId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Member>()
@@ -129,9 +129,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         }
 
         var adminUser = SeedAdminUser();
-        var campaigns = SeedInitialCampaign(adminUser.Id);
+        var parties = SeedInitialParty(adminUser.Id);
         SeedRandomUsers();
-        SeedRandomCampaigns(campaigns, adminUser);
+        SeedRandomParties(parties, adminUser);
     }
 
     private ApplicationUser SeedAdminUser()
@@ -158,21 +158,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
 
-    private Campaign SeedInitialCampaign(string ownerId)
+    private Party SeedInitialParty(string ownerId)
     {
-        var initialCampaign = new Campaign()
+        var initialParty = new Party()
         {
-            Title = "My First Campaign",
-            Description = "The first campaign ever created",
+            Title = "My First Party",
+            Description = "The first party ever created",
             CreatedAt = DateTime.UtcNow,
             OwnerId = ownerId
         };
-        Campaigns.Add(initialCampaign);
+        Parties.Add(initialParty);
         SaveChanges();
 
         var initialMember = new Member
         {
-            CampaignId = initialCampaign.Id,
+            PartyId = initialParty.Id,
             UserId = ownerId,
             Role = "Owner",
             JoinedOn = DateTime.UtcNow,
@@ -181,7 +181,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         Members.Add(initialMember);
         SaveChanges();
 
-        return initialCampaign;
+        return initialParty;
     }
 
     private void SeedRandomUsers()
@@ -251,10 +251,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
 
-    private void SeedRandomCampaigns(Campaign initialCampaign, ApplicationUser adminUser)
+    private void SeedRandomParties(Party initialParty, ApplicationUser adminUser)
     {
         var random = new Random();
-        string[] campaignNames = new string[]
+        string[] partyNames = new string[]
         {
             "Sprint Planning", "Bug Bash", "Code Review Marathon",
             "Feature Launch", "API Integration", "Frontend Overhaul",
@@ -266,7 +266,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             "Technical Debt Repayment", "Data Analytics Setup", "Documentation Week",
             "Innovation Sprint"
         };
-        string[] campaignDescriptions = new string[]
+        string[] partyDescriptions = new string[]
         {
             "Organize tasks for the upcoming sprint.", "Fix bugs and improve stability.",
             "Perform in-depth code reviews across the team.", "Release new features to production.",
@@ -282,26 +282,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             "Set up data analytics for better insights.", "Dedicate time to writing and updating documentation.",
             "Explore new technologies in an innovation sprint."
         };
-        string[] campaignColors = { "red", "orange", "yellow", "green", "blue", "indigo", "violet" };
+        string[] partyColors = { "red", "orange", "yellow", "green", "blue", "indigo", "violet" };
 
         var users = ApplicationUsers.Where(u => u.Id != adminUser.Id).ToList();
-        int campaignCount = 0;
+        int partyCount = 0;
 
-        foreach (var (title, description) in campaignNames.Zip(campaignDescriptions, (n, d) => (n, d)))
+        foreach (var (title, description) in partyNames.Zip(partyDescriptions, (n, d) => (n, d)))
         {
-            var campaign = new Campaign
+            var party = new Party
             {
                 Title = title,
                 Description = description,
-                Color = campaignColors[random.Next(campaignColors.Length)],
+                Color = partyColors[random.Next(partyColors.Length)],
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
                 DueDate = DateTime.UtcNow.AddDays(random.Next(1, 30)),
-                OwnerId = campaignCount < 5
+                OwnerId = partyCount < 5
                     ? users[random.Next(users.Count)].Id
                     : adminUser.Id
             };
 
-            Campaigns.Add(campaign);
+            Parties.Add(party);
             SaveChanges();
 
             int numberOfMembers = random.Next(2, 9);
@@ -309,26 +309,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             foreach (var memberUser in selectedMembers)
             {
-                var role = memberUser.Id == campaign.OwnerId ? "Owner" : "Member";
-                SeedMembers(campaign, memberUser, role);
+                var role = memberUser.Id == party.OwnerId ? "Owner" : "Member";
+                SeedMembers(party, memberUser, role);
             }
 
-            if (campaign.OwnerId == adminUser.Id)
-                SeedMembers(campaign, adminUser, "Owner");
+            if (party.OwnerId == adminUser.Id)
+                SeedMembers(party, adminUser, "Owner");
             else
-                SeedMembers(campaign, adminUser, "Member");
+                SeedMembers(party, adminUser, "Member");
 
-            SeedQuests(campaign);
-            campaignCount++;
+            SeedQuests(party);
+            partyCount++;
         }
     }
 
 
-    private void SeedMembers(Campaign campaign, ApplicationUser user, string role)
+    private void SeedMembers(Party party, ApplicationUser user, string role)
     {
         var member = new Member
         {
-            CampaignId = campaign.Id,
+            PartyId = party.Id,
             UserId = user.Id,
             Role = role,
             JoinedOn = DateTime.UtcNow,
@@ -338,21 +338,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         SaveChanges();
     }
 
-    private void SeedQuests(Campaign campaign)
+    private void SeedQuests(Party party)
     {
         var random = new Random();
         var difficulties = new[] { "Critical", "High", "Medium", "Low" };
         int questCount = random.Next(3, 21);
 
-        var members = Members.Where(m => m.CampaignId == campaign.Id).ToList();
+        var members = Members.Where(m => m.PartyId == party.Id).ToList();
 
         for (int j = 0; j < questCount; j++)
         {
             var quest = new Quest
             {
-                Title = $"Quest {j + 1} for {campaign.Title}",
-                Description = $"Description for quest {j + 1} in {campaign.Title}",
-                CampaignId = campaign.Id,
+                Title = $"Quest {j + 1} for {party.Title}",
+                Description = $"Description for quest {j + 1} in {party.Title}",
+                PartyId = party.Id,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
                 Priority = difficulties[random.Next(difficulties.Length)]
             };

@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
-using Questlog.Application.Common.DTOs.Campaign;
+using Questlog.Application.Common.DTOs.Party;
 using Questlog.Domain.Entities;
 
 namespace Questlog.Api.Mappings;
 
-public class CampaignMappingProfile : Profile
+public class PartyMappingProfile : Profile
 {
-    public CampaignMappingProfile()
+    public PartyMappingProfile()
     {
-        CreateMap<Campaign, CampaignDto>()
+        CreateMap<Party, PartyDto>()
             .ForMember(dest => dest.CreatorId, opt => opt.MapFrom(src => src.Members
                 .Where(m => m.Role == "Owner")
                 .Select(m => m.User.Id)
@@ -19,7 +19,7 @@ public class CampaignMappingProfile : Profile
                 .FirstOrDefault()));
 
 
-        CreateMap<Campaign, CreateCampaignDto>().ReverseMap();
-        CreateMap<Campaign, UpdateCampaignDto>().ReverseMap();
+        CreateMap<Party, CreatePartyDto>().ReverseMap();
+        CreateMap<Party, UpdatePartyDto>().ReverseMap();
     }
 }

@@ -7,27 +7,25 @@ using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
 
-[Route("api/campaigns/{campaignId}/quests")]
+[Route("api/parties/{partyId}/quests")]
 [ApiController]
 [Authorize]
 [ServiceFilter(typeof(TokenValidationFilter))]
 public class QuestController : BaseController
 {
-    protected ApiResponse _response;
     private readonly IQuestService _questService;
 
     public QuestController(IQuestService questService)
     {
-        _response = new ApiResponse();
         _questService = questService;
     }
 
     [HttpGet("{questId}")]
-    public async Task<ActionResult<ApiResponse>> GetQuest(int campaignId, int questId)
+    public async Task<ActionResult<ApiResponse>> GetQuest(int partyId, int questId)
     {
         if (questId <= 0) return BadRequestResponse("Quest Id must be provided.");
 
-        var result = await _questService.GetQuestById(campaignId, questId);
+        var result = await _questService.GetQuestById(partyId, questId);
 
         if (!result.IsSuccess)
         {
@@ -38,7 +36,7 @@ public class QuestController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse>> GetAllQuests(int campaignId, [FromQuery] QueryParamsDto queryParams)
+    public async Task<ActionResult<ApiResponse>> GetAllQuests(int partyId, [FromQuery] QueryParamsDto queryParams)
     {
         string userId = HttpContext.Items["UserId"] as string;
 
@@ -48,7 +46,7 @@ public class QuestController : BaseController
         }
 
 
-        var result = await _questService.GetAllQuests(campaignId, userId, queryParams);
+        var result = await _questService.GetAllQuests(partyId, userId, queryParams);
 
         if (!result.IsSuccess)
         {

@@ -8,7 +8,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext _db;
     public IUserRepository User { get; private set; }
     public ITokenRepository Token { get; private set; }
-    public ICampaignRepository Campaign { get; private set; }
+    public IPartyRepository Party { get; private set; }
     public IMemberRepository Member { get; private set; }
     public IMemberQuestRepository MemberQuest { get; private set; }
     public IQuestRepository Quest { get; private set; }
@@ -24,7 +24,7 @@ public class UnitOfWork : IUnitOfWork
         User = new UserRepository(db);
         Token = new TokenRepository(db);
 
-        Campaign = new CampaignRepository(db);
+        Party = new PartyRepository(db);
         Member = new MemberRepository(db);
         MemberQuest = new MemberQuestRepository(db);
         Quest = new QuestRepository(db);

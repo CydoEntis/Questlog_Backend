@@ -9,7 +9,7 @@ namespace Questlog.Api.Mappings;
     {
         public QueryParamMappingProfile()
         {
-            CreateMap<QueryParamsDto, QueryOptions<Campaign>>().ReverseMap();
+            CreateMap<QueryParamsDto, QueryOptions<Party>>().ReverseMap();
             CreateMap<QueryParamsDto, QueryOptions<Quest>>().ReverseMap();
         }
     }

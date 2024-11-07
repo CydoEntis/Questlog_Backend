@@ -14,7 +14,7 @@ public class AvatarService : BaseService, IAvatarService
 
 
     public AvatarService(IUnitOfWork unitOfWork,
-        ILogger<CampaignService> logger, IMapper mapper) : base(logger)
+        ILogger<PartyService> logger, IMapper mapper) : base(logger)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;

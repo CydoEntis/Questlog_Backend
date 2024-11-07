@@ -13,8 +13,8 @@ public class Quest
 
     public DateTime? CompletionDate { get; set; } = null;
     
-    public int CampaignId { get; set; }
-    public Campaign Campaign { get; set; }
+    public int PartyId { get; set; }
+    public Party Party { get; set; }
 
     public virtual List<Step> Steps { get; set; } = new List<Step>();
     
