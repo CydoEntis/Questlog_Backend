@@ -36,7 +36,7 @@ public class AvatarController : BaseController
 
         return OkResponse(result.Data);
     }
-    
+
     [HttpGet("unlocked")]
     public async Task<ActionResult<ApiResponse>> GetUnlockedAvatars()
     {
@@ -55,7 +55,7 @@ public class AvatarController : BaseController
 
         return OkResponse(result.Data);
     }
-    
+
     [HttpGet("next-tier")]
     public async Task<ActionResult<ApiResponse>> GetNextUnlockableTier()
     {
@@ -66,6 +66,26 @@ public class AvatarController : BaseController
 
 
         var result = await _avatarService.GetNextUnlockableTier(userId);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+
+        return OkResponse(result.Data);
+    }
+
+
+    [HttpPost("unlock")]
+    public async Task<ActionResult<ApiResponse>> UnlockAvatar(int avatarId)
+    {
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+            return BadRequestResponse("User Id must be provided");
+
+
+        var result = await _avatarService.UnlockAvatar(userId, avatarId);
 
         if (!result.IsSuccess)
         {

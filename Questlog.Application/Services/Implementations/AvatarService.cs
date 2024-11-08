@@ -4,6 +4,7 @@ using Questlog.Application.Common.DTOs.Avatar;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Services.Interfaces;
+using Questlog.Domain.Entities;
 
 namespace Questlog.Application.Services.Implementations;
 
@@ -11,7 +12,6 @@ public class AvatarService : BaseService, IAvatarService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-
 
     public AvatarService(IUnitOfWork unitOfWork,
         ILogger<PartyService> logger, IMapper mapper) : base(logger)
@@ -104,4 +104,64 @@ public class AvatarService : BaseService, IAvatarService
         }
     }
 
+    public async Task<ServiceResult<List<AvatarShopDto>>> UnlockAvatar(string userId, int avatarId)
+    {
+        try
+        {
+            var user = await _unitOfWork.User.GetUserById(userId);
+            if (user == null)
+            {
+                return ServiceResult<List<AvatarShopDto>>.Failure("User not found.");
+            }
+
+            var userLevel = user.CurrentLevel;
+            var avatar = await _unitOfWork.Avatar.GetAsync(a => a.Id == avatarId);
+            if (avatar == null)
+            {
+                return ServiceResult<List<AvatarShopDto>>.Failure("Avatar not found.");
+            }
+
+            if (userLevel < avatar.UnlockLevel)
+            {
+                return ServiceResult<List<AvatarShopDto>>.Failure("Level requirement not met.");
+            }
+
+            var existingUnlockedAvatar =
+                await _unitOfWork.UnlockedAvatar.GetAsync(ua => ua.AvatarId == avatarId && ua.UserId == userId);
+            if (existingUnlockedAvatar != null)
+            {
+                return ServiceResult<List<AvatarShopDto>>.Failure("Avatar already unlocked.");
+            }
+
+            var newUnlockedAvatar = new UnlockedAvatar
+            {
+                UserId = user.Id,
+                AvatarId = avatarId,
+                UnlockedAt = DateTime.UtcNow
+            };
+
+            await _unitOfWork.UnlockedAvatar.CreateAsync(newUnlockedAvatar);
+
+            user.AvatarId = avatarId;
+
+            await _unitOfWork.SaveAsync();
+
+            var unlockedAvatars = await _unitOfWork.UnlockedAvatar.GetAllAsync(ua => ua.UserId == userId);
+            var avatarDtos = unlockedAvatars.Select(ua => new AvatarShopDto
+            {
+                Id = ua.AvatarId,
+                Name = avatar.Name,
+                Tier = avatar.Tier,
+                UnlockLevel = avatar.UnlockLevel,
+                Cost = avatar.Cost
+            }).ToList();
+
+            return ServiceResult<List<AvatarShopDto>>.Success(avatarDtos);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<List<AvatarShopDto>>.Failure(
+                ex.InnerException?.Message ?? ex.Message);
+        }
+    }
 }
