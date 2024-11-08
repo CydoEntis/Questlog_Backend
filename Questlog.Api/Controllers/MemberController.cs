@@ -7,7 +7,7 @@ using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
 
-[Route("api/campaigns/{campaignId}/members")]
+[Route("api/parties/{partyId}/members")]
 [Authorize]
 [ApiController]
 [ServiceFilter(typeof(TokenValidationFilter))]
@@ -23,12 +23,12 @@ public class MemberController : BaseController
     }
 
     [HttpGet("{memberId}")]
-    public async Task<ActionResult<ApiResponse>> GetMember(int campaignId, int memberId)
+    public async Task<ActionResult<ApiResponse>> GetMember(int partyId, int memberId)
     {
-        if (campaignId <= 0) return BadRequestResponse(" Id must be provided.");
+        if (partyId <= 0) return BadRequestResponse(" Id must be provided.");
         if (memberId <= 0) return BadRequestResponse(" Member Id must be provided.");
 
-        var result = await _memberService.GetMember(campaignId, memberId);
+        var result = await _memberService.GetMember(partyId, memberId);
 
         if (!result.IsSuccess)
         {
@@ -39,14 +39,14 @@ public class MemberController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse>> GetAllMembers(int campaignId, [FromQuery] QueryParamsDto queryParams)
+    public async Task<ActionResult<ApiResponse>> GetAllMembers(int partyId, [FromQuery] QueryParamsDto queryParams)
     {
         // Validate the  Id
-        if (campaignId <= 0)
+        if (partyId <= 0)
             return BadRequestResponse(" Id must be provided.");
 
         // Call the service to get all guild members with the specified query parameters
-        var result = await _memberService.GetAllPaginatedMembers(campaignId, queryParams);
+        var result = await _memberService.GetAllPaginatedMembers(partyId, queryParams);
 
         // Check for success
         if (!result.IsSuccess)
@@ -60,15 +60,15 @@ public class MemberController : BaseController
 
 
     [HttpGet("paginated")]
-    public async Task<ActionResult<ApiResponse>> GetMembersPaginated(int campaignId,
+    public async Task<ActionResult<ApiResponse>> GetMembersPaginated(int partyId,
         [FromQuery] QueryParamsDto queryParams)
     {
         // Validate the  Id
-        if (campaignId <= 0)
+        if (partyId <= 0)
             return BadRequestResponse(" Id must be provided.");
 
         // Call the service to get all guild members with the specified query parameters
-        var result = await _memberService.GetAllPaginatedMembers(campaignId, queryParams);
+        var result = await _memberService.GetAllPaginatedMembers(partyId, queryParams);
 
         // Check for success
         if (!result.IsSuccess)
@@ -100,7 +100,7 @@ public class MemberController : BaseController
     }
 
     [HttpPut("{userId}")]
-    public async Task<ActionResult<ApiResponse>> UpdateMember(int campaignId, string userId,
+    public async Task<ActionResult<ApiResponse>> UpdateMember(int partyId, string userId,
         [FromBody] UpdateMemberDto roleRequestDto)
     {
         if (roleRequestDto == null)
@@ -119,12 +119,12 @@ public class MemberController : BaseController
     }
 
     [HttpDelete("{memberId}")]
-    public async Task<ActionResult<ApiResponse>> RemoveMember(int campaignId, int memberId)
+    public async Task<ActionResult<ApiResponse>> RemoveMember(int partyId, int memberId)
     {
-        if (campaignId <= 0) return BadRequestResponse(" Id must be provided.");
+        if (partyId <= 0) return BadRequestResponse(" Id must be provided.");
         if (memberId <= 0) return BadRequestResponse(" Member Id must be provided.");
 
-        var result = await _memberService.RemoveMember(campaignId, memberId);
+        var result = await _memberService.RemoveMember(partyId, memberId);
 
         if (!result.IsSuccess)
         {
@@ -135,10 +135,10 @@ public class MemberController : BaseController
     }
 
     [HttpGet("invite")]
-    public async Task<ActionResult<ApiResponse>> Invite(int campaignId)
+    public async Task<ActionResult<ApiResponse>> Invite(int partyId)
     {
         // Validate the token
-        var result = await _memberService.GenerateInviteLink(campaignId);
+        var result = await _memberService.GenerateInviteLink(partyId);
 
 
         if (!result.IsSuccess)
