@@ -20,7 +20,7 @@ public class AvatarService : BaseService, IAvatarService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<List<AvatarShopDto>>> GetAvatarShop(string userId)
+    public async Task<ServiceResult<List<AvatarDto>>> GetAvatarShop(string userId)
     {
         try
         {
@@ -30,22 +30,22 @@ public class AvatarService : BaseService, IAvatarService
 
             var unlockedAvatarsSet = new HashSet<int>(unlockedAvatars.Select(ua => ua.AvatarId));
 
-            var avatarShopDtos = allAvatars.Select(avatar => new AvatarShopDto()
+            var avatarDto = allAvatars.Select(avatar => new AvatarDto()
             {
                 Id = avatar.Id,
                 Name = avatar.Name,
+                DisplayName = avatar.Name,
                 Tier = avatar.Tier,
                 UnlockLevel = avatar.UnlockLevel,
-                DisplayName = avatar.DisplayName,
                 Cost = avatar.Cost,
                 IsUnlocked = unlockedAvatarsSet.Contains(avatar.Id)
             }).ToList();
 
-            return ServiceResult<List<AvatarShopDto>>.Success(avatarShopDtos);
+            return ServiceResult<List<AvatarDto>>.Success(avatarDto);
         }
         catch (Exception ex)
         {
-            return ServiceResult<List<AvatarShopDto>>.Failure(
+            return ServiceResult<List<AvatarDto>>.Failure(
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
@@ -73,20 +73,20 @@ public class AvatarService : BaseService, IAvatarService
         }
     }
 
-    public async Task<ServiceResult<List<AvatarShopDto>>> GetNextUnlockableTier(string userId)
+    public async Task<ServiceResult<List<AvatarDto>>> GetNextUnlockableTier(string userId)
     {
         try
         {
             var user = await _unitOfWork.User.GetUserById(userId);
             if (user == null)
             {
-                return ServiceResult<List<AvatarShopDto>>.Failure("User not found.");
+                return ServiceResult<List<AvatarDto>>.Failure("User not found.");
             }
 
             var userLevel = user.CurrentLevel;
             var avatars = await _unitOfWork.Avatar.GetAvatarsAtNextUnlockableLevelAsync(userLevel);
 
-            var avatarDtos = avatars.Select(a => new AvatarShopDto
+            var avatarDtos = avatars.Select(a => new AvatarDto
             {
                 Id = a.Id,
                 Name = a.Name,
@@ -95,42 +95,42 @@ public class AvatarService : BaseService, IAvatarService
                 Cost = a.Cost
             }).ToList();
 
-            return ServiceResult<List<AvatarShopDto>>.Success(avatarDtos);
+            return ServiceResult<List<AvatarDto>>.Success(avatarDtos);
         }
         catch (Exception ex)
         {
-            return ServiceResult<List<AvatarShopDto>>.Failure(
+            return ServiceResult<List<AvatarDto>>.Failure(
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
 
-    public async Task<ServiceResult<List<AvatarShopDto>>> UnlockAvatar(string userId, int avatarId)
+    public async Task<ServiceResult<List<AvatarDto>>> UnlockAvatar(string userId, int avatarId)
     {
         try
         {
             var user = await _unitOfWork.User.GetUserById(userId);
             if (user == null)
             {
-                return ServiceResult<List<AvatarShopDto>>.Failure("User not found.");
+                return ServiceResult<List<AvatarDto>>.Failure("User not found.");
             }
 
             var userLevel = user.CurrentLevel;
             var avatar = await _unitOfWork.Avatar.GetAsync(a => a.Id == avatarId);
             if (avatar == null)
             {
-                return ServiceResult<List<AvatarShopDto>>.Failure("Avatar not found.");
+                return ServiceResult<List<AvatarDto>>.Failure("Avatar not found.");
             }
 
             if (userLevel < avatar.UnlockLevel)
             {
-                return ServiceResult<List<AvatarShopDto>>.Failure("Level requirement not met.");
+                return ServiceResult<List<AvatarDto>>.Failure("Level requirement not met.");
             }
 
             var existingUnlockedAvatar =
                 await _unitOfWork.UnlockedAvatar.GetAsync(ua => ua.AvatarId == avatarId && ua.UserId == userId);
             if (existingUnlockedAvatar != null)
             {
-                return ServiceResult<List<AvatarShopDto>>.Failure("Avatar already unlocked.");
+                return ServiceResult<List<AvatarDto>>.Failure("Avatar already unlocked.");
             }
 
             var newUnlockedAvatar = new UnlockedAvatar
@@ -147,7 +147,7 @@ public class AvatarService : BaseService, IAvatarService
             await _unitOfWork.SaveAsync();
 
             var unlockedAvatars = await _unitOfWork.UnlockedAvatar.GetAllAsync(ua => ua.UserId == userId);
-            var avatarDtos = unlockedAvatars.Select(ua => new AvatarShopDto
+            var avatarDtos = unlockedAvatars.Select(ua => new AvatarDto
             {
                 Id = ua.AvatarId,
                 Name = avatar.Name,
@@ -156,11 +156,11 @@ public class AvatarService : BaseService, IAvatarService
                 Cost = avatar.Cost
             }).ToList();
 
-            return ServiceResult<List<AvatarShopDto>>.Success(avatarDtos);
+            return ServiceResult<List<AvatarDto>>.Success(avatarDtos);
         }
         catch (Exception ex)
         {
-            return ServiceResult<List<AvatarShopDto>>.Failure(
+            return ServiceResult<List<AvatarDto>>.Failure(
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
