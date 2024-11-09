@@ -120,7 +120,7 @@ public class PartyService : BaseService, IPartyService
             await _unitOfWork.Member.CreateAsync(partyOwner);
 
             var partyWithLeader = await _unitOfWork.Party
-                .GetAsync(g => g.Id == party.Id, includeProperties: "Members,Members.User");
+                .GetAsync(g => g.Id == party.Id, includeProperties: "Members,Members.User,Members.User.Avatar");
 
             var partyDto = _mapper.Map<PartyDto>(partyWithLeader);
 
