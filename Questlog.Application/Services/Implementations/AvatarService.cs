@@ -87,14 +87,8 @@ public class AvatarService : BaseService, IAvatarService
             var userLevel = user.CurrentLevel;
             var avatars = await _unitOfWork.Avatar.GetAvatarsAtNextUnlockableLevelAsync(userLevel);
 
-            var avatarDtos = avatars.Select(a => new AvatarDto
-            {
-                Id = a.Id,
-                Name = a.Name,
-                Tier = a.Tier,
-                UnlockLevel = a.UnlockLevel,
-                Cost = a.Cost
-            }).ToList();
+            var avatarDtos = _mapper.Map<List<AvatarDto>>(avatars);
+
 
             return ServiceResult<List<AvatarDto>>.Success(avatarDtos);
         }
