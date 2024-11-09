@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.Identity.Client;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs.Avatar;
+using Questlog.Application.Common.DTOs.User;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
@@ -41,6 +42,19 @@ public class UserController : BaseController
             return BadRequestResponse("User Id must be provided");
 
         var result = await _userService.UpdateAvatar(userId, dto.id);
+
+        return !result.IsSuccess ? BadRequestResponse(result.ErrorMessage) : OkResponse(result.Data);
+    }
+    
+    [HttpPut("display-name")]
+    public async Task<ActionResult<ApiResponse>> UpdateDisplayName([FromBody] UpdateDisplayNameDto dto)
+    {
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+            return BadRequestResponse("User Id must be provided");
+
+        var result = await _userService.UpdateDisplayName(userId, dto.DisplayName);
 
         return !result.IsSuccess ? BadRequestResponse(result.ErrorMessage) : OkResponse(result.Data);
     }
