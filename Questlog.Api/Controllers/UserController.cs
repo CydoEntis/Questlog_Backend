@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.Identity.Client;
 using Questlog.Api.Models;
+using Questlog.Application.Common.DTOs.Avatar;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
@@ -27,6 +28,19 @@ public class UserController : BaseController
             return BadRequestResponse("User Id must be provided");
 
         var result = await _userService.GetUserById(userId);
+
+        return !result.IsSuccess ? BadRequestResponse(result.ErrorMessage) : OkResponse(result.Data);
+    }
+
+    [HttpPut("avatar")]
+    public async Task<ActionResult<ApiResponse>> UpdateAvatar([FromBody] UpdateAvatarDto dto)
+    {
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+            return BadRequestResponse("User Id must be provided");
+
+        var result = await _userService.UpdateAvatar(userId, dto.id);
 
         return !result.IsSuccess ? BadRequestResponse(result.ErrorMessage) : OkResponse(result.Data);
     }

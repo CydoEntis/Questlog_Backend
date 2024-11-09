@@ -9,5 +9,5 @@ public interface IAvatarService
     Task<ServiceResult<List<AvatarDto>>> GetUnlockedAvatars(string userId);
     Task<ServiceResult<List<AvatarDto>>> GetNextUnlockableTier(string userId);
 
-    Task<ServiceResult<List<AvatarDto>>> UnlockAvatar(string userId, int avatarId);
+    Task<ServiceResult<AvatarDto>> UnlockAvatar(string userId, int avatarId);
 }

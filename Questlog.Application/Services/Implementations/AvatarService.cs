@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.DTOs.Avatar;
+using Questlog.Application.Common.DTOs.User;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
 using Questlog.Application.Services.Interfaces;
@@ -104,33 +105,42 @@ public class AvatarService : BaseService, IAvatarService
         }
     }
 
-    public async Task<ServiceResult<List<AvatarDto>>> UnlockAvatar(string userId, int avatarId)
+    public async Task<ServiceResult<AvatarDto>> UnlockAvatar(string userId, int avatarId)
     {
         try
         {
+            // Retrieve the user
             var user = await _unitOfWork.User.GetUserById(userId);
             if (user == null)
             {
-                return ServiceResult<List<AvatarDto>>.Failure("User not found.");
+                return ServiceResult<AvatarDto>.Failure("User not found.");
             }
 
+            // Check user's level and currency
             var userLevel = user.CurrentLevel;
+            var userCurrency = user.Currency;
+
+            // Retrieve the avatar
             var avatar = await _unitOfWork.Avatar.GetAsync(a => a.Id == avatarId);
             if (avatar == null)
             {
-                return ServiceResult<List<AvatarDto>>.Failure("Avatar not found.");
+                return ServiceResult<AvatarDto>.Failure("Avatar not found.");
             }
 
+            // Check if user meets level and currency requirements
             if (userLevel < avatar.UnlockLevel)
-            {
-                return ServiceResult<List<AvatarDto>>.Failure("Level requirement not met.");
-            }
+                return ServiceResult<AvatarDto>.Failure("Level requirement not met.");
 
-            var existingUnlockedAvatar =
-                await _unitOfWork.UnlockedAvatar.GetAsync(ua => ua.AvatarId == avatarId && ua.UserId == userId);
+            if (userCurrency < avatar.Cost)
+                return ServiceResult<AvatarDto>.Failure("User does not have enough currency.");
+
+            // Check if the avatar is already unlocked
+            var existingUnlockedAvatar = await _unitOfWork.UnlockedAvatar.GetAsync(
+                ua => ua.AvatarId == avatarId && ua.UserId == userId);
+
             if (existingUnlockedAvatar != null)
             {
-                return ServiceResult<List<AvatarDto>>.Failure("Avatar already unlocked.");
+                return ServiceResult<AvatarDto>.Failure("Avatar already unlocked.");
             }
 
             var newUnlockedAvatar = new UnlockedAvatar
@@ -146,22 +156,21 @@ public class AvatarService : BaseService, IAvatarService
 
             await _unitOfWork.SaveAsync();
 
-            var unlockedAvatars = await _unitOfWork.UnlockedAvatar.GetAllAsync(ua => ua.UserId == userId);
-            var avatarDtos = unlockedAvatars.Select(ua => new AvatarDto
+            var unlockedAvatarDto = new AvatarDto
             {
-                Id = ua.AvatarId,
+                Id = avatar.Id,
                 Name = avatar.Name,
                 Tier = avatar.Tier,
                 UnlockLevel = avatar.UnlockLevel,
                 Cost = avatar.Cost
-            }).ToList();
+            };
 
-            return ServiceResult<List<AvatarDto>>.Success(avatarDtos);
+            return ServiceResult<AvatarDto>.Success(unlockedAvatarDto);
         }
         catch (Exception ex)
         {
-            return ServiceResult<List<AvatarDto>>.Failure(
-                ex.InnerException?.Message ?? ex.Message);
+            return ServiceResult<AvatarDto>.Failure(ex.InnerException?.Message ?? ex.Message);
         }
     }
+
 }

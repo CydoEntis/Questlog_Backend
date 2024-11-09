@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Questlog.Application.Common.DTOs.Avatar;
 using Questlog.Application.Common.DTOs.User;
 using Questlog.Application.Common.Interfaces;
 using Questlog.Application.Common.Models;
@@ -29,7 +30,8 @@ public class UserService : BaseService, IUserService
         try
         {
             var foundUser =
-                await _unitOfWork.User.GetAsync(u => u.Id == userId, includeProperties: "Avatar,UnlockedAvatars,UnlockedAvatars.Avatar");
+                await _unitOfWork.User.GetAsync(u => u.Id == userId,
+                    includeProperties: "Avatar,UnlockedAvatars,UnlockedAvatars.Avatar");
             if (foundUser == null)
             {
                 return ServiceResult<UserDto>.Failure("User not found.");
@@ -42,6 +44,36 @@ public class UserService : BaseService, IUserService
         catch (Exception ex)
         {
             return ServiceResult<UserDto>.Failure(
+                ex.InnerException?.Message ?? ex.Message);
+        }
+    }
+
+    public async Task<ServiceResult<AvatarDto>> UpdateAvatar(string userId, int avatarId)
+    {
+        try
+        {
+            var foundUser = await _unitOfWork.User.GetAsync(u => u.Id == userId, includeProperties: "Avatar");
+            if (foundUser == null)
+            {
+                return ServiceResult<AvatarDto>.Failure("User not found.");
+            }
+
+
+            var unlockedAvatar =
+                await _unitOfWork.UnlockedAvatar.GetAsync(ua => ua.AvatarId == avatarId && ua.UserId == userId, includeProperties: "Avatar");
+
+            foundUser.AvatarId = unlockedAvatar.AvatarId;
+            await _unitOfWork.SaveAsync();
+            
+            
+
+            var avatarDto = _mapper.Map<AvatarDto>(unlockedAvatar);
+
+            return ServiceResult<AvatarDto>.Success(avatarDto);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<AvatarDto>.Failure(
                 ex.InnerException?.Message ?? ex.Message);
         }
     }

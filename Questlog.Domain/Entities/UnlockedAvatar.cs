@@ -19,4 +19,5 @@ public class UnlockedAvatar
     public Avatar Avatar { get; set; }
 
     public DateTime UnlockedAt { get; set; } = DateTime.UtcNow;
+    public bool IsUnlocked { get; set; } = false;
 }

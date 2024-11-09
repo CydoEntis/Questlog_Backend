@@ -236,7 +236,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             {
                 UserId = user.Id,
                 AvatarId = avatar.Id,
-                UnlockedAt = DateTime.UtcNow
+                UnlockedAt = DateTime.UtcNow,
+                IsUnlocked = true
             };
             UnlockedAvatars.Add(unlockedAvatar);
         }

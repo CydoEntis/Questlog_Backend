@@ -11,5 +11,4 @@ public class UserDto
     public int CurrentExp { get; set; } = 0;
     public int Currency { get; set; } = 0;
     public int ExpToNextLevel { get; set; } = 100;
-    public List<AvatarDto> UnlockedAvatars { get; set; } = new List<AvatarDto>();
 }
