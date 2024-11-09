@@ -136,7 +136,7 @@ public class QuestService : BaseService, IQuestService
 
             var questWithMembers = await _unitOfWork.Quest
                 .GetAsync(q => q.Id == createdQuest.Id,
-                    includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User");
+                    includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
             var createQuestResponseDTO = _mapper.Map<QuestDto>(questWithMembers);
             return ServiceResult<QuestDto>.Success(createQuestResponseDTO);

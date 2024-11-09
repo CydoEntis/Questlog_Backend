@@ -31,6 +31,11 @@ namespace Questlog.Api.Mappings
                             {
                                 Id = mq.AssignedMember.User.Avatar.Id,
                                 Name = mq.AssignedMember.User.Avatar.Name,
+                                DisplayName = mq.AssignedMember.User.Avatar.DisplayName,
+                                Tier = mq.AssignedMember.User.Avatar.Tier,
+                                UnlockLevel = mq.AssignedMember.User.Avatar.UnlockLevel,
+                                Cost = mq.AssignedMember.User.Avatar.Cost,
+                                IsUnlocked = true,
                             },
                             CurrentLevel = mq.AssignedMember.User.CurrentLevel,
                             JoinedOn = mq.AssignedMember.JoinedOn,
