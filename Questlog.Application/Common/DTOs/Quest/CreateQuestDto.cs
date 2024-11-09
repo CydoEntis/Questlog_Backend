@@ -8,7 +8,7 @@ public class CreateQuestDto
     public string Description { get; set; }
     public string Priority { get; set; }
     public DateTime DueDate { get; set; }
-    public int CampaignId { get; set; }
+    public int PartyId { get; set; }
     public List<int> MemberIds { get; set; }
     public List<StepDto> Steps { get; set; }
 }

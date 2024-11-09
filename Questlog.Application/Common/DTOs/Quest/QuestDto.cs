@@ -13,7 +13,7 @@ public class QuestDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime DueDate { get; set; }
-    public int CampaignId { get; set; }
+    public int PartyId { get; set; }
     public List<MemberDto> Members { get; set; }
     public List<StepDto> Steps { get; set; }
     public int CompletedSteps { get; set; }

@@ -31,13 +31,13 @@ public class QuestService : BaseService, IQuestService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<QuestDto>> GetQuestById(int campaignId, int questId)
+    public async Task<ServiceResult<QuestDto>> GetQuestById(int partyId, int questId)
     {
         try
         {
-            var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, "Campaign Id");
-            if (!campaignIdValidationResult.IsSuccess)
-                return ServiceResult<QuestDto>.Failure(campaignIdValidationResult.ErrorMessage);
+            var partyIdValidationResult = ValidationHelper.ValidateId(partyId, "Party Id");
+            if (!partyIdValidationResult.IsSuccess)
+                return ServiceResult<QuestDto>.Failure(partyIdValidationResult.ErrorMessage);
 
             var questIdValidationResult = ValidationHelper.ValidateId(questId, "Quest Id");
             if (!questIdValidationResult.IsSuccess)
@@ -45,7 +45,7 @@ public class QuestService : BaseService, IQuestService
 
 
             var foundQuest =
-                await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.PartyId == campaignId,
+                await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.PartyId == partyId,
                     includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
 
@@ -65,7 +65,7 @@ public class QuestService : BaseService, IQuestService
         }
     }
 
-    public async Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int campaignId, string userId,
+    public async Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int partyId, string userId,
         QueryParamsDto queryParams)
     {
         return await HandleExceptions<PaginatedResult<QuestDto>>(async () =>
@@ -77,7 +77,7 @@ public class QuestService : BaseService, IQuestService
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.OrderOn,
                 IncludeProperties = "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar",
-                Filter = c => c.PartyId == campaignId
+                Filter = c => c.PartyId == partyId
             };
 
             if (!string.IsNullOrEmpty(queryParams.SearchValue))
@@ -87,9 +87,9 @@ public class QuestService : BaseService, IQuestService
 
 
             var paginatedResult = await _unitOfWork.Quest.GetPaginated(options);
-            var campaignResponseDTOs = _mapper.Map<List<QuestDto>>(paginatedResult.Items);
+            var responseDtos = _mapper.Map<List<QuestDto>>(paginatedResult.Items);
 
-            var result = new PaginatedResult<QuestDto>(campaignResponseDTOs, paginatedResult.TotalItems,
+            var result = new PaginatedResult<QuestDto>(responseDtos, paginatedResult.TotalItems,
                 paginatedResult.CurrentPage, queryParams.PageSize);
 
             return ServiceResult<PaginatedResult<QuestDto>>.Success(result);
@@ -106,9 +106,9 @@ public class QuestService : BaseService, IQuestService
             if (!userValidationResult.IsSuccess)
                 return ServiceResult<QuestDto>.Failure(userValidationResult.ErrorMessage);
 
-            var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Quest Request DTO");
-            if (!campaignValidationResult.IsSuccess)
-                return ServiceResult<QuestDto>.Failure(campaignValidationResult.ErrorMessage);
+            var partyValidationResult = ValidationHelper.ValidateObject(requestDto, "Create Quest Request DTO");
+            if (!partyValidationResult.IsSuccess)
+                return ServiceResult<QuestDto>.Failure(partyValidationResult.ErrorMessage);
 
             var quest = _mapper.Map<Quest>(requestDto);
 
@@ -154,17 +154,17 @@ public class QuestService : BaseService, IQuestService
     {
         try
         {
-            var campaignValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Quest Request DTO");
-            if (!campaignValidationResult.IsSuccess)
-                return ServiceResult<QuestDto>.Failure(campaignValidationResult.ErrorMessage);
+            var partyValidationResult = ValidationHelper.ValidateObject(requestDto, "Update Quest Request DTO");
+            if (!partyValidationResult.IsSuccess)
+                return ServiceResult<QuestDto>.Failure(partyValidationResult.ErrorMessage);
 
-            var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Quest Id");
-            if (!campaignIdValidationResult.IsSuccess)
-                return ServiceResult<QuestDto>.Failure(campaignIdValidationResult.ErrorMessage);
+            var partyIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, "Quest Id");
+            if (!partyIdValidationResult.IsSuccess)
+                return ServiceResult<QuestDto>.Failure(partyIdValidationResult.ErrorMessage);
 
 
             var foundQuest =
-                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.PartyId == requestDto.CampaignId,
+                await _unitOfWork.Quest.GetAsync(q => q.Id == requestDto.Id && q.PartyId == requestDto.PartyId,
                     includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
             foundQuest.Title = requestDto.Title.Trim();
@@ -179,8 +179,8 @@ public class QuestService : BaseService, IQuestService
 
             await _unitOfWork.Quest.UpdateAsync(foundQuest);
 
-            var campaign = await _unitOfWork.Party.GetAsync(c => c.Id == requestDto.CampaignId);
-            campaign.UpdatedAt = DateTime.UtcNow;
+            var party = await _unitOfWork.Party.GetAsync(c => c.Id == requestDto.PartyId);
+            party.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.Party.SaveAsync();
 
             var responseDto = _mapper.Map<QuestDto>(foundQuest);
@@ -193,22 +193,21 @@ public class QuestService : BaseService, IQuestService
         }
     }
 
-    public async Task<ServiceResult<int>> DeleteQuest(int campaignId)
+    public async Task<ServiceResult<int>> DeleteQuest(int partyId)
     {
-        var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, "Quest Id");
-        if (!campaignIdValidationResult.IsSuccess)
-            return ServiceResult<int>.Failure(campaignIdValidationResult.ErrorMessage);
+        var partyIdValidationResult = ValidationHelper.ValidateId(partyId, "Quest Id");
+        if (!partyIdValidationResult.IsSuccess)
+            return ServiceResult<int>.Failure(partyIdValidationResult.ErrorMessage);
 
         return await HandleExceptions<int>(async () =>
         {
-            var foundQuest = await _unitOfWork.Quest.GetAsync(g => g.Id == campaignId);
+            var foundQuest = await _unitOfWork.Quest.GetAsync(g => g.Id == partyId);
 
             if (foundQuest == null)
             {
                 return ServiceResult<int>.Failure("Quest not found.");
             }
 
-            // Delete the campaign
             await _unitOfWork.Quest.RemoveAsync(foundQuest);
 
             return ServiceResult<int>.Success(foundQuest.Id);
@@ -286,7 +285,7 @@ public class QuestService : BaseService, IQuestService
             if ((!string.Equals(member.Role, "owner", StringComparison.OrdinalIgnoreCase) &&
                  !string.Equals(member.Role, "captain", StringComparison.OrdinalIgnoreCase)))
             {
-                return ServiceResult<QuestDto>.Failure("Only campaign owners or captains can uncomplete this quest.");
+                return ServiceResult<QuestDto>.Failure("Only party owners or captains can uncomplete this quest.");
             }
 
             var memberQuest =
