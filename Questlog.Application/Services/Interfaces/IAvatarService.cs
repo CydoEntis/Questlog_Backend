@@ -5,7 +5,7 @@ namespace Questlog.Application.Services.Interfaces;
 
 public interface IAvatarService
 {
-    Task<ServiceResult<List<AvatarDto>>> GetAvatarShop(string userId);
+    Task<ServiceResult<List<AvatarDto>>> GetAllAvatars(string userId);
     Task<ServiceResult<List<AvatarDto>>> GetUnlockedAvatars(string userId);
     Task<ServiceResult<List<AvatarDto>>> GetNextUnlockableTier(string userId);
 

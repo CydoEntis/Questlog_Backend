@@ -19,7 +19,7 @@ public class AvatarController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponse>> GetAvatarShop()
+    public async Task<ActionResult<ApiResponse>> GetAllAvatars()
     {
         string userId = HttpContext.Items["UserId"] as string;
 
@@ -27,7 +27,7 @@ public class AvatarController : BaseController
             return BadRequestResponse("User Id must be provided");
 
 
-        var result = await _avatarService.GetAvatarShop(userId);
+        var result = await _avatarService.GetAllAvatars(userId);
 
         if (!result.IsSuccess)
         {

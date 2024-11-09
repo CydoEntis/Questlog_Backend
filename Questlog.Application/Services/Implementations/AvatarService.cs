@@ -21,7 +21,7 @@ public class AvatarService : BaseService, IAvatarService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<List<AvatarDto>>> GetAvatarShop(string userId)
+    public async Task<ServiceResult<List<AvatarDto>>> GetAllAvatars(string userId)
     {
         try
         {
@@ -35,7 +35,7 @@ public class AvatarService : BaseService, IAvatarService
             {
                 Id = avatar.Id,
                 Name = avatar.Name,
-                DisplayName = avatar.Name,
+                DisplayName = avatar.DisplayName,
                 Tier = avatar.Tier,
                 UnlockLevel = avatar.UnlockLevel,
                 Cost = avatar.Cost,
