@@ -59,10 +59,16 @@ public class AvatarService : BaseService, IAvatarService
                 await _unitOfWork.UnlockedAvatar.GetAllAsync(ua => ua.UserId == userId, includeProperties: "Avatar");
 
 
-            var avatarDtos = unlockedAvatars.Select(avatar => new AvatarDto()
+            var avatarDtos = unlockedAvatars.Select(ua => new AvatarDto()
             {
-                Id = avatar.Id,
-                Name = avatar.Avatar.DisplayName
+                Id = ua.Avatar.Id,
+                Name = ua.Avatar.Name,
+                DisplayName = ua.Avatar.DisplayName,
+                Tier = ua.Avatar.Tier,
+                UnlockLevel = ua.Avatar.UnlockLevel,
+                Cost = ua.Avatar.Cost,
+                IsUnlocked = ua.IsUnlocked,
+                UnlockedAt = ua.UnlockedAt
             }).ToList();
 
             return ServiceResult<List<AvatarDto>>.Success(avatarDtos);
@@ -103,32 +109,27 @@ public class AvatarService : BaseService, IAvatarService
     {
         try
         {
-            // Retrieve the user
             var user = await _unitOfWork.User.GetUserById(userId);
             if (user == null)
             {
                 return ServiceResult<AvatarDto>.Failure("User not found.");
             }
 
-            // Check user's level and currency
             var userLevel = user.CurrentLevel;
             var userCurrency = user.Currency;
 
-            // Retrieve the avatar
             var avatar = await _unitOfWork.Avatar.GetAsync(a => a.Id == avatarId);
             if (avatar == null)
             {
                 return ServiceResult<AvatarDto>.Failure("Avatar not found.");
             }
 
-            // Check if user meets level and currency requirements
             if (userLevel < avatar.UnlockLevel)
                 return ServiceResult<AvatarDto>.Failure("Level requirement not met.");
 
             if (userCurrency < avatar.Cost)
                 return ServiceResult<AvatarDto>.Failure("User does not have enough currency.");
 
-            // Check if the avatar is already unlocked
             var existingUnlockedAvatar = await _unitOfWork.UnlockedAvatar.GetAsync(
                 ua => ua.AvatarId == avatarId && ua.UserId == userId);
 
@@ -147,16 +148,21 @@ public class AvatarService : BaseService, IAvatarService
             await _unitOfWork.UnlockedAvatar.CreateAsync(newUnlockedAvatar);
 
             user.AvatarId = avatarId;
+            user.Currency -= avatar.Cost;
 
+            if (user.CurrentLevel < 0) user.Currency = 0;
+            
             await _unitOfWork.SaveAsync();
 
             var unlockedAvatarDto = new AvatarDto
             {
                 Id = avatar.Id,
                 Name = avatar.Name,
+                DisplayName = avatar.DisplayName,
                 Tier = avatar.Tier,
                 UnlockLevel = avatar.UnlockLevel,
-                Cost = avatar.Cost
+                Cost = avatar.Cost,
+                IsUnlocked = true
             };
 
             return ServiceResult<AvatarDto>.Success(unlockedAvatarDto);
