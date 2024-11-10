@@ -67,7 +67,17 @@ public class UserService : BaseService, IUserService
             await _unitOfWork.SaveAsync();
 
 
-            var avatarDto = _mapper.Map<AvatarDto>(unlockedAvatar);
+            var avatarDto = new AvatarDto()
+            {
+                Id = unlockedAvatar.Avatar.Id,
+                Name = unlockedAvatar.Avatar.Name,
+                DisplayName = unlockedAvatar.Avatar.DisplayName,
+                Tier = unlockedAvatar.Avatar.Tier,
+                UnlockLevel = unlockedAvatar.Avatar.UnlockLevel,
+                Cost = unlockedAvatar.Avatar.Cost,
+                IsUnlocked = unlockedAvatar.IsUnlocked,
+                UnlockedAt = unlockedAvatar.UnlockedAt
+            };
 
             return ServiceResult<AvatarDto>.Success(avatarDto);
         }
