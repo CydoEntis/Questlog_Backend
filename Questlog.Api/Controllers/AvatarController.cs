@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
+using Questlog.Application.Common.DTOs.Avatar;
 using Questlog.Application.Services.Interfaces;
 
 namespace Questlog.Api.Controllers;
@@ -77,7 +78,7 @@ public class AvatarController : BaseController
 
 
     [HttpPost("unlock")]
-    public async Task<ActionResult<ApiResponse>> UnlockAvatar(int avatarId)
+    public async Task<ActionResult<ApiResponse>> UnlockAvatar([FromBody] UnlockAvatarDto dto)
     {
         string userId = HttpContext.Items["UserId"] as string;
 
@@ -85,7 +86,7 @@ public class AvatarController : BaseController
             return BadRequestResponse("User Id must be provided");
 
 
-        var result = await _avatarService.UnlockAvatar(userId, avatarId);
+        var result = await _avatarService.UnlockAvatar(userId, dto.Id);
 
         if (!result.IsSuccess)
         {
