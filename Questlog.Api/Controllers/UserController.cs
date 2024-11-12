@@ -58,4 +58,17 @@ public class UserController : BaseController
 
         return !result.IsSuccess ? BadRequestResponse(result.ErrorMessage) : OkResponse(result.Data);
     }
+    
+    [HttpGet("stats")]
+    public async Task<ActionResult<ApiResponse>> GetUserStats()
+    {
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+            return BadRequestResponse("User Id must be provided");
+
+        var result = await _userService.GetUserStats(userId);
+
+        return !result.IsSuccess ? BadRequestResponse(result.ErrorMessage) : OkResponse(result.Data);
+    }
 }

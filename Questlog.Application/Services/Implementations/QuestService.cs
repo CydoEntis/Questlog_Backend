@@ -254,6 +254,7 @@ public class QuestService : BaseService, IQuestService
                 memberQuest.IsCompleted = true;
                 memberQuest.AwardedExp = expReward;
                 memberQuest.AwardedCurrency = currencyReward;
+                memberQuest.CompletionDate = DateTime.UtcNow;
 
                 quest.CompletionDate = DateTime.Now;
                 quest.IsCompleted = true;

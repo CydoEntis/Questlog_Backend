@@ -419,6 +419,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 memberQuest.IsCompleted = true;
                 memberQuest.AwardedExp = expReward;
                 memberQuest.AwardedCurrency = currencyReward;
+                memberQuest.CompletionDate = DateTime.UtcNow;
 
                 var user = Users.FirstOrDefault(u => u.Id == memberQuest.UserId);
                 if (user != null)

@@ -9,4 +9,5 @@ public interface IUserService
     Task<ServiceResult<UserDto>> GetUserById(string userId);
     Task<ServiceResult<AvatarDto>> UpdateAvatar(string userId, int avatarId);
     Task<ServiceResult<UserDto>> UpdateDisplayName(string userId, string displayName);
+    Task<ServiceResult<UserStatsDto>> GetUserStats(string userId);
 }

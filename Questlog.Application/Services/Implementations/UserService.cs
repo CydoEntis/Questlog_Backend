@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common.DTOs.Avatar;
 using Questlog.Application.Common.DTOs.User;
@@ -118,12 +119,47 @@ public class UserService : BaseService, IUserService
     {
         try
         {
-            var parties = await _unitOfWork.Party.GetAllAsync(p => p.Members.Any(m => m.UserId == userId));
-            var quests = await _unitOfWork.MemberQuest.GetAllAsync(q => q.UserId == userId);
+            var parties = await _unitOfWork.Party.GetAllAsync(p => p.Members.Any(m => m.UserId == userId)) ?? new List<Party>();
+            var quests = await _unitOfWork.MemberQuest.GetAllAsync(q => q.UserId == userId) ?? new List<MemberQuest>();
+
             var completedQuests = quests.Where(q => q.IsCompleted);
             var inProgressQuests = quests.Where(q => !q.IsCompleted);
-            var pastDueQuests = quests.Where(q => q.AssignedQuest.DueDate < DateTime.Today);
+            var pastDueQuests = quests.Where(q => q.AssignedQuest != null && q.AssignedQuest.DueDate < DateTime.Today);
 
+            var currentDate = DateTime.Now;
+
+            var startOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+
+            // // Fetch completed quests for the current month
+            // var completedQuestsDuringMonth = quests.Where(q =>
+            //     q.UserId == userId &&
+            //     q.IsCompleted &&
+            //     q.CompletionDate >= startOfMonth &&
+            //     q.CompletionDate <= endOfMonth);
+            //
+            // var questsGroupedByDay = completedQuestsDuringMonth
+            //     .GroupBy(q => q.CompletionDate.Date)  
+            //     .Select(g => new QuestCompletionByDayDto
+            //     {
+            //         Date = g.Key,
+            //         QuestCount = g.Count()
+            //     })
+            //     .OrderBy(g => g.Date) 
+            //     .ToList();
+            //
+            // var questCountsPerMonth = quests
+            //     .GroupBy(q => new { q..Year, q.CompletionDate.Month })
+            //     .Select(g => new QuestCompletionOverTimeDto
+            //     {
+            //         Year = g.Key.Year,
+            //         Month = g.Key.Month,
+            //         QuestCount = g.Count()
+            //     })
+            //     .OrderBy(g => g.Year)
+            //     .ThenBy(g => g.Month)
+            //     .ToList();
+            
             var userStatsDto = new UserStatsDto()
             {
                 TotalParties = parties.Count(),
@@ -141,4 +177,5 @@ public class UserService : BaseService, IUserService
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
+
 }

@@ -12,6 +12,7 @@ public class MemberQuest
     public ApplicationUser User { get; set; }
 
     public bool IsCompleted { get; set; } = false;
+    public DateTime CompletionDate { get; set; }
     public int AwardedExp { get; set; } = 0;
     public int AwardedCurrency { get; set; } = 0;
 }
