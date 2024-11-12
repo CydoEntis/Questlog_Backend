@@ -113,4 +113,32 @@ public class UserService : BaseService, IUserService
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
+
+    public async Task<ServiceResult<UserStatsDto>> GetUserStats(string userId)
+    {
+        try
+        {
+            var parties = await _unitOfWork.Party.GetAllAsync(p => p.Members.Any(m => m.UserId == userId));
+            var quests = await _unitOfWork.MemberQuest.GetAllAsync(q => q.UserId == userId);
+            var completedQuests = quests.Where(q => q.IsCompleted);
+            var inProgressQuests = quests.Where(q => !q.IsCompleted);
+            var pastDueQuests = quests.Where(q => q.AssignedQuest.DueDate < DateTime.Today);
+
+            var userStatsDto = new UserStatsDto()
+            {
+                TotalParties = parties.Count(),
+                TotalQuests = quests.Count(),
+                CompletedQuests = completedQuests.Count(),
+                InProgressQuests = inProgressQuests.Count(),
+                PastDueQuests = pastDueQuests.Count()
+            };
+
+            return ServiceResult<UserStatsDto>.Success(userStatsDto);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<UserStatsDto>.Failure(
+                ex.InnerException?.Message ?? ex.Message);
+        }
+    }
 }
