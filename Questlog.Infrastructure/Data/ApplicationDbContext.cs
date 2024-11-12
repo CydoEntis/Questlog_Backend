@@ -379,60 +379,68 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
 
-    private void SeedTasks(Quest quest)
+private void SeedTasks(Quest quest)
+{
+    var random = new Random();
+    int taskCount = random.Next(1, 6); 
+    bool allTasksCompleted = true;
+
+    DateTime startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    DateTime endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);  
+
+    for (int k = 0; k < taskCount; k++)
     {
-        var random = new Random();
-        int taskCount = random.Next(1, 6);
-        bool allTasksCompleted = true;
-
-        for (int k = 0; k < taskCount; k++)
+        bool isTaskCompleted = random.Next(0, 2) == 1;
+        if (!isTaskCompleted)
         {
-            bool isTaskCompleted = random.Next(0, 2) == 1;
-            if (!isTaskCompleted)
-            {
-                allTasksCompleted = false;
-            }
+            allTasksCompleted = false;
+        }
 
-            var task = new Step
+        DateTime randomTaskDate = startOfMonth.AddDays(random.Next(0, (endOfMonth - startOfMonth).Days + 1));
+
+        var task = new Step
+        {
+            Description = $"Task {k + 1} description for {quest.Title}",
+            QuestId = quest.Id,
+            IsCompleted = isTaskCompleted,
+            CreatedAt = randomTaskDate 
+        };
+        Steps.Add(task);
+    }
+
+    SaveChanges();
+
+    if (allTasksCompleted)
+    {
+        quest.IsCompleted = true;
+
+        DateTime randomCompletionDate = startOfMonth.AddDays(random.Next(0, (endOfMonth - startOfMonth).Days + 1));
+        quest.CompletionDate = randomCompletionDate;
+
+        int expReward = GetExpRewardForPriority(quest.Priority);
+        int currencyReward = GetCurrencyRewardForPriority(quest.Priority);
+
+        var memberQuests = MemberQuests.Where(mq => mq.AssignedQuestId == quest.Id).ToList();
+        foreach (var memberQuest in memberQuests)
+        {
+            memberQuest.IsCompleted = true;
+            memberQuest.AwardedExp = expReward;
+            memberQuest.AwardedCurrency = currencyReward;
+            memberQuest.CompletionDate = randomCompletionDate;  
+
+            var user = Users.FirstOrDefault(u => u.Id == memberQuest.UserId);
+            if (user != null)
             {
-                Description = $"Task {k + 1} description for {quest.Title}",
-                QuestId = quest.Id,
-                IsCompleted = isTaskCompleted,
-                CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30))
-            };
-            Steps.Add(task);
+                user.CurrentExp += expReward;
+                user.Currency += currencyReward;
+                CheckForLevelUp(user);
+            }
         }
 
         SaveChanges();
-
-        if (allTasksCompleted)
-        {
-            quest.IsCompleted = true;
-            quest.CompletionDate = DateTime.Now;
-
-            int expReward = GetExpRewardForPriority(quest.Priority);
-            int currencyReward = GetCurrencyRewardForPriority(quest.Priority);
-
-            var memberQuests = MemberQuests.Where(mq => mq.AssignedQuestId == quest.Id).ToList();
-            foreach (var memberQuest in memberQuests)
-            {
-                memberQuest.IsCompleted = true;
-                memberQuest.AwardedExp = expReward;
-                memberQuest.AwardedCurrency = currencyReward;
-                memberQuest.CompletionDate = DateTime.UtcNow;
-
-                var user = Users.FirstOrDefault(u => u.Id == memberQuest.UserId);
-                if (user != null)
-                {
-                    user.CurrentExp += expReward;
-                    user.Currency += currencyReward;
-                    CheckForLevelUp(user);
-                }
-            }
-
-            SaveChanges();
-        }
     }
+}
+
 
     private void CheckForLevelUp(ApplicationUser user)
     {
