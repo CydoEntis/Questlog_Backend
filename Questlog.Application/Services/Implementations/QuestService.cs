@@ -312,6 +312,7 @@ public class QuestService : BaseService, IQuestService
                 memberQuest.IsCompleted = false;
                 memberQuest.AwardedExp = 0;
                 memberQuest.AwardedCurrency = 0;
+                memberQuest.CompletionDate = null;
 
                 quest.CompletionDate = null;
                 quest.IsCompleted = false;
