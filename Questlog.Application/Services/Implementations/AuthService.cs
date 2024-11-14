@@ -137,6 +137,7 @@ public class AuthService : BaseService, IAuthService
                              UserId = user.Id,
                              AvatarId = avatarId,
                              UnlockedAt = DateTime.Now,
+                             IsUnlocked = true,
                          }))
                 {
                     await _unitOfWork.UnlockedAvatar.CreateAsync(unlockedAvatar);
