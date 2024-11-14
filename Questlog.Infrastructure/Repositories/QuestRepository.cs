@@ -22,25 +22,31 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
     public async Task<PaginatedResult<Quest>> GetPaginated(QueryOptions<Quest> options)
     {
         IQueryable<Quest> query = _dbSet;
-    
+
+        // Apply the base filter if exists
         if (options.Filter != null)
         {
             query = query.Where(options.Filter);
         }
-    
+
+        // Apply the dynamic date filter logic
+        query = ApplyDateFilters(query, options);
+
+        // Apply ordering based on the OrderBy and OrderOn properties
         if (!string.IsNullOrEmpty(options.OrderOn))
         {
             query = ApplyOrdering(query, options.OrderOn, options.OrderBy);
         }
-    
+
+        // Apply include properties if specified
         if (!string.IsNullOrEmpty(options.IncludeProperties))
         {
             query = ApplyIncludeProperties(query, options.IncludeProperties);
         }
-    
+
+        // Paginate the results and return the paginated result
         return await Paginate(query, options.PageNumber, options.PageSize);
     }
-
 
     public async Task<Quest> UpdateAsync(Quest entity)
     {
@@ -70,6 +76,48 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
                 : query.OrderByDescending(c => c.UpdatedAt),
             _ => query
         };
+    }
+    
+    private IQueryable<Quest> ApplyDateFilters(IQueryable<Quest> query, QueryOptions<Quest> options)
+    {
+        // Check if StartDate is provided and is valid
+        if (!string.IsNullOrEmpty(options.StartDate) && DateTime.TryParse(options.StartDate, out var startDate))
+        {
+            query = ApplyDateFilter(query, options.OrderOn, startDate, ">=");
+        }
+
+        // Check if EndDate is provided and is valid
+        if (!string.IsNullOrEmpty(options.EndDate) && DateTime.TryParse(options.EndDate, out var endDate))
+        {
+            query = ApplyDateFilter(query, options.OrderOn, endDate, "<=");
+        }
+
+        return query;
+    }
+
+    private IQueryable<Quest> ApplyDateFilter(IQueryable<Quest> query, string orderOn, DateTime date, string operatorSymbol)
+    {
+        var dateField = orderOn switch
+        {
+            "created" => "CreatedAt",
+            "updated" => "UpdatedAt",
+            "dueDate" => "DueDate",
+            _ => null
+        };
+
+        if (!string.IsNullOrEmpty(dateField))
+        {
+            if (operatorSymbol == ">=")
+            {
+                query = query.Where(c => EF.Property<DateTime>(c, dateField) >= date);
+            }
+            else if (operatorSymbol == "<=")
+            {
+                query = query.Where(c => EF.Property<DateTime>(c, dateField) <= date);
+            }
+        }
+
+        return query;
     }
 
 }

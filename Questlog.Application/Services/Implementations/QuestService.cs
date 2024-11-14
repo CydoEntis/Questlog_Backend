@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Questlog.Application.Common;
 using Questlog.Application.Common.Constants;
@@ -64,9 +65,7 @@ public class QuestService : BaseService, IQuestService
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
-
-    public async Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int partyId, string userId,
-        QueryParamsDto queryParams)
+    public async Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int partyId, string userId, QueryParamsDto queryParams)
     {
         return await HandleExceptions<PaginatedResult<QuestDto>>(async () =>
         {
@@ -75,9 +74,11 @@ public class QuestService : BaseService, IQuestService
                 PageNumber = queryParams.PageNumber,
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
-                OrderOn = queryParams.Filter,
+                OrderOn = queryParams.Filter,  
                 IncludeProperties = "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar",
-                Filter = c => c.PartyId == partyId
+                Filter = c => c.PartyId == partyId,
+                StartDate = queryParams.StartDate,
+                EndDate = queryParams.EndDate,
             };
 
             if (!string.IsNullOrEmpty(queryParams.Search))
@@ -85,16 +86,16 @@ public class QuestService : BaseService, IQuestService
                 options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.Search));
             }
 
-
             var paginatedResult = await _unitOfWork.Quest.GetPaginated(options);
+
             var responseDtos = _mapper.Map<List<QuestDto>>(paginatedResult.Items);
 
-            var result = new PaginatedResult<QuestDto>(responseDtos, paginatedResult.TotalItems,
-                paginatedResult.CurrentPage, queryParams.PageSize);
-
+            var result = new PaginatedResult<QuestDto>(responseDtos, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
             return ServiceResult<PaginatedResult<QuestDto>>.Success(result);
         });
     }
+
+
 
 
     public async Task<ServiceResult<QuestDto>> CreateQuest(string userId,
