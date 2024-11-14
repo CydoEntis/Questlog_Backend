@@ -131,7 +131,6 @@ public class AuthService : BaseService, IAuthService
 
             if (result.Succeeded)
             {
-                // Unlock all tier 0 avatars for the new user
                 var tierZeroAvatarIds = new List<int> { 1, 2, 3, 4 };
                 foreach (var unlockedAvatar in tierZeroAvatarIds.Select(avatarId => new UnlockedAvatar
                          {

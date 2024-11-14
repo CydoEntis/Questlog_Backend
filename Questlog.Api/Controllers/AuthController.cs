@@ -31,7 +31,11 @@ public class AuthController : BaseController
         bool isUsernameUnique = await _authService.CheckIfUsernameIsUnique(registrationDto.Email);
         if (!isUsernameUnique)
         {
-            return BadRequestResponse("Email is already in use.");
+            var errorResponse = new Dictionary<string, string>
+            {
+                { "email", "Email is already in use." }
+            };
+            return BadRequest(errorResponse);
         }
 
         try
@@ -39,7 +43,7 @@ public class AuthController : BaseController
             var result = await _authService.Register(registrationDto);
             if (result.IsSuccess)
             {
-                return OkResponse(result.Data); // Adjusted to reflect the successful registration response
+                return OkResponse(result.Data); 
             }
 
             return BadRequestResponse("Something went wrong while registering.");
