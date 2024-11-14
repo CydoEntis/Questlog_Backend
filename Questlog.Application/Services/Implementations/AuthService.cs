@@ -118,7 +118,7 @@ public class AuthService : BaseService, IAuthService
             NormalizedEmail = registerDto.Email.ToUpper(),
             NormalizedUserName = registerDto.Email.ToUpper(),
             DisplayName = registerDto.DisplayName,
-            Avatar = _mapper.Map<Avatar>(registerDto.Avatar),
+            AvatarId = registerDto.AvatarId,
             CurrentLevel = 1,
             CurrentExp = 0,
             ExpToNextLevel = 100,
