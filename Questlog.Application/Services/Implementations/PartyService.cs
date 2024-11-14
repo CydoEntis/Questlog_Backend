@@ -64,14 +64,14 @@ public class PartyService : BaseService, IPartyService
                 PageNumber = queryParams.PageNumber,
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
-                OrderOn = queryParams.OrderOn,
+                OrderOn = queryParams.Filter,
                 IncludeProperties = "Members,Members.User,Members.User.Avatar",
                 Filter = c => c.Members.Any(m => m.UserId == userId)
             };
 
-            if (!string.IsNullOrEmpty(queryParams.SearchValue))
+            if (!string.IsNullOrEmpty(queryParams.Search))
             {
-                options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.SearchValue));
+                options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.Search));
             }
 
             var paginatedResult = await _unitOfWork.Party.GetPaginatedPartiesAsync(options);

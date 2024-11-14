@@ -50,13 +50,13 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
         return entity;
     }
 
-    private IQueryable<Quest> ApplyOrdering(IQueryable<Quest> query, string orderOn, string orderBy)
+    private IQueryable<Quest> ApplyOrdering(IQueryable<Quest> query, string filter, string orderBy)
     {
         var orderDirection = Enum.TryParse<OrderBy>(orderBy, true, out var order) ? order : OrderBy.Desc;
 
-        return orderOn.ToLower() switch
+        return filter.ToLower() switch
         {
-            "name" => orderDirection == OrderBy.Asc
+            "title" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.Title)
                 : query.OrderByDescending(c => c.Title),
             "createdat" => orderDirection == OrderBy.Asc

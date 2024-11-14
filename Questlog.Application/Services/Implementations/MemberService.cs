@@ -77,14 +77,14 @@ public class MemberService : BaseService, IMemberService
                 PageNumber = queryParams.PageNumber,
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
-                OrderOn = queryParams.OrderOn,
+                OrderOn = queryParams.Filter,
                 IncludeProperties = "User",
                 Filter = c => c.PartyId == campaignId
             };
 
-            if (!string.IsNullOrEmpty(queryParams.SearchValue))
+            if (!string.IsNullOrEmpty(queryParams.Search))
             {
-                options.Filter = options.Filter.And(c => c.User.DisplayName.Contains(queryParams.SearchValue));
+                options.Filter = options.Filter.And(c => c.User.DisplayName.Contains(queryParams.Search));
             }
 
             var paginatedResult = await _unitOfWork.Member.GetPaginated(options);

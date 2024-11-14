@@ -75,14 +75,14 @@ public class QuestService : BaseService, IQuestService
                 PageNumber = queryParams.PageNumber,
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
-                OrderOn = queryParams.OrderOn,
+                OrderOn = queryParams.Filter,
                 IncludeProperties = "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar",
                 Filter = c => c.PartyId == partyId
             };
 
-            if (!string.IsNullOrEmpty(queryParams.SearchValue))
+            if (!string.IsNullOrEmpty(queryParams.Search))
             {
-                options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.SearchValue));
+                options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.Search));
             }
 
 
