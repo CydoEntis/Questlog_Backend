@@ -15,5 +15,5 @@ public class PartyDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime DueDate { get; set; }
-    public List<QuestStatDto> QuestStats { get; set; }
+    public QuestStatDto QuestStats { get; set; }
 }
