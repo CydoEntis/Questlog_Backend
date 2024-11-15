@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Questlog.Application.Common.DTOs.Party;
+using Questlog.Application.Common.DTOs.Quest;
 using Questlog.Domain.Entities;
 
 namespace Questlog.Api.Mappings;
@@ -21,5 +22,17 @@ public class PartyMappingProfile : Profile
 
         CreateMap<Party, CreatePartyDto>().ReverseMap();
         CreateMap<Party, UpdatePartyDto>().ReverseMap();
+
+        CreateMap<Party, PartyDto>()
+            .ForMember(dest => dest.QuestStats, opt => opt.MapFrom(src => new List<QuestStatDto>
+            {
+                new QuestStatDto
+                {
+                    CompletedQuests = src.Quests.Count(q => q.IsCompleted),
+                    InProgressQuests = src.Quests.Count(q => !q.IsCompleted),
+                    PastDueQuests = src.Quests.Count(q => q.DueDate < DateTime.Now)
+                }
+            }));
+
     }
 }

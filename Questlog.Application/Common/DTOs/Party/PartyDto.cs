@@ -1,4 +1,5 @@
 ﻿using Questlog.Application.Common.DTOs.Member;
+using Questlog.Application.Common.DTOs.Quest;
 
 namespace Questlog.Application.Common.DTOs.Party;
 
@@ -14,4 +15,5 @@ public class PartyDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime DueDate { get; set; }
+    public List<QuestStatDto> QuestStats { get; set; }
 }

@@ -65,7 +65,7 @@ public class PartyService : BaseService, IPartyService
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.Filter,
-                IncludeProperties = "Members,Members.User,Members.User.Avatar",
+                IncludeProperties = "Members,Members.User,Members.User.Avatar,Quests",
                 Filter = c => c.Members.Any(m => m.UserId == userId)
             };
 
