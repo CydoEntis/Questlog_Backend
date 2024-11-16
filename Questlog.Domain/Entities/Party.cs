@@ -27,9 +27,9 @@ public class Party
     public DateTime DueDate { get; set; }
 
     [ForeignKey("ApplicationUser")]
-    public string OwnerId { get; set; }
+    public string CreatorId { get; set; }
 
-    public ApplicationUser Owner { get; set; } 
+    public ApplicationUser Creator { get; set; } 
     public virtual ICollection<Member> Members { get; set; } = new List<Member>();
     
     public virtual ICollection<Quest> Quests { get; set; } = new List<Quest>();

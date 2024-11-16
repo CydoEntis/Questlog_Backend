@@ -11,11 +11,11 @@ public class PartyMappingProfile : Profile
     {
         CreateMap<Party, PartyDto>()
             .ForMember(dest => dest.CreatorId, opt => opt.MapFrom(src => src.Members
-                .Where(m => m.Role == "Owner")
+                .Where(m => m.Role == "Creator")
                 .Select(m => m.User.Id)
                 .FirstOrDefault()))
             .ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.Members
-                .Where(m => m.Role == "Owner")
+                .Where(m => m.Role == "Creator")
                 .Select(m => m.User.DisplayName)
                 .FirstOrDefault()));
 
@@ -24,15 +24,12 @@ public class PartyMappingProfile : Profile
         CreateMap<Party, UpdatePartyDto>().ReverseMap();
 
         CreateMap<Party, PartyDto>()
-            .ForMember(dest => dest.QuestStats, opt => opt.MapFrom(src => new List<QuestStatDto>
+            .ForMember(dest => dest.QuestStats, opt => opt.MapFrom(src => new QuestStatDto
             {
-                new QuestStatDto
-                {
-                    CompletedQuests = src.Quests.Count(q => q.IsCompleted),
-                    InProgressQuests = src.Quests.Count(q => !q.IsCompleted),
-                    PastDueQuests = src.Quests.Count(q => q.DueDate < DateTime.Now)
-                }
+                TotalQuests = src.Quests.Count,
+                CompletedQuests = src.Quests.Count(q => q.IsCompleted),
+                InProgressQuests = src.Quests.Count(q => !q.IsCompleted),
+                PastDueQuests = src.Quests.Count(q => q.DueDate < DateTime.Now)
             }));
-
     }
 }

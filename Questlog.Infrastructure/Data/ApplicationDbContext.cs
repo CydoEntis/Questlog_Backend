@@ -158,14 +158,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
 
-    private Party SeedInitialParty(string ownerId)
+    private Party SeedInitialParty(string creatorId)
     {
         var initialParty = new Party()
         {
             Title = "My First Party",
             Description = "The first party ever created",
             CreatedAt = DateTime.UtcNow,
-            OwnerId = ownerId
+            CreatorId = creatorId
         };
         Parties.Add(initialParty);
         SaveChanges();
@@ -173,8 +173,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         var initialMember = new Member
         {
             PartyId = initialParty.Id,
-            UserId = ownerId,
-            Role = "Owner",
+            UserId = creatorId,
+            Role = "Creator",
             JoinedOn = DateTime.UtcNow,
             UpdatedOn = DateTime.UtcNow
         };
@@ -297,7 +297,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 Color = partyColors[random.Next(partyColors.Length)],
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
                 DueDate = DateTime.UtcNow.AddDays(random.Next(1, 30)),
-                OwnerId = partyCount < 5
+                CreatorId = partyCount < 5
                     ? users[random.Next(users.Count)].Id
                     : adminUser.Id
             };
@@ -310,12 +310,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             foreach (var memberUser in selectedMembers)
             {
-                var role = memberUser.Id == party.OwnerId ? "Owner" : "Member";
+                var role = memberUser.Id == party.CreatorId ? "Creator" : "Member";
                 SeedMembers(party, memberUser, role);
             }
 
-            if (party.OwnerId == adminUser.Id)
-                SeedMembers(party, adminUser, "Owner");
+            if (party.CreatorId == adminUser.Id)
+                SeedMembers(party, adminUser, "Creator");
             else
                 SeedMembers(party, adminUser, "Member");
 

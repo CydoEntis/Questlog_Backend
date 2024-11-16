@@ -105,7 +105,7 @@ public class PartyService : BaseService, IPartyService
 
 
             var party = _mapper.Map<Party>(requestDto);
-            party.OwnerId = userId;
+            party.CreatorId = userId;
 
             Party createdParty = await _unitOfWork.Party.CreateAsync(party);
 
@@ -154,7 +154,7 @@ public class PartyService : BaseService, IPartyService
             }
 
 
-            var foundParty = await _unitOfWork.Party.GetAsync(g => g.Id == requestDto.Id && g.OwnerId == userId);
+            var foundParty = await _unitOfWork.Party.GetAsync(g => g.Id == requestDto.Id && g.CreatorId == userId);
 
             if (foundParty == null)
             {
@@ -207,6 +207,6 @@ public class PartyService : BaseService, IPartyService
     private async Task<bool> IsUserPartyOwner(int partyId, string userId)
     {
         var party = await _unitOfWork.Party.GetAsync(g => g.Id == partyId);
-        return party?.OwnerId == userId;
+        return party?.CreatorId == userId;
     }
 }
