@@ -23,28 +23,26 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
     {
         IQueryable<Quest> query = _dbSet;
 
-        // Apply the base filter if exists
+
         if (options.Filter != null)
         {
             query = query.Where(options.Filter);
         }
 
-        // Apply the dynamic date filter logic
+
         query = ApplyDateFilters(query, options);
 
-        // Apply ordering based on the OrderBy and OrderOn properties
         if (!string.IsNullOrEmpty(options.SortBy))
         {
             query = ApplyOrdering(query, options.SortBy, options.OrderBy);
         }
 
-        // Apply include properties if specified
+
         if (!string.IsNullOrEmpty(options.IncludeProperties))
         {
             query = ApplyIncludeProperties(query, options.IncludeProperties);
         }
-
-        // Paginate the results and return the paginated result
+        
         return await Paginate(query, options.PageNumber, options.PageSize);
     }
 
@@ -65,13 +63,16 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
             "title" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.Title)
                 : query.OrderByDescending(c => c.Title),
-            "createdat" => orderDirection == OrderBy.Asc
+            "created-at" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.CreatedAt)
                 : query.OrderByDescending(c => c.CreatedAt),
-            "updatedat" => orderDirection == OrderBy.Asc
+            "updated-at" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.UpdatedAt)
                 : query.OrderByDescending(c => c.UpdatedAt),
-            "duedate" => orderDirection == OrderBy.Asc
+            "due-date" => orderDirection == OrderBy.Asc
+                ? query.OrderBy(c => c.UpdatedAt)
+                : query.OrderByDescending(c => c.UpdatedAt),
+            "priority" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.UpdatedAt)
                 : query.OrderByDescending(c => c.UpdatedAt),
             _ => query
@@ -99,9 +100,9 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
     {
         var dateField = filterDate switch
         {
-            "created" => "CreatedAt",
-            "updated" => "UpdatedAt",
-            "dueDate" => "DueDate",
+            "created-at" => "CreatedAt",
+            "updated-at" => "UpdatedAt",
+            "due-date" => "DueDate",
             _ => null
         };
 
