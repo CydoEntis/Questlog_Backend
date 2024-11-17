@@ -57,10 +57,10 @@ public class MemberRepository : BaseRepository<Member>, IMemberRepository
             "name" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.User.DisplayName)
                 : query.OrderByDescending(c => c.User.DisplayName),
-            "createdat" => orderDirection == OrderBy.Asc
+            "created-at" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.JoinedOn)
                 : query.OrderByDescending(c => c.JoinedOn),
-            "updatedat" => orderDirection == OrderBy.Asc
+            "updated-at" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.UpdatedOn)
                 : query.OrderByDescending(c => c.UpdatedOn),
             _ => query

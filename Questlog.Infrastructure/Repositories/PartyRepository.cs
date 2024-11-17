@@ -62,7 +62,8 @@ public class PartyRepository : BaseRepository<Party>, IPartyRepository
         return query;
     }
 
-
+    // TODO: probably can modify this to only work with title, and change this to ApplySorting 
+    // TODO: Make a separate option where you can filter by, and filter by certain priority levels only
     private IQueryable<Party> ApplyOrdering(IQueryable<Party> query, string orderOn, string orderBy)
     {
         var orderDirection = Enum.TryParse<OrderBy>(orderBy, true, out var order) ? order : OrderBy.Desc;
