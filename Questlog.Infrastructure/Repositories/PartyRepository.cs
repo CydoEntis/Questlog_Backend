@@ -67,16 +67,16 @@ public class PartyRepository : BaseRepository<Party>, IPartyRepository
 
         return orderOn.ToLower() switch
         {
-            "name" => orderDirection == OrderBy.Asc
+            "title" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.Title)
                 : query.OrderByDescending(c => c.Title),
-            "createdat" => orderDirection == OrderBy.Asc
+            "created-at" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.CreatedAt)
                 : query.OrderByDescending(c => c.CreatedAt),
-            "updatedat" => orderDirection == OrderBy.Asc
+            "updated-at" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.UpdatedAt)
                 : query.OrderByDescending(c => c.UpdatedAt),
-            "duedate" => orderDirection == OrderBy.Asc
+            "due-date" => orderDirection == OrderBy.Asc
                 ? query.OrderBy(c => c.UpdatedAt)
                 : query.OrderByDescending(c => c.UpdatedAt),
             _ => query
