@@ -77,12 +77,30 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<Avatar>().HasData(
             new Avatar { Id = 1, Name = "male_a", DisplayName = "Male Peasant", UnlockLevel = 1, Tier = 0, Cost = 0 },
             new Avatar { Id = 2, Name = "male_b", DisplayName = "Male Peasant", UnlockLevel = 1, Tier = 0, Cost = 0 },
-            new Avatar { Id = 3, Name = "female_a", DisplayName = "Female Peasant", UnlockLevel = 1, Tier = 0, Cost = 0 },
-            new Avatar { Id = 4, Name = "female_b", DisplayName = "Female Peasant", UnlockLevel = 1, Tier = 0, Cost = 0 },
-            new Avatar { Id = 5, Name = "skeleton_a", DisplayName = "Skeleton Soldier", UnlockLevel = 3, Tier = 1, Cost = 200 },
-            new Avatar { Id = 6, Name = "skeleton_b", DisplayName = "Skeleton Captain", UnlockLevel = 3, Tier = 1, Cost = 200 },
-            new Avatar { Id = 7, Name = "zombie_male", DisplayName = "Male Zombie", UnlockLevel = 5, Tier = 2, Cost = 350 },
-            new Avatar { Id = 8, Name = "zombie_female", DisplayName = "Female Zombie", UnlockLevel = 5, Tier = 2, Cost = 350 },
+            new Avatar
+            {
+                Id = 3, Name = "female_a", DisplayName = "Female Peasant", UnlockLevel = 1, Tier = 0, Cost = 0
+            },
+            new Avatar
+            {
+                Id = 4, Name = "female_b", DisplayName = "Female Peasant", UnlockLevel = 1, Tier = 0, Cost = 0
+            },
+            new Avatar
+            {
+                Id = 5, Name = "skeleton_a", DisplayName = "Skeleton Soldier", UnlockLevel = 3, Tier = 1, Cost = 200
+            },
+            new Avatar
+            {
+                Id = 6, Name = "skeleton_b", DisplayName = "Skeleton Captain", UnlockLevel = 3, Tier = 1, Cost = 200
+            },
+            new Avatar
+            {
+                Id = 7, Name = "zombie_male", DisplayName = "Male Zombie", UnlockLevel = 5, Tier = 2, Cost = 350
+            },
+            new Avatar
+            {
+                Id = 8, Name = "zombie_female", DisplayName = "Female Zombie", UnlockLevel = 5, Tier = 2, Cost = 350
+            },
             new Avatar { Id = 9, Name = "bear", DisplayName = "Bear", UnlockLevel = 8, Tier = 3, Cost = 500 },
             new Avatar { Id = 10, Name = "gorilla", DisplayName = "Gorilla", UnlockLevel = 8, Tier = 3, Cost = 500 },
             new Avatar { Id = 11, Name = "frog", DisplayName = "Frog", UnlockLevel = 8, Tier = 3, Cost = 500 },
@@ -94,30 +112,63 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             new Avatar { Id = 17, Name = "archer", DisplayName = "Archer", UnlockLevel = 12, Tier = 5, Cost = 1000 },
             new Avatar { Id = 18, Name = "rogue", DisplayName = "Rogue", UnlockLevel = 15, Tier = 5, Cost = 1200 },
             new Avatar { Id = 19, Name = "merfolk", DisplayName = "Merfolk", UnlockLevel = 16, Tier = 6, Cost = 1500 },
-            new Avatar { Id = 20, Name = "squidman", DisplayName = "Squidman", UnlockLevel = 16, Tier = 6, Cost = 1500 },
+            new Avatar
+            {
+                Id = 20, Name = "squidman", DisplayName = "Squidman", UnlockLevel = 16, Tier = 6, Cost = 1500
+            },
             new Avatar { Id = 21, Name = "fishman", DisplayName = "Fishman", UnlockLevel = 16, Tier = 6, Cost = 1500 },
             new Avatar { Id = 22, Name = "mummy", DisplayName = "Mummy", UnlockLevel = 18, Tier = 7, Cost = 2000 },
             new Avatar { Id = 23, Name = "pharaoh", DisplayName = "Pharoah", UnlockLevel = 18, Tier = 7, Cost = 2000 },
             new Avatar { Id = 24, Name = "spider_a", DisplayName = "Spider", UnlockLevel = 18, Tier = 7, Cost = 2000 },
             new Avatar { Id = 25, Name = "fanatic", DisplayName = "Fanatic", UnlockLevel = 22, Tier = 8, Cost = 2500 },
             new Avatar { Id = 26, Name = "prince", DisplayName = "Prince", UnlockLevel = 22, Tier = 8, Cost = 2500 },
-            new Avatar { Id = 27, Name = "occultist", DisplayName = "Occultist", UnlockLevel = 22, Tier = 8, Cost = 2500 },
+            new Avatar
+            {
+                Id = 27, Name = "occultist", DisplayName = "Occultist", UnlockLevel = 22, Tier = 8, Cost = 2500
+            },
             new Avatar { Id = 28, Name = "slime", DisplayName = "Slime", UnlockLevel = 28, Tier = 9, Cost = 3000 },
             new Avatar { Id = 29, Name = "mimic", DisplayName = "Mimic", UnlockLevel = 28, Tier = 9, Cost = 3000 },
             new Avatar { Id = 30, Name = "ghoul", DisplayName = "Ghoul", UnlockLevel = 28, Tier = 9, Cost = 3000 },
             new Avatar { Id = 31, Name = "goblin", DisplayName = "Goblin", UnlockLevel = 32, Tier = 10, Cost = 3500 },
-            new Avatar { Id = 32, Name = "werewolf_a", DisplayName = "Werewolf Boss", UnlockLevel = 40, Tier = 11, Cost = 4000 },
-            new Avatar { Id = 33, Name = "werewolf_b", DisplayName = "Werewolf Warrior", UnlockLevel = 40, Tier = 11, Cost = 4000 },
-            new Avatar { Id = 34, Name = "werewolf_c", DisplayName = "Werewolf Chief", UnlockLevel = 40, Tier = 11, Cost = 4000 },
-            new Avatar { Id = 35, Name = "male_orc", DisplayName = "Male Orc", UnlockLevel = 50, Tier = 12, Cost = 5000 },
-            new Avatar { Id = 36, Name = "female_orc", DisplayName = "Female Orc", UnlockLevel = 50, Tier = 12, Cost = 5000 },
+            new Avatar
+            {
+                Id = 32, Name = "werewolf_a", DisplayName = "Werewolf Boss", UnlockLevel = 40, Tier = 11, Cost = 4000
+            },
+            new Avatar
+            {
+                Id = 33, Name = "werewolf_b", DisplayName = "Werewolf Warrior", UnlockLevel = 40, Tier = 11, Cost = 4000
+            },
+            new Avatar
+            {
+                Id = 34, Name = "werewolf_c", DisplayName = "Werewolf Chief", UnlockLevel = 40, Tier = 11, Cost = 4000
+            },
+            new Avatar
+            {
+                Id = 35, Name = "male_orc", DisplayName = "Male Orc", UnlockLevel = 50, Tier = 12, Cost = 5000
+            },
+            new Avatar
+            {
+                Id = 36, Name = "female_orc", DisplayName = "Female Orc", UnlockLevel = 50, Tier = 12, Cost = 5000
+            },
             new Avatar { Id = 37, Name = "lich", DisplayName = "Lich", UnlockLevel = 60, Tier = 13, Cost = 6000 },
             new Avatar { Id = 38, Name = "witch", DisplayName = "Witch", UnlockLevel = 70, Tier = 14, Cost = 7000 },
             new Avatar { Id = 39, Name = "angel", DisplayName = "Angel", UnlockLevel = 70, Tier = 14, Cost = 7000 },
-            new Avatar { Id = 40, Name = "male_devil", DisplayName = "Male Devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
-            new Avatar { Id = 41, Name = "female_devil", DisplayName = "Female Devil", UnlockLevel = 80, Tier = 15, Cost = 8000 },
-            new Avatar { Id = 42, Name = "demon_male", DisplayName = "Male Demon", UnlockLevel = 100, Tier = 16, Cost = 10000 },
-            new Avatar { Id = 43, Name = "demon_female", DisplayName = "Female Demon", UnlockLevel = 100, Tier = 16, Cost = 10000 }
+            new Avatar
+            {
+                Id = 40, Name = "male_devil", DisplayName = "Male Devil", UnlockLevel = 80, Tier = 15, Cost = 8000
+            },
+            new Avatar
+            {
+                Id = 41, Name = "female_devil", DisplayName = "Female Devil", UnlockLevel = 80, Tier = 15, Cost = 8000
+            },
+            new Avatar
+            {
+                Id = 42, Name = "demon_male", DisplayName = "Male Demon", UnlockLevel = 100, Tier = 16, Cost = 10000
+            },
+            new Avatar
+            {
+                Id = 43, Name = "demon_female", DisplayName = "Female Demon", UnlockLevel = 100, Tier = 16, Cost = 10000
+            }
         );
     }
 
@@ -152,7 +203,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         SaveChanges();
 
         var unlockedAvatars = Avatars.Where(a => a.UnlockLevel <= user.CurrentLevel).ToList();
-        SeedUnlockedAvatars(user, unlockedAvatars); 
+        SeedUnlockedAvatars(user, unlockedAvatars);
 
         return user;
     }
@@ -342,7 +393,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     private void SeedQuests(Party party)
     {
         var random = new Random();
-        var difficulties = new[] { "Critical", "High", "Medium", "Low" };
+        var difficulties = new[] { 4, 3, 2, 1 };
         int questCount = random.Next(3, 21);
 
         var members = Members.Where(m => m.PartyId == party.Id).ToList();
@@ -355,6 +406,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 Description = $"Description for quest {j + 1} in {party.Title}",
                 PartyId = party.Id,
                 CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
+                UpdatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
+                DueDate = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
                 Priority = difficulties[random.Next(difficulties.Length)]
             };
             Quests.Add(quest);
@@ -379,67 +432,67 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
 
-private void SeedTasks(Quest quest)
-{
-    var random = new Random();
-    int taskCount = random.Next(1, 6); 
-    bool allTasksCompleted = true;
-
-    DateTime startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-    DateTime endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);  
-
-    for (int k = 0; k < taskCount; k++)
+    private void SeedTasks(Quest quest)
     {
-        bool isTaskCompleted = random.Next(0, 2) == 1;
-        if (!isTaskCompleted)
+        var random = new Random();
+        int taskCount = random.Next(1, 6);
+        bool allTasksCompleted = true;
+
+        DateTime startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        DateTime endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+
+        for (int k = 0; k < taskCount; k++)
         {
-            allTasksCompleted = false;
-        }
-
-        DateTime randomTaskDate = startOfMonth.AddDays(random.Next(0, (endOfMonth - startOfMonth).Days + 1));
-
-        var task = new Step
-        {
-            Description = $"Task {k + 1} description for {quest.Title}",
-            QuestId = quest.Id,
-            IsCompleted = isTaskCompleted,
-            CreatedAt = randomTaskDate 
-        };
-        Steps.Add(task);
-    }
-
-    SaveChanges();
-
-    if (allTasksCompleted)
-    {
-        quest.IsCompleted = true;
-
-        DateTime randomCompletionDate = startOfMonth.AddDays(random.Next(0, (endOfMonth - startOfMonth).Days + 1));
-        quest.CompletionDate = randomCompletionDate;
-
-        int expReward = GetExpRewardForPriority(quest.Priority);
-        int currencyReward = GetCurrencyRewardForPriority(quest.Priority);
-
-        var memberQuests = MemberQuests.Where(mq => mq.AssignedQuestId == quest.Id).ToList();
-        foreach (var memberQuest in memberQuests)
-        {
-            memberQuest.IsCompleted = true;
-            memberQuest.AwardedExp = expReward;
-            memberQuest.AwardedCurrency = currencyReward;
-            memberQuest.CompletionDate = randomCompletionDate;  
-
-            var user = Users.FirstOrDefault(u => u.Id == memberQuest.UserId);
-            if (user != null)
+            bool isTaskCompleted = random.Next(0, 2) == 1;
+            if (!isTaskCompleted)
             {
-                user.CurrentExp += expReward;
-                user.Currency += currencyReward;
-                CheckForLevelUp(user);
+                allTasksCompleted = false;
             }
+
+            DateTime randomTaskDate = startOfMonth.AddDays(random.Next(0, (endOfMonth - startOfMonth).Days + 1));
+
+            var task = new Step
+            {
+                Description = $"Task {k + 1} description for {quest.Title}",
+                QuestId = quest.Id,
+                IsCompleted = isTaskCompleted,
+                CreatedAt = randomTaskDate
+            };
+            Steps.Add(task);
         }
 
         SaveChanges();
+
+        if (allTasksCompleted)
+        {
+            quest.IsCompleted = true;
+
+            DateTime randomCompletionDate = startOfMonth.AddDays(random.Next(0, (endOfMonth - startOfMonth).Days + 1));
+            quest.CompletionDate = randomCompletionDate;
+
+            int expReward = GetExpRewardForPriority(quest.Priority);
+            int currencyReward = GetCurrencyRewardForPriority(quest.Priority);
+
+            var memberQuests = MemberQuests.Where(mq => mq.AssignedQuestId == quest.Id).ToList();
+            foreach (var memberQuest in memberQuests)
+            {
+                memberQuest.IsCompleted = true;
+                memberQuest.AwardedExp = expReward;
+                memberQuest.AwardedCurrency = currencyReward;
+                memberQuest.CompletionDate = randomCompletionDate;
+
+                var user = Users.FirstOrDefault(u => u.Id == memberQuest.UserId);
+                if (user != null)
+                {
+                    user.CurrentExp += expReward;
+                    user.Currency += currencyReward;
+                    CheckForLevelUp(user);
+                }
+            }
+
+            SaveChanges();
+        }
     }
-}
 
 
     private void CheckForLevelUp(ApplicationUser user)
@@ -453,26 +506,26 @@ private void SeedTasks(Quest quest)
     }
 
 
-    private int GetExpRewardForPriority(string priority)
+    private int GetExpRewardForPriority(int priority)
     {
         return priority switch
         {
-            "Critical" => LevelUpConstants.CriticalXPReward,
-            "High" => LevelUpConstants.HighXPReward,
-            "Medium" => LevelUpConstants.MediumXPReward,
-            "Low" => LevelUpConstants.LowXPReward,
+            4 => LevelUpConstants.CriticalXPReward,
+            3 => LevelUpConstants.HighXPReward,
+            2 => LevelUpConstants.MediumXPReward,
+            1 => LevelUpConstants.LowXPReward,
             _ => 0
         };
     }
 
-    private int GetCurrencyRewardForPriority(string priority)
+    private int GetCurrencyRewardForPriority(int priority)
     {
         return priority switch
         {
-            "Critical" => LevelUpConstants.CriticalCurrencyReward,
-            "High" => LevelUpConstants.HighCurrencyReward,
-            "Medium" => LevelUpConstants.MediumCurrencyReward,
-            "Low" => LevelUpConstants.LowCurrencyReward,
+            4 => LevelUpConstants.CriticalCurrencyReward,
+            3 => LevelUpConstants.HighCurrencyReward,
+            2 => LevelUpConstants.MediumCurrencyReward,
+            1 => LevelUpConstants.LowCurrencyReward,
             _ => 0
         };
     }

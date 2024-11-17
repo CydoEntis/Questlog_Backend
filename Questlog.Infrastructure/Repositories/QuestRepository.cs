@@ -73,8 +73,8 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
                 ? query.OrderBy(c => c.UpdatedAt)
                 : query.OrderByDescending(c => c.UpdatedAt),
             "priority" => orderDirection == OrderBy.Asc
-                ? query.OrderBy(c => c.UpdatedAt)
-                : query.OrderByDescending(c => c.UpdatedAt),
+                ? query.OrderBy(c => c.Priority)
+                : query.OrderByDescending(c => c.Priority),
             _ => query
         };
     }

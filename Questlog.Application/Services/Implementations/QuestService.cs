@@ -65,7 +65,9 @@ public class QuestService : BaseService, IQuestService
                 ex.InnerException?.Message ?? ex.Message);
         }
     }
-    public async Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int partyId, string userId, QueryParamsDto queryParams)
+
+    public async Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int partyId, string userId,
+        QueryParamsDto queryParams)
     {
         return await HandleExceptions<PaginatedResult<QuestDto>>(async () =>
         {
@@ -91,12 +93,11 @@ public class QuestService : BaseService, IQuestService
 
             var responseDtos = _mapper.Map<List<QuestDto>>(paginatedResult.Items);
 
-            var result = new PaginatedResult<QuestDto>(responseDtos, paginatedResult.TotalItems, paginatedResult.CurrentPage, queryParams.PageSize);
+            var result = new PaginatedResult<QuestDto>(responseDtos, paginatedResult.TotalItems,
+                paginatedResult.CurrentPage, queryParams.PageSize);
             return ServiceResult<PaginatedResult<QuestDto>>.Success(result);
         });
     }
-
-
 
 
     public async Task<ServiceResult<QuestDto>> CreateQuest(string userId,
@@ -233,14 +234,13 @@ public class QuestService : BaseService, IQuestService
             if (memberQuest.IsCompleted)
                 return ServiceResult<QuestDto>.Failure("Quest not assigned to user or already completed by them.");
 
-            
 
             var expReward = GetExpRewardForPriority(quest.Priority);
             var currencyReward = GetCurrencyRewardForPriority(quest.Priority);
 
             var existingSteps = await _unitOfWork.Step.GetAllAsync(s => s.QuestId == questId);
 
-            
+
             if (user != null)
             {
                 foreach (var step in existingSteps)
@@ -248,8 +248,8 @@ public class QuestService : BaseService, IQuestService
                     step.IsCompleted = true;
                     step.UpdatedAt = DateTime.UtcNow;
                 }
-                
-                
+
+
                 user.CurrentExp += expReward;
                 user.Currency += currencyReward;
 
@@ -297,7 +297,7 @@ public class QuestService : BaseService, IQuestService
                 return ServiceResult<QuestDto>.Failure("Quest not found or not completed.");
 
             var user = await _userManager.FindByIdAsync(userId);
- 
+
             var existingSteps = await _unitOfWork.Step.GetAllAsync(s => s.QuestId == questId);
             if (user != null)
             {
@@ -306,8 +306,8 @@ public class QuestService : BaseService, IQuestService
                     step.IsCompleted = false;
                     step.UpdatedAt = DateTime.UtcNow;
                 }
-            
-            
+
+
                 user.CurrentExp -= memberQuest.AwardedExp;
                 user.Currency -= memberQuest.AwardedCurrency;
 
@@ -454,26 +454,26 @@ public class QuestService : BaseService, IQuestService
         }
     }
 
-    private int GetExpRewardForPriority(string priority)
+    private int GetExpRewardForPriority(int priority)
     {
         return priority switch
         {
-            "Critical" => LevelUpConstants.CriticalXPReward,
-            "High" => LevelUpConstants.HighXPReward,
-            "Medium" => LevelUpConstants.MediumXPReward,
-            "Low" => LevelUpConstants.LowXPReward,
+            4 => LevelUpConstants.CriticalXPReward,
+            3 => LevelUpConstants.HighXPReward,
+            2 => LevelUpConstants.MediumXPReward,
+            1 => LevelUpConstants.LowXPReward,
             _ => 0
         };
     }
 
-    private int GetCurrencyRewardForPriority(string priority)
+    private int GetCurrencyRewardForPriority(int priority)
     {
         return priority switch
         {
-            "Critical" => LevelUpConstants.CriticalCurrencyReward,
-            "High" => LevelUpConstants.HighCurrencyReward,
-            "Medium" => LevelUpConstants.MediumCurrencyReward,
-            "Low" => LevelUpConstants.LowCurrencyReward,
+            4 => LevelUpConstants.CriticalCurrencyReward,
+            3 => LevelUpConstants.HighCurrencyReward,
+            2 => LevelUpConstants.MediumCurrencyReward,
+            1 => LevelUpConstants.LowCurrencyReward,
             _ => 0
         };
     }
