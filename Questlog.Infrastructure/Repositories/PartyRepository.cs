@@ -28,6 +28,8 @@ public class PartyRepository : BaseRepository<Party>, IPartyRepository
             query = query.Where(options.Filter);
         }
 
+        query = ApplyDateFilters(query, options);
+
         if (!string.IsNullOrEmpty(options.OrderOn))
         {
             query = ApplyOrdering(query, options.OrderOn, options.OrderBy);
@@ -81,5 +83,48 @@ public class PartyRepository : BaseRepository<Party>, IPartyRepository
                 : query.OrderByDescending(c => c.UpdatedAt),
             _ => query
         };
+    }
+
+    private IQueryable<Party> ApplyDateFilters(IQueryable<Party> query, QueryOptions<Party> options)
+    {
+        // Check if StartDate is provided and is valid
+        if (!string.IsNullOrEmpty(options.StartDate) && DateTime.TryParse(options.StartDate, out var startDate))
+        {
+            query = ApplyDateFilter(query, options.OrderOn, startDate, ">=");
+        }
+
+        // Check if EndDate is provided and is valid
+        if (!string.IsNullOrEmpty(options.EndDate) && DateTime.TryParse(options.EndDate, out var endDate))
+        {
+            query = ApplyDateFilter(query, options.OrderOn, endDate, "<=");
+        }
+
+        return query;
+    }
+
+    private IQueryable<Party> ApplyDateFilter(IQueryable<Party> query, string orderOn, DateTime date,
+        string operatorSymbol)
+    {
+        var dateField = orderOn switch
+        {
+            "created-at" => "CreatedAt",
+            "updated-at" => "UpdatedAt",
+            "due-date" => "DueDate",
+            _ => null
+        };
+
+        if (!string.IsNullOrEmpty(dateField))
+        {
+            if (operatorSymbol == ">=")
+            {
+                query = query.Where(c => EF.Property<DateTime>(c, dateField) >= date);
+            }
+            else if (operatorSymbol == "<=")
+            {
+                query = query.Where(c => EF.Property<DateTime>(c, dateField) <= date);
+            }
+        }
+
+        return query;
     }
 }

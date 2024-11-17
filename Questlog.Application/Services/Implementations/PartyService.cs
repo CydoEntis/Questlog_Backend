@@ -66,7 +66,9 @@ public class PartyService : BaseService, IPartyService
                 OrderBy = queryParams.OrderBy,
                 OrderOn = queryParams.Filter,
                 IncludeProperties = "Members,Members.User,Members.User.Avatar,Quests",
-                Filter = c => c.Members.Any(m => m.UserId == userId)
+                Filter = c => c.Members.Any(m => m.UserId == userId),
+                StartDate = queryParams.StartDate,
+                EndDate = queryParams.EndDate,
             };
 
             if (!string.IsNullOrEmpty(queryParams.Search))

@@ -4,7 +4,7 @@ public record QueryParamsDto
 {
     public string? Search { get; set; }
     public string? OrderBy { get; set; } = Enums.OrderBy.Desc.ToString();
-    public string? Filter { get; set; } = "createdAt";
+    public string? Filter { get; set; } = "created-at";
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 18;
     public string? StartDate { get; set; }
