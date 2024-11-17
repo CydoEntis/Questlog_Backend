@@ -8,7 +8,8 @@ public class QueryOptions<T>
 {
     public string? SearchValue { get; set; }
     public string? OrderBy { get; set; }
-    public string? OrderOn { get; set; }
+    public string? SortBy { get; set; }
+    public string? FilterDate { get; set; }
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
 

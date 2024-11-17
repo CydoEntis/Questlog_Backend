@@ -30,9 +30,9 @@ public class PartyRepository : BaseRepository<Party>, IPartyRepository
 
         query = ApplyDateFilters(query, options);
 
-        if (!string.IsNullOrEmpty(options.OrderOn))
+        if (!string.IsNullOrEmpty(options.SortBy))
         {
-            query = ApplyOrdering(query, options.OrderOn, options.OrderBy);
+            query = ApplyOrdering(query, options.SortBy, options.OrderBy);
         }
 
         if (!string.IsNullOrEmpty(options.IncludeProperties))
@@ -90,22 +90,22 @@ public class PartyRepository : BaseRepository<Party>, IPartyRepository
         // Check if StartDate is provided and is valid
         if (!string.IsNullOrEmpty(options.StartDate) && DateTime.TryParse(options.StartDate, out var startDate))
         {
-            query = ApplyDateFilter(query, options.OrderOn, startDate, ">=");
+            query = ApplyDateFilter(query, options.FilterDate, startDate, ">=");
         }
 
         // Check if EndDate is provided and is valid
         if (!string.IsNullOrEmpty(options.EndDate) && DateTime.TryParse(options.EndDate, out var endDate))
         {
-            query = ApplyDateFilter(query, options.OrderOn, endDate, "<=");
+            query = ApplyDateFilter(query, options.FilterDate, endDate, "<=");
         }
 
         return query;
     }
 
-    private IQueryable<Party> ApplyDateFilter(IQueryable<Party> query, string orderOn, DateTime date,
+    private IQueryable<Party> ApplyDateFilter(IQueryable<Party> query, string filterDate, DateTime date,
         string operatorSymbol)
     {
-        var dateField = orderOn switch
+        var dateField = filterDate switch
         {
             "created-at" => "CreatedAt",
             "updated-at" => "UpdatedAt",
