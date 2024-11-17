@@ -26,9 +26,9 @@ public class MemberRepository : BaseRepository<Member>, IMemberRepository
             query = query.Where(options.Filter);
         }
 
-        if (!string.IsNullOrEmpty(options.OrderOn))
+        if (!string.IsNullOrEmpty(options.SortBy))
         {
-            query = ApplyOrdering(query, options.OrderOn, options.OrderBy);
+            query = ApplyOrdering(query, options.SortBy, options.OrderBy);
         }
 
         if (!string.IsNullOrEmpty(options.IncludeProperties))

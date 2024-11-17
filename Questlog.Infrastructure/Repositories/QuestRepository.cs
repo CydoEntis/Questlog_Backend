@@ -33,9 +33,9 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
         query = ApplyDateFilters(query, options);
 
         // Apply ordering based on the OrderBy and OrderOn properties
-        if (!string.IsNullOrEmpty(options.OrderOn))
+        if (!string.IsNullOrEmpty(options.SortBy))
         {
-            query = ApplyOrdering(query, options.OrderOn, options.OrderBy);
+            query = ApplyOrdering(query, options.SortBy, options.OrderBy);
         }
 
         // Apply include properties if specified
@@ -83,21 +83,21 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
         // Check if StartDate is provided and is valid
         if (!string.IsNullOrEmpty(options.StartDate) && DateTime.TryParse(options.StartDate, out var startDate))
         {
-            query = ApplyDateFilter(query, options.OrderOn, startDate, ">=");
+            query = ApplyDateFilter(query, options.FilterDate, startDate, ">=");
         }
 
         // Check if EndDate is provided and is valid
         if (!string.IsNullOrEmpty(options.EndDate) && DateTime.TryParse(options.EndDate, out var endDate))
         {
-            query = ApplyDateFilter(query, options.OrderOn, endDate, "<=");
+            query = ApplyDateFilter(query, options.FilterDate, endDate, "<=");
         }
 
         return query;
     }
 
-    private IQueryable<Quest> ApplyDateFilter(IQueryable<Quest> query, string orderOn, DateTime date, string operatorSymbol)
+    private IQueryable<Quest> ApplyDateFilter(IQueryable<Quest> query, string filterDate, DateTime date, string operatorSymbol)
     {
-        var dateField = orderOn switch
+        var dateField = filterDate switch
         {
             "created" => "CreatedAt",
             "updated" => "UpdatedAt",

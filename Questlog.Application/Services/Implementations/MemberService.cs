@@ -77,7 +77,8 @@ public class MemberService : BaseService, IMemberService
                 PageNumber = queryParams.PageNumber,
                 PageSize = queryParams.PageSize,
                 OrderBy = queryParams.OrderBy,
-                OrderOn = queryParams.Filter,
+                SortBy = queryParams.SortBy,
+                FilterDate = queryParams.FilterDate,
                 IncludeProperties = "User",
                 Filter = c => c.PartyId == campaignId
             };
