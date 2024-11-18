@@ -79,15 +79,12 @@ public class QuestService : BaseService, IQuestService
                 SortBy = queryParams.SortBy,
                 FilterDate = queryParams.FilterDate,
                 IncludeProperties = "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar",
-                Filter = c => c.PartyId == partyId,
+                Filter = c => c.PartyId == partyId && c.MemberQuests.Any(mq => mq.UserId == userId),
+                Priority = queryParams.Priority,
                 StartDate = queryParams.StartDate,
                 EndDate = queryParams.EndDate,
+                Search = queryParams.Search
             };
-
-            if (!string.IsNullOrEmpty(queryParams.Search))
-            {
-                options.Filter = options.Filter.And(c => c.Title.Contains(queryParams.Search));
-            }
 
             var paginatedResult = await _unitOfWork.Quest.GetPaginated(options);
 

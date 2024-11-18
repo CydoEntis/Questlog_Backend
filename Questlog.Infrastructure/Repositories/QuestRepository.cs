@@ -23,12 +23,21 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
     {
         IQueryable<Quest> query = _dbSet;
 
-
+        // Apply filters
         if (options.Filter != null)
         {
             query = query.Where(options.Filter);
         }
 
+        if (!string.IsNullOrEmpty(options.Search))
+        {
+            query = query.Where(c => c.Title.Contains(options.Search));
+        }
+        
+        if (options.Priority is not null)
+        {
+            query = query.Where(c => c.Priority == options.Priority);
+        }
 
         query = ApplyDateFilters(query, options);
 
@@ -37,14 +46,14 @@ public class QuestRepository : BaseRepository<Quest>, IQuestRepository
             query = ApplyOrdering(query, options.SortBy, options.OrderBy);
         }
 
-
         if (!string.IsNullOrEmpty(options.IncludeProperties))
         {
             query = ApplyIncludeProperties(query, options.IncludeProperties);
         }
-        
+
         return await Paginate(query, options.PageNumber, options.PageSize);
     }
+
 
     public async Task<Quest> UpdateAsync(Quest entity)
     {
