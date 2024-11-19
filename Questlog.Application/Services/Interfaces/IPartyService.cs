@@ -6,7 +6,7 @@ namespace Questlog.Application.Services.Interfaces;
 
 public interface IPartyService
 {
-    Task<ServiceResult<PartyDto>> GetPartyById(int partyId);
+    Task<ServiceResult<PartyDto>> GetPartyById(string userId, int partyId);
 
     Task<ServiceResult<PaginatedResult<PartyDto>>> GetAllParties(string userId,
         QueryParamsDto queryParams);

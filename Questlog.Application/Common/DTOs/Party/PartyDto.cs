@@ -16,4 +16,5 @@ public class PartyDto
     public DateTime UpdatedAt { get; set; }
     public DateTime DueDate { get; set; }
     public QuestStatDto QuestStats { get; set; }
+    public string? CurrentUserRole { get; set; }
 }

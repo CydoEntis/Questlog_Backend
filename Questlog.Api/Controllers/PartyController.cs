@@ -25,7 +25,9 @@ public class PartyController : BaseController
     {
         if (partyId <= 0) return BadRequestResponse("Party Id must be provided.");
 
-        var result = await _partyService.GetPartyById(partyId);
+        string userId = HttpContext.Items["UserId"] as string;
+        
+        var result = await _partyService.GetPartyById(userId, partyId);
 
         if (!result.IsSuccess)
         {

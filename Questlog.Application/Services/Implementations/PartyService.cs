@@ -31,14 +31,15 @@ public class PartyService : BaseService, IPartyService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<PartyDto>> GetPartyById(int partyId)
+    public async Task<ServiceResult<PartyDto>> GetPartyById(string userId, int partyId)
     {
-        var partyIdValidationResult = ValidationHelper.ValidateId(partyId, "Party Id");
-        if (!partyIdValidationResult.IsSuccess)
-            return ServiceResult<PartyDto>.Failure(partyIdValidationResult.ErrorMessage);
-
-        return await HandleExceptions<PartyDto>(async () =>
+        try
         {
+            var partyIdValidationResult = ValidationHelper.ValidateId(partyId, "Party Id");
+            if (!partyIdValidationResult.IsSuccess)
+                return ServiceResult<PartyDto>.Failure(partyIdValidationResult.ErrorMessage);
+
+
             var foundParty =
                 await _unitOfWork.Party.GetAsync(g => g.Id == partyId,
                     includeProperties: "Members,Members.User,Members.User.Avatar");
@@ -48,10 +49,24 @@ public class PartyService : BaseService, IPartyService
                 return ServiceResult<PartyDto>.Failure("Party not found.");
             }
 
+            
+            var currentUserRole = foundParty.Members
+                .FirstOrDefault(m => m.UserId == userId)?.Role;
+
+            if (currentUserRole == null)
+            {
+                return ServiceResult<PartyDto>.Failure("User is not a member of this party.");
+            }
+            
             var partyDto = _mapper.Map<PartyDto>(foundParty);
+            partyDto.CurrentUserRole = currentUserRole;
 
             return ServiceResult<PartyDto>.Success(partyDto);
-        });
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<PartyDto>.Failure(ex.InnerException.ToString());
+        }
     }
 
     public async Task<ServiceResult<PaginatedResult<PartyDto>>> GetAllParties(string userId,
