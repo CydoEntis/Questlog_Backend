@@ -32,7 +32,7 @@ public class QuestService : BaseService, IQuestService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<QuestDto>> GetQuestById(int partyId, int questId)
+    public async Task<ServiceResult<QuestDto>> GetQuestById(string userId, int partyId, int questId)
     {
         try
         {
@@ -44,18 +44,27 @@ public class QuestService : BaseService, IQuestService
             if (!questIdValidationResult.IsSuccess)
                 return ServiceResult<QuestDto>.Failure(questIdValidationResult.ErrorMessage);
 
-
+            // Fetch the user's role in the party
+            var foundMember = await _unitOfWork.Member.GetAsync
+                (m => m.PartyId == partyId && m.UserId == userId);
+            
+            
             var foundQuest =
                 await _unitOfWork.Quest.GetAsync(q => q.Id == questId && q.PartyId == partyId,
                     includeProperties: "Steps,MemberQuests.AssignedMember,MemberQuests.User,MemberQuests.User.Avatar");
 
-
+            if (foundMember == null)
+            {
+                return ServiceResult<QuestDto>.Failure("User is not a member of the party, this quest is assigned to.");
+            }
+            
             if (foundQuest == null)
             {
                 return ServiceResult<QuestDto>.Failure("Quest not found.");
             }
 
             var questResponseDto = _mapper.Map<QuestDto>(foundQuest);
+            questResponseDto.CurrentUserRole = foundMember.Role;
 
             return ServiceResult<QuestDto>.Success(questResponseDto);
         }

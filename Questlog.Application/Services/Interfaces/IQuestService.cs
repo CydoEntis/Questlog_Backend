@@ -6,7 +6,7 @@ namespace Questlog.Application.Services.Interfaces;
 
 public interface IQuestService
 {
-    Task<ServiceResult<QuestDto>> GetQuestById(int campaignId, int questId);
+    Task<ServiceResult<QuestDto>> GetQuestById(string userId, int campaignId, int questId);
 
     Task<ServiceResult<PaginatedResult<QuestDto>>> GetAllQuests(int campaignId, string userId,
         QueryParamsDto queryParams);

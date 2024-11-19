@@ -23,9 +23,11 @@ public class QuestController : BaseController
     [HttpGet("{questId}")]
     public async Task<ActionResult<ApiResponse>> GetQuest(int partyId, int questId)
     {
+        string userId = HttpContext.Items["UserId"] as string;
+
         if (questId <= 0) return BadRequestResponse("Quest Id must be provided.");
 
-        var result = await _questService.GetQuestById(partyId, questId);
+        var result = await _questService.GetQuestById(userId, partyId, questId);
 
         if (!result.IsSuccess)
         {

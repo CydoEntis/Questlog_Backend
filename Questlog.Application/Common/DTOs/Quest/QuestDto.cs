@@ -17,4 +17,5 @@ public class QuestDto
     public List<MemberDto> Members { get; set; }
     public List<StepDto> Steps { get; set; }
     public int CompletedSteps { get; set; }
+    public string CurrentUserRole { get; set; }
 }
