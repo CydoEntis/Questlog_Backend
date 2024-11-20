@@ -235,8 +235,9 @@ public class MemberService : BaseService, IMemberService
             return ServiceResult<string>.Failure("An error occurred while processing your request.");
         }
     }
-    
-    public async Task<ServiceResult<MemberDto>> UpdateMemberRole(int partyId, int memberId, string newRole, string currentUserId)
+
+    public async Task<ServiceResult<MemberDto>> UpdateMemberRole(int partyId, int memberId, string newRole,
+        string currentUserId)
     {
         var partyValidation = ValidationHelper.ValidateId(partyId, nameof(partyId));
         var memberValidation = ValidationHelper.ValidateId(memberId, nameof(memberId));
@@ -270,10 +271,9 @@ public class MemberService : BaseService, IMemberService
             return ServiceResult<MemberDto>.Failure("An error occurred while updating the role.");
         }
     }
-    
+
     public async Task<ServiceResult<string>> ChangeCreatorRole(int partyId, int newCreatorId, string currentUserId)
     {
-        // Validate IDs
         var partyValidation = ValidationHelper.ValidateId(partyId, nameof(partyId));
         var newCreatorValidation = ValidationHelper.ValidateId(newCreatorId, nameof(newCreatorId));
         if (!partyValidation.IsSuccess || !newCreatorValidation.IsSuccess)
@@ -281,7 +281,8 @@ public class MemberService : BaseService, IMemberService
 
         try
         {
-            var currentCreator = await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.UserId == currentUserId);
+            var currentCreator =
+                await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.UserId == currentUserId);
             if (currentCreator == null || currentCreator.Role != RoleConstants.Creator)
                 return ServiceResult<string>.Failure("Only the current 'Creator' can transfer the 'Creator' role.");
 
@@ -289,16 +290,24 @@ public class MemberService : BaseService, IMemberService
             if (newCreator == null)
                 return ServiceResult<string>.Failure("New creator not found.");
 
-            // Transfer roles
+            var party = await _unitOfWork.Party.GetAsync(p => p.Id == partyId);
+            if (party == null)
+                return ServiceResult<string>.Failure("Party not found.");
+
             currentCreator.Role = RoleConstants.Member;
             newCreator.Role = RoleConstants.Creator;
             currentCreator.UpdatedOn = DateTime.UtcNow;
             newCreator.UpdatedOn = DateTime.UtcNow;
 
+            party.CreatorId = newCreator.UserId;
+            party.UpdatedAt = DateTime.UtcNow;
+
             await _unitOfWork.Member.UpdateAsync(currentCreator);
             await _unitOfWork.Member.UpdateAsync(newCreator);
+            await _unitOfWork.Party.UpdateAsync(party);
 
-            return ServiceResult<string>.Success($"Role transferred. {newCreator.User.DisplayName} is now the 'Creator'.");
+            return ServiceResult<string>.Success(
+                $"Role transferred. {newCreator.User.DisplayName} is now the 'Creator'.");
         }
         catch (Exception ex)
         {
@@ -306,6 +315,4 @@ public class MemberService : BaseService, IMemberService
             return ServiceResult<string>.Failure("An error occurred while transferring the creator role.");
         }
     }
-
-
 }

@@ -23,4 +23,6 @@ public interface IMemberService
     Task<ServiceResult<string>> GenerateInviteLink(int campaignId);
 
     Task<ServiceResult<string>> AcceptInvite(string token, string userId);
+    Task<ServiceResult<MemberDto>> UpdateMemberRole(int partyId, int memberId, string newRole, string currentUserId);
+    Task<ServiceResult<string>> ChangeCreatorRole(int partyId, int newCreatorId, string currentUserId);
 }

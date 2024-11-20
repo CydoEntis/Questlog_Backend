@@ -174,4 +174,24 @@ public class MemberController : BaseController
 
         return BadRequest(result.ErrorMessage);
     }
+    
+    [HttpPut("update-role")]
+    public async Task<IActionResult> UpdateMemberRole([FromBody] MemberRoleDto memberRoleDto)
+    {
+        var userId = HttpContext.Items["UserId"] as string;
+
+        if (userId == null || string.IsNullOrWhiteSpace(userId))
+        {
+            return BadRequest("User Id must be provided.");
+        }
+
+        var result = await _memberService.UpdateMemberRole(memberRoleDto.PartyId, memberRoleDto.MemberId, memberRoleDto.Role, userId);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+
+        return BadRequest(result.ErrorMessage);
+    }
 }
