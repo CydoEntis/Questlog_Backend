@@ -131,7 +131,7 @@ public class PartyService : BaseService, IPartyService
             {
                 UserId = userId,
                 PartyId = createdParty.Id,
-                Role = RoleConstants.Owner,
+                Role = RoleConstants.Creator,
                 JoinedOn = DateTime.UtcNow,
             };
 

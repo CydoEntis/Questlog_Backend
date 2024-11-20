@@ -28,9 +28,9 @@ public class MemberService : BaseService, IMemberService
         _mapper = mapper;
     }
 
-    public async Task<ServiceResult<MemberDto>> GetMember(int campaignId, int guildMemberId)
+    public async Task<ServiceResult<MemberDto>> GetMember(int partyId, int guildMemberId)
     {
-        var idValidation = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
+        var idValidation = ValidationHelper.ValidateId(partyId, nameof(partyId));
         if (!idValidation.IsSuccess) return ServiceResult<MemberDto>.Failure(idValidation.ErrorMessage);
 
         var memberIdValidation = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
@@ -40,7 +40,7 @@ public class MemberService : BaseService, IMemberService
         return await HandleExceptions<MemberDto>(async () =>
         {
             Member foundMember =
-                await _unitOfWork.Member.GetAsync(gm => gm.PartyId == campaignId && gm.Id == guildMemberId);
+                await _unitOfWork.Member.GetAsync(gm => gm.PartyId == partyId && gm.Id == guildMemberId);
 
             if (foundMember == null)
             {
@@ -54,11 +54,11 @@ public class MemberService : BaseService, IMemberService
     }
 
 
-    public async Task<ServiceResult<List<MemberDto>>> GetAllMembers(int campaignId)
+    public async Task<ServiceResult<List<MemberDto>>> GetAllMembers(int partyId)
     {
         return await HandleExceptions<List<MemberDto>>(async () =>
         {
-            var members = await _unitOfWork.Member.GetAllAsync(m => m.PartyId == campaignId);
+            var members = await _unitOfWork.Member.GetAllAsync(m => m.PartyId == partyId);
 
             var memberResponseDtos = _mapper.Map<List<MemberDto>>(members);
 
@@ -67,7 +67,7 @@ public class MemberService : BaseService, IMemberService
         });
     }
 
-    public async Task<ServiceResult<PaginatedResult<MemberDto>>> GetAllPaginatedMembers(int campaignId,
+    public async Task<ServiceResult<PaginatedResult<MemberDto>>> GetAllPaginatedMembers(int partyId,
         QueryParamsDto queryParams)
     {
         return await HandleExceptions<PaginatedResult<MemberDto>>(async () =>
@@ -80,7 +80,7 @@ public class MemberService : BaseService, IMemberService
                 SortBy = queryParams.SortBy,
                 FilterDate = queryParams.FilterDate,
                 IncludeProperties = "User",
-                Filter = c => c.PartyId == campaignId
+                Filter = c => c.PartyId == partyId
             };
 
             if (!string.IsNullOrEmpty(queryParams.Search))
@@ -129,9 +129,9 @@ public class MemberService : BaseService, IMemberService
         if (!guildValidationResult.IsSuccess)
             return ServiceResult<MemberDto>.Failure(guildValidationResult.ErrorMessage);
 
-        var campaignIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, " Id");
-        if (!campaignIdValidationResult.IsSuccess)
-            return ServiceResult<MemberDto>.Failure(campaignIdValidationResult.ErrorMessage);
+        var partyIdValidationResult = ValidationHelper.ValidateId(requestDto.Id, " Id");
+        if (!partyIdValidationResult.IsSuccess)
+            return ServiceResult<MemberDto>.Failure(partyIdValidationResult.ErrorMessage);
 
         return await HandleExceptions<MemberDto>(async () =>
         {
@@ -153,11 +153,11 @@ public class MemberService : BaseService, IMemberService
         });
     }
 
-    public async Task<ServiceResult<int>> RemoveMember(int campaignId, int guildMemberId)
+    public async Task<ServiceResult<int>> RemoveMember(int partyId, int guildMemberId)
     {
-        var campaignIdValidationResult = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
-        if (!campaignIdValidationResult.IsSuccess)
-            return ServiceResult<int>.Failure(campaignIdValidationResult.ErrorMessage);
+        var partyIdValidationResult = ValidationHelper.ValidateId(partyId, nameof(partyId));
+        if (!partyIdValidationResult.IsSuccess)
+            return ServiceResult<int>.Failure(partyIdValidationResult.ErrorMessage);
 
         var memberIdValidationResult = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
         if (!memberIdValidationResult.IsSuccess)
@@ -166,7 +166,7 @@ public class MemberService : BaseService, IMemberService
         return await HandleExceptions<int>(async () =>
         {
             var foundMember =
-                await _unitOfWork.Member.GetAsync(gm => gm.Id == guildMemberId && gm.PartyId == campaignId);
+                await _unitOfWork.Member.GetAsync(gm => gm.Id == guildMemberId && gm.PartyId == partyId);
             if (foundMember == null)
                 return ServiceResult<int>.Failure(" Member not found");
 
@@ -176,11 +176,12 @@ public class MemberService : BaseService, IMemberService
         });
     }
 
-    public async Task<ServiceResult<string>> GenerateInviteLink(int campaignId)
+
+    public async Task<ServiceResult<string>> GenerateInviteLink(int partyId)
     {
-        var campaignValidationResult = ValidationHelper.ValidateId(campaignId, nameof(campaignId));
-        if (!campaignValidationResult.IsSuccess)
-            return ServiceResult<string>.Failure(campaignValidationResult.ErrorMessage);
+        var partyValidationResult = ValidationHelper.ValidateId(partyId, nameof(partyId));
+        if (!partyValidationResult.IsSuccess)
+            return ServiceResult<string>.Failure(partyValidationResult.ErrorMessage);
 
         var token = Guid.NewGuid().ToString();
 
@@ -189,7 +190,7 @@ public class MemberService : BaseService, IMemberService
         await _unitOfWork.InviteToken.CreateAsync(new InviteToken
         {
             Token = token,
-            CampaignId = campaignId,
+            CampaignId = partyId,
             CreatedOn = DateTime.UtcNow,
             Expiration = expirationTime,
         });
@@ -226,7 +227,7 @@ public class MemberService : BaseService, IMemberService
             await _unitOfWork.InviteToken.RemoveAsync(inviteToken);
             await _unitOfWork.SaveAsync();
 
-            return ServiceResult<string>.Success("You have successfully joined the campaign.");
+            return ServiceResult<string>.Success("You have successfully joined the party.");
         }
         catch (Exception ex)
         {
@@ -234,4 +235,77 @@ public class MemberService : BaseService, IMemberService
             return ServiceResult<string>.Failure("An error occurred while processing your request.");
         }
     }
+    
+    public async Task<ServiceResult<MemberDto>> UpdateMemberRole(int partyId, int memberId, string newRole, string currentUserId)
+    {
+        var partyValidation = ValidationHelper.ValidateId(partyId, nameof(partyId));
+        var memberValidation = ValidationHelper.ValidateId(memberId, nameof(memberId));
+        if (!partyValidation.IsSuccess || !memberValidation.IsSuccess)
+            return ServiceResult<MemberDto>.Failure("Invalid party or member ID.");
+
+        try
+        {
+            var currentUser = await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.UserId == currentUserId);
+            if (currentUser == null || string.IsNullOrEmpty(currentUser.Role))
+                return ServiceResult<MemberDto>.Failure("Current user not found or lacks a role.");
+
+            var targetMember = await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.Id == memberId);
+            if (targetMember == null)
+                return ServiceResult<MemberDto>.Failure("Target member not found.");
+
+            if (newRole == RoleConstants.Creator && currentUser.Role != RoleConstants.Creator)
+                return ServiceResult<MemberDto>.Failure("Only a 'Creator' can assign the 'Creator' role.");
+
+            targetMember.Role = newRole;
+            targetMember.UpdatedOn = DateTime.UtcNow;
+
+            await _unitOfWork.Member.UpdateAsync(targetMember);
+
+            var updatedMemberDto = _mapper.Map<MemberDto>(targetMember);
+            return ServiceResult<MemberDto>.Success(updatedMemberDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while updating the member's role.");
+            return ServiceResult<MemberDto>.Failure("An error occurred while updating the role.");
+        }
+    }
+    
+    public async Task<ServiceResult<string>> ChangeCreatorRole(int partyId, int newCreatorId, string currentUserId)
+    {
+        // Validate IDs
+        var partyValidation = ValidationHelper.ValidateId(partyId, nameof(partyId));
+        var newCreatorValidation = ValidationHelper.ValidateId(newCreatorId, nameof(newCreatorId));
+        if (!partyValidation.IsSuccess || !newCreatorValidation.IsSuccess)
+            return ServiceResult<string>.Failure("Invalid party or member ID.");
+
+        try
+        {
+            var currentCreator = await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.UserId == currentUserId);
+            if (currentCreator == null || currentCreator.Role != RoleConstants.Creator)
+                return ServiceResult<string>.Failure("Only the current 'Creator' can transfer the 'Creator' role.");
+
+            var newCreator = await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.Id == newCreatorId);
+            if (newCreator == null)
+                return ServiceResult<string>.Failure("New creator not found.");
+
+            // Transfer roles
+            currentCreator.Role = RoleConstants.Member;
+            newCreator.Role = RoleConstants.Creator;
+            currentCreator.UpdatedOn = DateTime.UtcNow;
+            newCreator.UpdatedOn = DateTime.UtcNow;
+
+            await _unitOfWork.Member.UpdateAsync(currentCreator);
+            await _unitOfWork.Member.UpdateAsync(newCreator);
+
+            return ServiceResult<string>.Success($"Role transferred. {newCreator.User.DisplayName} is now the 'Creator'.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while transferring the creator role.");
+            return ServiceResult<string>.Failure("An error occurred while transferring the creator role.");
+        }
+    }
+
+
 }
