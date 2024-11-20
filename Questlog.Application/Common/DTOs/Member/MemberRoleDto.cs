@@ -2,7 +2,6 @@
 
 public class MemberRoleDto
 {
-    public int PartyId { get; set; }
-    public int MemberId { get; set; }
+    public int Id { get; set; }
     public string Role { get; set; }
 }

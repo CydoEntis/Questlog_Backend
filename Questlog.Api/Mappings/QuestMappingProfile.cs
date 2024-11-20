@@ -22,7 +22,7 @@ namespace Questlog.Api.Mappings
                         .Select(mq => new MemberDto()
                         {
                             Id = mq.AssignedMember.Id,
-                            CampaignId = mq.AssignedQuest.PartyId,
+                            PartyId = mq.AssignedQuest.PartyId,
                             Role = mq.AssignedMember.Role,
                             UserId = mq.UserId,
                             DisplayName = mq.AssignedMember.User.DisplayName,

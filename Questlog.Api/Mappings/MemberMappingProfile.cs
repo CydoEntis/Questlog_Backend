@@ -17,5 +17,7 @@ public class MemberMappingProfile : Profile
 
         CreateMap<Member, CreateMemberDto>().ReverseMap();
         CreateMap<Member, UpdateMemberDto>().ReverseMap();
+        CreateMap<NewMemberRoleDto, MemberRole>().ReverseMap();
+        CreateMap<MemberRoleDto, MemberRole>().ReverseMap();
     }
 }

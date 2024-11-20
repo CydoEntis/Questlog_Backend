@@ -236,41 +236,58 @@ public class MemberService : BaseService, IMemberService
         }
     }
 
-    public async Task<ServiceResult<MemberDto>> UpdateMemberRole(int partyId, int memberId, string newRole,
-        string currentUserId)
+
+    public async Task<ServiceResult<List<MemberDto>>> UpdateMemberRoles(int partyId,
+        List<MemberRole> updatedMemberRoles, string currentUserId)
     {
         var partyValidation = ValidationHelper.ValidateId(partyId, nameof(partyId));
-        var memberValidation = ValidationHelper.ValidateId(memberId, nameof(memberId));
-        if (!partyValidation.IsSuccess || !memberValidation.IsSuccess)
-            return ServiceResult<MemberDto>.Failure("Invalid party or member ID.");
+        if (!partyValidation.IsSuccess)
+            return ServiceResult<List<MemberDto>>.Failure("Invalid party ID.");
+
+        if (updatedMemberRoles == null || !updatedMemberRoles.Any())
+            return ServiceResult<List<MemberDto>>.Failure("No member role updates provided.");
 
         try
         {
             var currentUser = await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.UserId == currentUserId);
+
             if (currentUser == null || string.IsNullOrEmpty(currentUser.Role))
-                return ServiceResult<MemberDto>.Failure("Current user not found or lacks a role.");
+                return ServiceResult<List<MemberDto>>.Failure("User not found");
 
-            var targetMember = await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.Id == memberId);
-            if (targetMember == null)
-                return ServiceResult<MemberDto>.Failure("Target member not found.");
+            if (currentUser.Role != RoleConstants.Creator && currentUser.Role != RoleConstants.Maintainer)
+                return ServiceResult<List<MemberDto>>.Failure("User lacks role to update members");
 
-            if (newRole == RoleConstants.Creator && currentUser.Role != RoleConstants.Creator)
-                return ServiceResult<MemberDto>.Failure("Only a 'Creator' can assign the 'Creator' role.");
+            var memberIds = updatedMemberRoles.Select(m => m.Id).ToList();
+            
+            var membersToUpdate = await _unitOfWork.Member.GetAllAsync(m => m.PartyId == partyId && memberIds.Contains(m.Id), includeProperties: "User,User.Avatar");
+            if (membersToUpdate == null || !membersToUpdate.Any())
+                return ServiceResult<List<MemberDto>>.Failure("No matching members found for the provided IDs.");
 
-            targetMember.Role = newRole;
-            targetMember.UpdatedOn = DateTime.UtcNow;
+            var updatedMembers = new List<MemberDto>();
 
-            await _unitOfWork.Member.UpdateAsync(targetMember);
+            foreach (var updatedMemberRole in updatedMemberRoles)
+            {
+                var member = membersToUpdate.FirstOrDefault(m => m.Id == updatedMemberRole.Id);
+                if (member != null)
+                {
+                    member.Role = updatedMemberRole.Role;
+                    member.UpdatedOn = DateTime.UtcNow;
 
-            var updatedMemberDto = _mapper.Map<MemberDto>(targetMember);
-            return ServiceResult<MemberDto>.Success(updatedMemberDto);
+                    await _unitOfWork.Member.UpdateAsync(member);
+                    updatedMembers.Add(_mapper.Map<MemberDto>(member));
+                }
+            }
+
+            return ServiceResult<List<MemberDto>>.Success(updatedMembers);
+
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while updating the member's role.");
-            return ServiceResult<MemberDto>.Failure("An error occurred while updating the role.");
+            _logger.LogError(ex, "An error occurred while updating the members' roles.");
+            return ServiceResult<List<MemberDto>>.Failure("An error occurred while updating the roles.");
         }
     }
+
 
     public async Task<ServiceResult<string>> ChangeCreatorRole(int partyId, int newCreatorId, string currentUserId)
     {

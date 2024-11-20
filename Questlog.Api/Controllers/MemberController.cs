@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Member;
 using Questlog.Application.Services.Interfaces;
+using Questlog.Domain.Entities;
 
 namespace Questlog.Api.Controllers;
 
@@ -15,11 +17,13 @@ public class MemberController : BaseController
 {
     protected ApiResponse _response;
     private readonly IMemberService _memberService;
+    private readonly IMapper _mapper;
 
-    public MemberController(IMemberService memberService)
+    public MemberController(IMemberService memberService, IMapper mapper)
     {
         _response = new ApiResponse();
         _memberService = memberService;
+        _mapper = mapper;
     }
 
     [HttpGet("{memberId}")]
@@ -146,18 +150,18 @@ public class MemberController : BaseController
     }
 
     [HttpPost("accept-invite")]
-    public async Task<IActionResult> AcceptInvite([FromBody] AcceptInviteDto acceptInviteDto)
+    public async Task<ActionResult<ApiResponse>> AcceptInvite([FromBody] AcceptInviteDto acceptInviteDto)
     {
         var userId = HttpContext.Items["UserId"] as string;
 
         if (userId == null || string.IsNullOrWhiteSpace(userId))
         {
-            return BadRequest("User Id must be provided.");
+            return BadRequestResponse("User Id must be provided.");
         }
 
         if (acceptInviteDto == null || string.IsNullOrWhiteSpace(acceptInviteDto.Token))
         {
-            return BadRequest("Token must be provided.");
+            return BadRequestResponse("Token must be provided.");
         }
 
 
@@ -165,31 +169,31 @@ public class MemberController : BaseController
 
         if (result.IsSuccess)
         {
-            return Ok(result.Data);
+            return OkResponse(result.Data);
         }
 
-        return BadRequest(result.ErrorMessage);
+        return BadRequestResponse(result.ErrorMessage);
     }
 
     [HttpPut("update-role")]
-    public async Task<IActionResult> UpdateMemberRole([FromBody] MemberRoleDto memberRoleDto)
+    public async Task<ActionResult<ApiResponse>>  UpdateMemberRoles([FromBody] NewMemberRoleDto requestDto)
     {
         var userId = HttpContext.Items["UserId"] as string;
 
         if (userId == null || string.IsNullOrWhiteSpace(userId))
         {
-            return BadRequest("User Id must be provided.");
+            return BadRequestResponse("User Id must be provided.");
         }
 
-        var result = await _memberService.UpdateMemberRole(memberRoleDto.PartyId, memberRoleDto.MemberId,
-            memberRoleDto.Role, userId);
+        var newMemberRoles = _mapper.Map<List<MemberRole>>(requestDto.MemberRoles);
+        var result = await _memberService.UpdateMemberRoles(requestDto.PartyId, newMemberRoles, userId);
 
         if (result.IsSuccess)
         {
-            return Ok(result.Data);
+            return OkResponse(result.Data);
         }
 
-        return BadRequest(result.ErrorMessage);
+        return BadRequestResponse(result.ErrorMessage);
     }
 
     [HttpPut("change-creator")]
