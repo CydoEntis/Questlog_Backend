@@ -225,7 +225,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             PartyId = initialParty.Id,
             UserId = creatorId,
-            Role = "Creator",
+            Role = RoleConstants.Creator,
             JoinedOn = DateTime.UtcNow,
             UpdatedOn = DateTime.UtcNow
         };
@@ -361,14 +361,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             foreach (var memberUser in selectedMembers)
             {
-                var role = memberUser.Id == party.CreatorId ? "Creator" : "Member";
+                var role = memberUser.Id == party.CreatorId ? RoleConstants.Creator : RoleConstants.Member;
                 SeedMembers(party, memberUser, role);
             }
 
             if (party.CreatorId == adminUser.Id)
-                SeedMembers(party, adminUser, "Creator");
+                SeedMembers(party, adminUser, RoleConstants.Creator);
             else
-                SeedMembers(party, adminUser, "Member");
+                SeedMembers(party, adminUser, RoleConstants.Member);
 
             SeedQuests(party);
             partyCount++;
