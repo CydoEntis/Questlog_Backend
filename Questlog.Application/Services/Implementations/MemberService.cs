@@ -79,7 +79,7 @@ public class MemberService : BaseService, IMemberService
                 OrderBy = queryParams.OrderBy,
                 SortBy = queryParams.SortBy,
                 FilterDate = queryParams.FilterDate,
-                IncludeProperties = "User",
+                IncludeProperties = "User,User.Avatar",
                 Filter = c => c.PartyId == partyId
             };
 

@@ -41,44 +41,40 @@ public class MemberController : BaseController
     [HttpGet]
     public async Task<ActionResult<ApiResponse>> GetAllMembers(int partyId, [FromQuery] QueryParamsDto queryParams)
     {
-        // Validate the  Id
         if (partyId <= 0)
             return BadRequestResponse(" Id must be provided.");
 
-        // Call the service to get all guild members with the specified query parameters
         var result = await _memberService.GetAllPaginatedMembers(partyId, queryParams);
 
-        // Check for success
         if (!result.IsSuccess)
         {
             return BadRequestResponse(result.ErrorMessage);
         }
 
-        // Return successful response
         return OkResponse(result.Data);
     }
 
-
-    [HttpGet("paginated")]
-    public async Task<ActionResult<ApiResponse>> GetMembersPaginated(int partyId,
-        [FromQuery] QueryParamsDto queryParams)
-    {
-        // Validate the  Id
-        if (partyId <= 0)
-            return BadRequestResponse(" Id must be provided.");
-
-        // Call the service to get all guild members with the specified query parameters
-        var result = await _memberService.GetAllPaginatedMembers(partyId, queryParams);
-
-        // Check for success
-        if (!result.IsSuccess)
-        {
-            return BadRequestResponse(result.ErrorMessage);
-        }
-
-        // Return successful response
-        return OkResponse(result.Data);
-    }
+    //
+    // [HttpGet("paginated")]
+    // public async Task<ActionResult<ApiResponse>> GetMembersPaginated(int partyId,
+    //     [FromQuery] QueryParamsDto queryParams)
+    // {
+    //     // Validate the  Id
+    //     if (partyId <= 0)
+    //         return BadRequestResponse(" Id must be provided.");
+    //
+    //     // Call the service to get all guild members with the specified query parameters
+    //     var result = await _memberService.GetAllPaginatedMembers(partyId, queryParams);
+    //
+    //     // Check for success
+    //     if (!result.IsSuccess)
+    //     {
+    //         return BadRequestResponse(result.ErrorMessage);
+    //     }
+    //
+    //     // Return successful response
+    //     return OkResponse(result.Data);
+    // }
 
 
     [HttpPost]
@@ -174,7 +170,7 @@ public class MemberController : BaseController
 
         return BadRequest(result.ErrorMessage);
     }
-    
+
     [HttpPut("update-role")]
     public async Task<IActionResult> UpdateMemberRole([FromBody] MemberRoleDto memberRoleDto)
     {
@@ -185,7 +181,8 @@ public class MemberController : BaseController
             return BadRequest("User Id must be provided.");
         }
 
-        var result = await _memberService.UpdateMemberRole(memberRoleDto.PartyId, memberRoleDto.MemberId, memberRoleDto.Role, userId);
+        var result = await _memberService.UpdateMemberRole(memberRoleDto.PartyId, memberRoleDto.MemberId,
+            memberRoleDto.Role, userId);
 
         if (result.IsSuccess)
         {
@@ -194,7 +191,7 @@ public class MemberController : BaseController
 
         return BadRequest(result.ErrorMessage);
     }
-    
+
     [HttpPut("change-creator")]
     public async Task<IActionResult> ChangeCreator([FromBody] ChangeCreatorDto creatorDto)
     {
