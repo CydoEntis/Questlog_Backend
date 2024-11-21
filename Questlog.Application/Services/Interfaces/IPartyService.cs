@@ -18,4 +18,6 @@ public interface IPartyService
         UpdatePartyDto requestDto, string userId);
 
     Task<ServiceResult<int>> DeleteParty(int partyId);
+
+    Task<ServiceResult<PartyDto>> ChangePartyCreator(ChangePartyCreatorDto dto, string userId);
 }

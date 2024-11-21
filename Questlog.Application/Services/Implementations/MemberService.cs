@@ -258,8 +258,9 @@ public class MemberService : BaseService, IMemberService
                 return ServiceResult<List<MemberDto>>.Failure("User lacks role to update members");
 
             var memberIds = updatedMemberRoles.Select(m => m.Id).ToList();
-            
-            var membersToUpdate = await _unitOfWork.Member.GetAllAsync(m => m.PartyId == partyId && memberIds.Contains(m.Id), includeProperties: "User,User.Avatar");
+
+            var membersToUpdate = await _unitOfWork.Member.GetAllAsync(
+                m => m.PartyId == partyId && memberIds.Contains(m.Id), includeProperties: "User,User.Avatar");
             if (membersToUpdate == null || !membersToUpdate.Any())
                 return ServiceResult<List<MemberDto>>.Failure("No matching members found for the provided IDs.");
 
@@ -279,7 +280,6 @@ public class MemberService : BaseService, IMemberService
             }
 
             return ServiceResult<List<MemberDto>>.Success(updatedMembers);
-
         }
         catch (Exception ex)
         {
@@ -289,47 +289,52 @@ public class MemberService : BaseService, IMemberService
     }
 
 
-    public async Task<ServiceResult<string>> ChangeCreatorRole(int partyId, int newCreatorId, string currentUserId)
+    public async Task<ServiceResult<List<MemberDto>>> ChangeCreatorRole(ChangeCreatorDto dto, string currentUserId)
     {
-        var partyValidation = ValidationHelper.ValidateId(partyId, nameof(partyId));
-        var newCreatorValidation = ValidationHelper.ValidateId(newCreatorId, nameof(newCreatorId));
+        var partyValidation = ValidationHelper.ValidateId(dto.PartyId, nameof(dto.PartyId));
+        var newCreatorValidation = ValidationHelper.ValidateId(dto.NewCreatorId, nameof(dto.NewCreatorId));
         if (!partyValidation.IsSuccess || !newCreatorValidation.IsSuccess)
-            return ServiceResult<string>.Failure("Invalid party or member ID.");
+            return ServiceResult<List<MemberDto>>.Failure("Invalid party or member ID.");
 
         try
         {
             var currentCreator =
-                await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.UserId == currentUserId);
+                await _unitOfWork.Member.GetAsync(m => m.PartyId == dto.PartyId && m.UserId == currentUserId,
+                    includeProperties: "User,User.Avatar");
             if (currentCreator == null || currentCreator.Role != RoleConstants.Creator)
-                return ServiceResult<string>.Failure("Only the current 'Creator' can transfer the 'Creator' role.");
+                return ServiceResult<List<MemberDto>>.Failure(
+                    "Only the current 'Creator' can transfer the 'Creator' role.");
 
-            var newCreator = await _unitOfWork.Member.GetAsync(m => m.PartyId == partyId && m.Id == newCreatorId);
+            var newCreator = await _unitOfWork.Member.GetAsync(
+                m => m.PartyId == dto.PartyId && m.Id == dto.NewCreatorId, includeProperties: "User,User.Avatar");
             if (newCreator == null)
-                return ServiceResult<string>.Failure("New creator not found.");
+                return ServiceResult<List<MemberDto>>.Failure("New creator not found.");
 
-            var party = await _unitOfWork.Party.GetAsync(p => p.Id == partyId);
+            var party = await _unitOfWork.Party.GetAsync(p => p.Id == dto.PartyId);
             if (party == null)
-                return ServiceResult<string>.Failure("Party not found.");
+                return ServiceResult<List<MemberDto>>.Failure("Party not found.");
 
-            currentCreator.Role = RoleConstants.Member;
+            currentCreator.Role = dto.OldCreatorRole;
             newCreator.Role = RoleConstants.Creator;
             currentCreator.UpdatedOn = DateTime.UtcNow;
             newCreator.UpdatedOn = DateTime.UtcNow;
 
-            party.CreatorId = newCreator.UserId;
-            party.UpdatedAt = DateTime.UtcNow;
-
             await _unitOfWork.Member.UpdateAsync(currentCreator);
             await _unitOfWork.Member.UpdateAsync(newCreator);
-            await _unitOfWork.Party.UpdateAsync(party);
 
-            return ServiceResult<string>.Success(
-                $"Role transferred. {newCreator.User.DisplayName} is now the 'Creator'.");
+            var oldCreatorDto = _mapper.Map<MemberDto>(currentCreator);
+            var newCreatorDto = _mapper.Map<MemberDto>(newCreator);
+
+            var updatedMembers = new List<MemberDto>();
+            updatedMembers.Add(oldCreatorDto);
+            updatedMembers.Add(newCreatorDto);
+
+            return ServiceResult<List<MemberDto>>.Success(updatedMembers);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while transferring the creator role.");
-            return ServiceResult<string>.Failure("An error occurred while transferring the creator role.");
+            return ServiceResult<List<MemberDto>>.Failure("An error occurred while transferring the creator role.");
         }
     }
 }

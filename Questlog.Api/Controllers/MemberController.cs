@@ -197,22 +197,22 @@ public class MemberController : BaseController
     }
 
     [HttpPut("change-creator")]
-    public async Task<IActionResult> ChangeCreator([FromBody] ChangeCreatorDto creatorDto)
+    public async Task<ActionResult<ApiResponse>> ChangeCreator([FromBody] ChangeCreatorDto creatorDto)
     {
         var userId = HttpContext.Items["UserId"] as string;
 
         if (userId == null || string.IsNullOrWhiteSpace(userId))
         {
-            return BadRequest("User Id must be provided.");
+            return BadRequestResponse("User Id must be provided.");
         }
 
-        var result = await _memberService.ChangeCreatorRole(creatorDto.PartyId, creatorDto.NewCreatorId, userId);
+        var result = await _memberService.ChangeCreatorRole(creatorDto, userId);
 
         if (result.IsSuccess)
         {
-            return Ok(result.Data);
+            return OkResponse(result.Data);
         }
 
-        return BadRequest(result.ErrorMessage);
+        return BadRequestResponse(result.ErrorMessage);
     }
 }

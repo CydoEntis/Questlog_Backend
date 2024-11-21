@@ -26,5 +26,6 @@ public interface IMemberService
     Task<ServiceResult<string>> AcceptInvite(string token, string userId);
     Task<ServiceResult<List<MemberDto>>> UpdateMemberRoles(int partyId,
         List<MemberRole> updatedMemberRoles, string currentUserId);
-    Task<ServiceResult<string>> ChangeCreatorRole(int partyId, int newCreatorId, string currentUserId);
+
+    Task<ServiceResult<List<MemberDto>>> ChangeCreatorRole(ChangeCreatorDto dto, string currentUserId);
 }

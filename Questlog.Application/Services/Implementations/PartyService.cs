@@ -221,6 +221,43 @@ public class PartyService : BaseService, IPartyService
             return ServiceResult<int>.Success(foundParty.Id);
         });
     }
+    
+    public async Task<ServiceResult<PartyDto>> ChangePartyCreator(ChangePartyCreatorDto dto, string userId)
+    {
+        try
+        {
+            
+            var userValidationResult = await ValidationHelper.ValidateUserIdAsync(userId, _userManager);
+            if (!userValidationResult.IsSuccess)
+                return ServiceResult<PartyDto>.Failure(userValidationResult.ErrorMessage);
+            
+            var partyIdValidationResult = ValidationHelper.ValidateId(dto.PartyId, "Party Id");
+            if (!partyIdValidationResult.IsSuccess)
+                return ServiceResult<PartyDto>.Failure(partyIdValidationResult.ErrorMessage);
+
+
+            var foundParty = await _unitOfWork.Party.GetAsync(g => g.Id == dto.PartyId);
+            if (foundParty == null)
+                return ServiceResult<PartyDto>.Failure("Party not found.");
+            
+            var foundMember = await _unitOfWork.Member.GetAsync(p => p.Id == dto.MemberId);
+            if (foundMember == null)
+                return ServiceResult<PartyDto>.Failure("Member not found.");
+
+            foundParty.CreatorId = foundMember.UserId;
+            await _unitOfWork.SaveAsync();
+
+            var partyDto = _mapper.Map<PartyDto>(foundParty);
+            
+            return ServiceResult<PartyDto>.Success(partyDto);
+
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<PartyDto>.Failure(ex.InnerException.ToString());
+        }
+
+    }
 
     private async Task<bool> IsUserPartyOwner(int partyId, string userId)
     {

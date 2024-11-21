@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
+using Questlog.Application.Common.DTOs.Member;
 using Questlog.Application.Common.DTOs.Party;
 using Questlog.Application.Services.Interfaces;
 
@@ -121,6 +122,32 @@ public class PartyController : BaseController
         if (partyId <= 0) return BadRequestResponse("Party Id must be provided.");
 
         var result = await _partyService.DeleteParty(partyId);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequestResponse(result.ErrorMessage);
+        }
+
+        return OkResponse(result.Data);
+    }
+    
+    
+    [HttpPut("{partyId}/change-creator")]
+    public async Task<ActionResult<ApiResponse>> UpdatePartyDetails([FromBody] ChangePartyCreatorDto dto)
+    {
+        if (dto == null)
+        {
+            return BadRequestResponse("UpdateCampaignRequestDTO cannot be null.");
+        }
+
+        string userId = HttpContext.Items["UserId"] as string;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequestResponse("User Id is missing.");
+        }
+
+        var result = await _partyService.ChangePartyCreator(dto, userId);
 
         if (!result.IsSuccess)
         {
