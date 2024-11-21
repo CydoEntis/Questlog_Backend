@@ -1,5 +1,6 @@
 ﻿using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Member;
+using Questlog.Application.Common.DTOs.Party;
 using Questlog.Application.Common.Models;
 using Questlog.Domain.Entities;
 
@@ -28,4 +29,6 @@ public interface IMemberService
         List<MemberRole> updatedMemberRoles, string currentUserId);
 
     Task<ServiceResult<List<MemberDto>>> ChangeCreatorRole(ChangeCreatorDto dto, string currentUserId);
+
+    Task<ServiceResult<int>> RemoveMembers(RemoveMembersDto dto, string userId);
 }

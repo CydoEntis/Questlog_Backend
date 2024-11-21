@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Questlog.Api.Models;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Member;
+using Questlog.Application.Common.DTOs.Party;
 using Questlog.Application.Services.Interfaces;
 using Questlog.Domain.Entities;
 
@@ -207,6 +208,27 @@ public class MemberController : BaseController
         }
 
         var result = await _memberService.ChangeCreatorRole(creatorDto, userId);
+
+        if (result.IsSuccess)
+        {
+            return OkResponse(result.Data);
+        }
+
+        return BadRequestResponse(result.ErrorMessage);
+    }
+    
+    [HttpDelete]
+    public async Task<ActionResult<ApiResponse>> RemoveMembers([FromBody] RemoveMembersDto dto)
+    {
+
+        var userId = HttpContext.Items["UserId"] as string;
+
+        if (userId == null || string.IsNullOrWhiteSpace(userId))
+        {
+            return BadRequestResponse("User Id must be provided.");
+        }
+
+        var result = await _memberService.RemoveMembers(dto, userId);
 
         if (result.IsSuccess)
         {

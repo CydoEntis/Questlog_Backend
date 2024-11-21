@@ -10,6 +10,7 @@ using Questlog.Domain.Entities;
 using Questlog.Application.Common;
 using Questlog.Application.Common.DTOs;
 using Questlog.Application.Common.DTOs.Member;
+using Questlog.Application.Common.DTOs.Party;
 using Questlog.Application.Common.Extensions;
 
 namespace Questlog.Application.Services.Implementations;
@@ -158,20 +159,20 @@ public class MemberService : BaseService, IMemberService
         var partyIdValidationResult = ValidationHelper.ValidateId(partyId, nameof(partyId));
         if (!partyIdValidationResult.IsSuccess)
             return ServiceResult<int>.Failure(partyIdValidationResult.ErrorMessage);
-
+    
         var memberIdValidationResult = ValidationHelper.ValidateId(guildMemberId, nameof(guildMemberId));
         if (!memberIdValidationResult.IsSuccess)
             return ServiceResult<int>.Failure(memberIdValidationResult.ErrorMessage);
-
+    
         return await HandleExceptions<int>(async () =>
         {
             var foundMember =
                 await _unitOfWork.Member.GetAsync(gm => gm.Id == guildMemberId && gm.PartyId == partyId);
             if (foundMember == null)
                 return ServiceResult<int>.Failure(" Member not found");
-
+    
             await _unitOfWork.Member.RemoveAsync(foundMember);
-
+    
             return ServiceResult<int>.Success(foundMember.Id);
         });
     }
@@ -337,4 +338,50 @@ public class MemberService : BaseService, IMemberService
             return ServiceResult<List<MemberDto>>.Failure("An error occurred while transferring the creator role.");
         }
     }
+public async Task<ServiceResult<int>> RemoveMembers(RemoveMembersDto dto, string userId)
+{
+    try
+    {
+        var partyIdValidationResult = ValidationHelper.ValidateId(dto.PartyId, nameof(dto.PartyId));
+        if (!partyIdValidationResult.IsSuccess)
+            return ServiceResult<int>.Failure(partyIdValidationResult.ErrorMessage);
+
+        var currentMember = await _unitOfWork.Member.GetAsync(m => m.UserId == userId);
+        if (currentMember == null)
+            return ServiceResult<int>.Failure("User not found.");
+
+        if (currentMember.Role != RoleConstants.Maintainer && currentMember.Role != RoleConstants.Creator)
+            return ServiceResult<int>.Failure("User does not have permission to remove members.");
+
+        var membersToRemove =
+            await _unitOfWork.Member.GetAllAsync(m => dto.MemberIds.Contains(m.Id) && m.PartyId == dto.PartyId);
+
+        if (membersToRemove == null || !membersToRemove.Any())
+            return ServiceResult<int>.Failure("No members found to remove.");
+
+        var memberQuestEntitiesToRemove = await _unitOfWork.MemberQuest.GetAllAsync(mq => dto.MemberIds.Contains(mq.AssignedMemberId));
+        if (memberQuestEntitiesToRemove != null && memberQuestEntitiesToRemove.Any())
+        {
+            foreach (var memberQuest in memberQuestEntitiesToRemove)
+            {
+                await _unitOfWork.MemberQuest.RemoveAsync(memberQuest); 
+            }
+        }
+
+        foreach (var member in membersToRemove)
+        {
+            await _unitOfWork.Member.RemoveAsync(member);
+        }
+
+        await _unitOfWork.SaveAsync();
+
+        return ServiceResult<int>.Success(membersToRemove.Count());
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "An error occurred while removing members.");
+        return ServiceResult<int>.Failure("An error occurred while removing members.");
+    }
+}
+
 }
